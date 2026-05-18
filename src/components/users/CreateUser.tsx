@@ -81,7 +81,7 @@ export default function CreateUser() {
         setOpen(false);
     }
 
-    const onSubmitCreateUser = () => {        
+    const onSubmitCreateUser = () => {
         const data = newUser;
         mutate(data);
     }
@@ -263,7 +263,7 @@ export default function CreateUser() {
                                     required: "El estado es requerido...",
                                 })}
                                 id="estado"
-                                className="w-full border border-gray-400 rounded-md py-1 px-2"
+                                className="w-full border border-gray-300 dark:border-gray-700 rounded-md py-1 px-2 bg-gray-100 dark:bg-gray-800"
                                 onChange={(e) => {
                                     setNewUser({ ...newUser, estado: +e.target.value });
                                 }}

@@ -31,8 +31,6 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
     const [permissionsData, setPermissionsData] = useState(data);
     const [open, setOpen] = useState(false);
 
-    console.log(id_usuario);
-
     useEffect(() => {
         if (id_usuario == "" || id_usuario == null || id_usuario == undefined) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -110,13 +108,6 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
         guardar: 0,
         modificar: 0,
     })
-    const [permisosRemisiones, setPermisosRemisiones] = useState({
-        key: 15,
-        guardar: 0,
-        modificar: 0,
-        eliminar: 0,
-        reporte: 0
-    })
 
     const [permisosInventario, setPermisosInventario] = useState({
         key: 17,
@@ -144,8 +135,6 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
         permisos_producto: [permisosProducto],
         inventario: 0,
         permisos_inventario: [permisosInventario],
-        remisiones: 0,
-        permisos_remisiones: [permisosRemisiones],
         compra: 0,
         permisos_compra: [permisosCompra],
         venta: 0,
@@ -222,7 +211,6 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
             permissionsUserAddORUpdate.permisos_categoria = [permisosCategoria];
             permissionsUserAddORUpdate.permisos_inventario = [permisosInventario];
             permissionsUserAddORUpdate.permisos_producto = [permisosProducto];
-            permissionsUserAddORUpdate.permisos_remisiones = [permisosRemisiones];
             permissionsUserAddORUpdate.permisos_compra = [permisosCompra];
             permissionsUserAddORUpdate.permisos_venta = [permisosVentas];
         }
@@ -235,7 +223,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
     if (data == undefined) return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent
-                className="[&>button]:hidden"
+                className="[&>button]:hidden h-[90%] p-4"
                 onInteractOutside={(e) => e.preventDefault()}
                 onEscapeKeyDown={(e) => e.preventDefault()}
             >
@@ -247,7 +235,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                 </DialogHeader>
                 <form
                     onSubmit={handleSubmit(onSubmitPermissions)}
-                    className="space-y-3 h-[85%] top-0 sticky"
+                    className="space-y-3 h-[50%] top-0 sticky"
                 >
                     <div
                         className="h-[90%] overflow-y-auto touch-pan-y space-y-2 scrollbar-thin-custom"
@@ -344,17 +332,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.proveedor == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_proveedor">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_proveedor">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_proveedor"
                                                     checked={permisosProveedor.guardar ? true : false}
@@ -416,17 +404,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.cliente == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_cliente">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_cliente">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_cliente"
                                                     checked={permisosCliente.guardar ? true : false}
@@ -488,17 +476,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.marca == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_marca">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_marca">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_marca"
                                                     checked={permisosMarca.guardar ? true : false}
@@ -560,17 +548,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.categoria == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_categoria">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_categoria">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_categoria"
                                                     checked={permisosCategoria.guardar ? true : false}
@@ -632,17 +620,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.producto == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_producto">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_producto">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_producto"
                                                     checked={permisosProducto.guardar ? true : false}
@@ -703,17 +691,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.inventario == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_inventario">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_inventario">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_inventario"
                                                     checked={permisosInventario.guardar ? true : false}
@@ -790,17 +778,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.compra == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_compra">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_compra">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_compra"
                                                     checked={permisosCompra.guardar ? true : false}
@@ -831,95 +819,6 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         </div>
 
                         <div className="w-full gap-x-1 flex flex-row-reverse items-center justify-end">
-                            <label className="text-left  font-bold" htmlFor="remisiones">
-                                Remisiones
-                            </label>
-                            <input
-                                className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                                type="checkbox"
-                                id="remisiones"
-                                checked={permissionsUserAddORUpdate.remisiones ? true : false}
-                                onChange={(e) => {
-                                    setPermissionsUserAddORUpdate({ ...permissionsUserAddORUpdate, remisiones: +e.target.checked });
-                                }}
-                            />
-                        </div>
-                        <div className="w-36 ml-4">
-                            {
-                                permissionsUserAddORUpdate.remisiones == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
-                                        {
-                                            <div
-                                                className="flex items-start flex-col"
-                                            >
-
-                                                <div className="flex flex-row-reverse items-center gap-x-4">
-                                                    <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_remisiones">
-                                                        Guardar
-                                                    </label>
-                                                    <input
-                                                        className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
-                                                        type="checkbox"
-                                                        id="guardar_remisiones"
-                                                        checked={permisosRemisiones.guardar ? true : false}
-                                                        onChange={(e) => {
-                                                            setPermisosRemisiones({ ...permisosRemisiones, guardar: +e.target.checked });
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                <div className="flex flex-row-reverse items-center gap-x-4">
-                                                    <label className="text-left text-green-600 font-bold" htmlFor="modificar_remisiones">
-                                                        Modificar
-                                                    </label>
-                                                    <input
-                                                        className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-green-600"
-                                                        type="checkbox"
-                                                        id="modificar_remisiones"
-                                                        checked={permisosRemisiones.modificar ? true : false}
-                                                        onChange={(e) => {
-                                                            setPermisosRemisiones({ ...permisosRemisiones, modificar: +e.target.checked });
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                <div className="flex flex-row-reverse items-center gap-x-4">
-                                                    <label className="text-left text-red-600 font-bold" htmlFor="eliminar_remisiones">
-                                                        Eliminar
-                                                    </label>
-                                                    <input
-                                                        className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-red-600"
-                                                        type="checkbox"
-                                                        id="eliminar_remisiones"
-                                                        checked={permisosRemisiones.eliminar ? true : false}
-                                                        onChange={(e) => {
-                                                            setPermisosRemisiones({ ...permisosRemisiones, eliminar: +e.target.checked });
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                <div className="flex flex-row-reverse items-center gap-x-4">
-                                                    <label className="text-left text-amber-500 font-bold" htmlFor="reporte_remisiones">
-                                                        Reporte
-                                                    </label>
-                                                    <input
-                                                        className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-amber-500"
-                                                        type="checkbox"
-                                                        id="reporte_remisiones"
-                                                        checked={permisosRemisiones.reporte ? true : false}
-                                                        onChange={(e) => {
-                                                            setPermisosRemisiones({ ...permisosRemisiones, reporte: +e.target.checked });
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                )
-                            }
-                        </div>
-
-                        <div className="w-full gap-x-1 flex flex-row-reverse items-center justify-end">
                             <label className="text-left  font-bold" htmlFor="facturacion">
                                 Venta
                             </label>
@@ -936,17 +835,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.venta == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_facturacion">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_facturacion">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_facturacion"
                                                     checked={permisosVentas.guardar ? true : false}
@@ -1035,17 +934,17 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                         <div className="w-36 ml-4">
                             {
                                 permissionsUserAddORUpdate.empresa == 1 && (
-                                    <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                    <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                         <div
                                             className="flex items-start flex-col"
                                         >
 
                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_empresa">
+                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_empresa">
                                                     Guardar
                                                 </label>
                                                 <input
-                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                     type="checkbox"
                                                     id="guardar_empresa"
                                                     checked={permisosEmpresa.guardar ? true : false}
@@ -1079,7 +978,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                     </div>
                     <button
                         type="submit"
-                        className="w-full mt-4 md:w-auto mx-auto border border-gray-500 py-2 px-4 bg-gray-100 rounded-md flex items-center justify-center gap-x-4 font-bold hover:bg-gray-300 transition-all duration-200"
+                        className="w-full mt-4 md:w-auto mx-auto border border-gray-300 dark:border-gray-700 py-2 px-4 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center gap-x-4 font-bold hover:bg-gray-300 transition-all duration-200"
                         aria-label="Close"
                     >
                         <Save className="size-5" />
@@ -1106,7 +1005,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
     if (data) return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent
-                className="[&>button]:hidden"
+                className="[&>button]:hidden h-[90%] p-4"
                 onInteractOutside={(e) => e.preventDefault()}
                 onEscapeKeyDown={(e) => e.preventDefault()}
             >
@@ -1118,7 +1017,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                 </DialogHeader>
                 <form
                     onSubmit={handleSubmit(onSubmitPermissions)}
-                    className="space-y-3 h-[85%] top-0 sticky"
+                    className="space-y-3 h-[50%] top-0 sticky"
                 >
                     {
                         permissionsData?.map((permission) => (
@@ -1146,7 +1045,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.usuario == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_usuario.map((permisionCRUD) => (
                                                         <div
@@ -1155,11 +1054,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_usuario">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_usuario">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_usuario"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1229,7 +1128,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.proveedor == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_proveedor.map((permisionCRUD) => (
                                                         <div
@@ -1238,11 +1137,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_proveedor">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_proveedor">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_proveedor"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1312,7 +1211,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.cliente == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_cliente.map((permisionCRUD) => (
                                                         <div
@@ -1321,11 +1220,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_cliente">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_cliente">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_cliente"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1395,7 +1294,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.marca == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_marca.map((permisionCRUD) => (
                                                         <div
@@ -1404,11 +1303,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_marca">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_marca">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_marca"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1478,7 +1377,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.categoria == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_categoria.map((permisionCRUD) => (
                                                         <div
@@ -1487,11 +1386,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_categoria">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_categoria">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_categoria"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1561,7 +1460,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.producto == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_producto.map((permisionCRUD) => (
                                                         <div
@@ -1570,11 +1469,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_producto">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_producto">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_producto"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1644,7 +1543,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.inventario == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_inventario.map((permisionCRUD) => (
                                                         <div
@@ -1653,11 +1552,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_inventario">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_inventario">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_inventario"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1743,7 +1642,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.compra == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_compra.map((permisionCRUD) => (
                                                         <div
@@ -1752,11 +1651,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_compra">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_compra">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_compra"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1795,7 +1694,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 {/* Pemission billing */}
                                 <div className="w-full gap-x-1 flex flex-row-reverse items-center justify-end">
                                     <label className="text-left  font-bold" htmlFor="venta">
-                                        Facturación
+                                        Venta
                                     </label>
                                     <input
                                         className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
@@ -1812,7 +1711,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.venta == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_venta.map((permisionCRUD) => (
                                                         <div
@@ -1821,11 +1720,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_venta">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_venta">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_venta"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1933,7 +1832,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                 <div className="w-36 ml-4">
                                     {
                                         permission.empresa == 1 && (
-                                            <div className="bg-slate-50 h-auto border border-gray-300 rounded-b-md w-auto px-4">
+                                            <div className="bg-slate-50 dark:bg-slate-800 h-auto border border-gray-300 dark:border-gray-700 rounded-b-md w-auto px-4">
                                                 {
                                                     permission.permisos_empresa.map((permisionCRUD) => (
                                                         <div
@@ -1942,11 +1841,11 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                                                         >
 
                                                             <div className="flex flex-row-reverse items-center gap-x-4">
-                                                                <label className="text-left text-cyan-600 font-bold" htmlFor="guardar_empresa">
+                                                                <label className="text-left text-cyan-600 dark:text-cyan-300 font-bold" htmlFor="guardar_empresa">
                                                                     Guardar
                                                                 </label>
                                                                 <input
-                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600"
+                                                                    className="py-1 px-4 font-normal text-base border border-gray-500 rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800 accent-cyan-600 dark:accent-cyan-300"
                                                                     type="checkbox"
                                                                     id="guardar_empresa"
                                                                     checked={permisionCRUD.guardar ? true : false}
@@ -1985,7 +1884,7 @@ export default function AddOrEditPermissionsUser({ onClose }: { onClose: () => v
                     }
                     <button
                         type="submit"
-                        className="w-full mt-4 md:w-auto mx-auto border border-gray-500 py-2 px-4 bg-gray-100 rounded-md flex items-center justify-center gap-x-4 font-bold hover:bg-gray-300 transition-all duration-200"
+                        className="w-full mt-4 md:w-auto mx-auto border border-gray-300 dark:border-gray-700 py-2 px-4 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center gap-x-4 font-bold hover:bg-gray-300 transition-all duration-200"
                         aria-label="Close"
                     >
                         <Save className="size-5" />

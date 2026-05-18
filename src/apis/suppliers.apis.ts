@@ -1,15 +1,15 @@
 import { isAxiosError } from "axios";
 import api from "../lib/axios";
-import { 
-    supplierDataSchema,     
-    type Supplier, 
-    type SupplierFormDataAdd, 
-    type SupplierFormDataEdit, 
-    type SupplierFormDataInfo 
+import {
+    supplierDataSchema,
+    type Supplier,
+    type SupplierFormDataAdd,
+    type SupplierFormDataEdit,
+    type SupplierFormDataInfo
 } from "@/types/suppliers.interface";
 
 // * Get all suppliers
-export async function getSupplierPagination() {
+export async function getAllSupplier() {
     try {
         const { data } = await api("/suppliers/");
         const response = supplierDataSchema.safeParse(data)
@@ -18,22 +18,7 @@ export async function getSupplierPagination() {
         }
     } catch (error) {
         if (isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.error);
-        }
-    }
-}
-
-// * Get all active suppliers
-export async function getAllActiveSupplier() {
-    try {
-        const { data } = await api("/suppliers/activeSuppliers")
-        const response = supplierDataSchema.safeParse(data)
-        if (response.success) {
-            return response.data;
-        }
-    } catch (error) {
-        if (isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.error);
+            throw error.response?.data;
         }
     }
 }
@@ -48,7 +33,7 @@ export async function getSupplierById({ id }: Pick<SupplierFormDataInfo, "id">) 
         }
     } catch (error) {
         if (isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.error);
+            throw error.response?.data;
         }
     }
 }
@@ -60,7 +45,7 @@ export async function createSupplier(formData: SupplierFormDataAdd) {
         return data
     } catch (error) {
         if (isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.error);
+            throw error.response?.data;
         }
     }
 }
@@ -77,7 +62,7 @@ export async function updateSupplier({ supplierId, formData }: Pick<SupplierAPIT
         return data
     } catch (error) {
         if (isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.error);
+            throw error.response?.data;
         }
     }
 }
@@ -89,7 +74,7 @@ export async function deleteSupplier(supplierId: Supplier["id"]) {
         return data;
     } catch (error) {
         if (isAxiosError(error) && error.response) {
-            throw new Error(error.response.data.error);
+            throw error.response?.data;
         }
     }
 }

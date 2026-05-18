@@ -16,7 +16,7 @@ export async function getUsers() {
     try {
         const { data } = await api("/users")
         const response = userDataSchema.safeParse(data);
-        
+
         if (response.success) {
             return response.data;
         }
@@ -48,7 +48,7 @@ export async function createUser(formData: UserFormDataAdd) {
         const { data } = await api.post("/users/createUser", formData);
         return data
     } catch (error) {
-        
+
         if (isAxiosError(error) && error.response) {
             throw error.response?.data;
         }
@@ -128,6 +128,7 @@ export async function getPermissionsUser({ id_usuario }: Pick<PermissionsUserFor
 export async function addOrUpdatePermissionsUser({ formData, id_usuario }: Pick<PermissonsUserAPIType, "formData" | "id_usuario">) {
     try {
         const { data } = await api.post<string>(`/users/createPermissions/${id_usuario}`, formData);
+        console.log(data);
         return data
     } catch (error) {
         if (isAxiosError(error) && error.response) {

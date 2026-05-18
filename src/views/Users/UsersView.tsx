@@ -27,7 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { BadgeCheck, Ellipsis, Loader2, MessageCircleQuestion, Search, Trash, UserPenIcon, UserRoundCog } from "lucide-react";
+import { BadgeCheck, Ban, Ellipsis, Loader2, MessageCircleQuestion, Search, Trash, UserPenIcon, UserRoundCog } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import ToogleFieldsDialogUser from "@/components/users/ToogleFieldsDialogUser";
 import { toast } from "sonner";
@@ -249,7 +249,7 @@ export default function UsersView({ dataAuth }: { dataAuth: AuthPermissions }) {
                             showFields.includes("Estado") &&
                             <TableCell>
                               <Badge variant={user.estado == 1 ? "secondary" : "destructive"}>
-                                <BadgeCheck className="inline-start" />
+                                {user.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
                                 {user.estado == 1 ? "Activo" : "Inactivo"}
                               </Badge>
                             </TableCell>

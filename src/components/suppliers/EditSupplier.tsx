@@ -10,22 +10,24 @@ import ErrorMessage from "../error-message";
 import { stateValue } from "@/types/state.interface";
 import type { ErrorData } from "@/types/errors.interface";
 import { toast } from "sonner";
+import type { SupplierFormDataEdit } from "@/types/suppliers.interface";
+import { getSupplierById } from "@/apis/suppliers.apis";
 
-export default function EditUser({ user, onClose }: { user: UserFormDataEdit, onClose: () => void }) {
+export default function EditSupplier({ supplier, onClose }: { supplier: SupplierFormDataEdit, onClose: () => void }) {
     const navigate = useNavigate()
     const location = useLocation()
     const queryParams = new URLSearchParams(location.search)
-    const userId = queryParams.get("editUser")!;
+    const userId = queryParams.get("editSupplier")!;
 
     const { data } = useQuery({
-        queryKey: ["users", userId],
-        queryFn: () => getUserById({ id: userId }),
+        queryKey: ["suppliers", userId],
+        queryFn: () => getSupplierById({ id: userId }),
         enabled: !!userId,
         retry: false
     });
 
     const [open, setOpen] = useState(false);
-    const [editedUser, setEditedUser] = useState(user);
+    const [editedSupplier, setEditedSupplier] = useState(supplier);
 
     const queryClient = useQueryClient();
 
@@ -42,8 +44,8 @@ export default function EditUser({ user, onClose }: { user: UserFormDataEdit, on
             });
         },
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["users"] })
-            queryClient.invalidateQueries({ queryKey: ["editUser", userId] })
+            queryClient.invalidateQueries({ queryKey: ["suppliers"] })
+            queryClient.invalidateQueries({ queryKey: ["editSupplier", userId] })
             toast.success(data, {
                 position: "top-right",
                 closeButton: true,

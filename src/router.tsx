@@ -9,6 +9,8 @@ import RequestCodeView from "./views/Auth/RequestCodeView";
 import NewpasswordView from "./views/Auth/NewpasswordView";
 import UsersView from "./views/Users/UsersView";
 import DashboardView from "./views/DashboardView";
+import SuppliersView from "./views/Suppliers/SuppliersView";
+import CustomersView from "./views/Customers/CustomersView";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -28,6 +30,12 @@ export function Router() {
           <Route path="/" element={<DashboardView />} />
           {
             dataAuth?.usuario && (<Route path="/users" element={<UsersView dataAuth={dataAuth} />} />)
+          }
+          {
+            dataAuth?.proveedor && (<Route path="/suppliers" element={<SuppliersView dataAuth={dataAuth} />} />)
+          }
+          {
+            dataAuth?.cliente && (<Route path="/customers" element={<CustomersView dataAuth={dataAuth} />} />)
           }
         </Route>
       </Routes>

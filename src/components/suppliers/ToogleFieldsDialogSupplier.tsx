@@ -9,7 +9,7 @@ import {
 import { Save } from "lucide-react";
 import { useState } from "react";
 
-export default function ToogleFieldsDialogUser({ showFields, setShowFields }: { showFields: string[], setShowFields: (fields: string[]) => void }) {
+export default function ToogleFieldsDialogSupplier({ showFields, setShowFields }: { showFields: string[], setShowFields: (fields: string[]) => void }) {
     const [allFields] = useState<string[]>([
         "Código",
         "RUC",
@@ -20,7 +20,6 @@ export default function ToogleFieldsDialogUser({ showFields, setShowFields }: { 
         "Telefono",
         "Estado",
         "Fecha creación",
-        "Fecha modificación",
         "Usuario creador",
         "Usuario modificador"
     ]);
