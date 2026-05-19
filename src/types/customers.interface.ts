@@ -11,13 +11,7 @@ const customerShema = z.object({
     correo_cliente: z.string(),
     direccion_cliente: z.string(),
     ciudad_cliente: z.string(),
-    ruc: z.string().optional(),
-    acceso_precio1: z.number().optional().nullable(),
-    acceso_precio2: z.number().optional().nullable(),
-    acceso_precio3: z.number().optional().nullable(),
-    acceso_precio4: z.number().optional().nullable(),
-    cantidad_acceso_precios: z.number().optional().nullable(),
-    contacto: z.string(),
+    ruc_cliente: z.string().optional(),    
     estado: z.number(),
     fecha_creacion: z.string(),
     fecha_modificacion: z.string(),
@@ -36,16 +30,11 @@ export const customerDataSchema = z.array(
         celular_cliente: true,
         correo_cliente: true,
         direccion_cliente: true,
-        ciudad_cliente: true,
-        acceso_precio1: true,
-        acceso_precio2: true,
-        acceso_precio3: true,
-        acceso_precio4: true,
-        cantidad_acceso_precios: true,
-        ruc: true,
-        contacto: true,
+        ciudad_cliente: true,        
+        ruc_cliente: true,        
         estado: true,
         fecha_creacion: true,
+        fecha_modificacion: true,
         usuario_creador: true,
         nombre_usuario_creador: true,
         nombre_usuario_modificador: true
@@ -63,14 +52,8 @@ const customerFormShema = z.object({
     celular_cliente: z.string(),
     correo_cliente: z.string(),
     direccion_cliente: z.string(),
-    ciudad_cliente: z.string(),
-    acceso_precio1: z.number().optional().nullable(),
-    acceso_precio2: z.number().optional().nullable(),
-    acceso_precio3: z.number().optional().nullable(),
-    acceso_precio4: z.number().optional().nullable(),
-    cantidad_acceso_precios: z.number().optional().nullable(),
-    ruc: z.string().optional(),
-    contacto: z.string(),
+    ciudad_cliente: z.string(),    
+    ruc_cliente: z.string().optional(),    
     estado: z.number(),
     termino_venta: z.string(),
     limite_credito: z.string(),
@@ -89,14 +72,8 @@ export const brandFormDataSchema = z.array(
         celular_cliente: true,
         correo_cliente: true,
         direccion_cliente: true,
-        ciudad_cliente: true,
-        acceso_precio1: true,
-        acceso_precio2: true,
-        acceso_precio3: true,
-        acceso_precio4: true,
-        cantidad_acceso_precios: true,
-        ruc: true,
-        contacto: true,
+        ciudad_cliente: true,        
+        ruc_cliente: true,        
         estado: true,
         termino_venta: true,
         limite_credito: true,
@@ -113,17 +90,11 @@ export type CustomerFormData = Pick<CustomerData,
     "codigo_cliente" |
     "nombre_cliente" |
     "telefono_cliente" |
-    "celular_cliente" |
-    "acceso_precio1" |
-    "acceso_precio2" |
-    "acceso_precio3" |
-    "acceso_precio4" |
-    "cantidad_acceso_precios" |
+    "celular_cliente" |    
     "correo_cliente" |
     "direccion_cliente" |
     "ciudad_cliente" |
-    "ruc" |
-    "contacto" |
+    "ruc_cliente" |    
     "estado"
 >;
 
@@ -132,16 +103,10 @@ export type CustomerFormDataAdd = Pick<CustomerData,
     "nombre_cliente" |
     "telefono_cliente" |
     "celular_cliente" |
-    "correo_cliente" |
-    "acceso_precio1" |
-    "acceso_precio2" |
-    "acceso_precio3" |
-    "acceso_precio4" |
-    "cantidad_acceso_precios" |
+    "correo_cliente" |    
     "direccion_cliente" |
     "ciudad_cliente" |
-    "ruc" |
-    "contacto" |
+    "ruc_cliente" |    
     "estado" |
     "usuario_creador"
 >;
@@ -151,16 +116,10 @@ export type CustomerFormDataInfo = Pick<CustomerData,
     "nombre_cliente" |
     "telefono_cliente" |
     "celular_cliente" |
-    "correo_cliente" |
-    "acceso_precio1" |
-    "acceso_precio2" |
-    "acceso_precio3" |
-    "acceso_precio4" |
-    "cantidad_acceso_precios" |
+    "correo_cliente" |    
     "direccion_cliente" |
     "ciudad_cliente" |
-    "ruc" |
-    "contacto" |
+    "ruc_cliente" |    
     "estado"
 >;
 
@@ -170,15 +129,9 @@ export type CustomerFormDataEdit = Pick<CustomerData,
     "telefono_cliente" |
     "celular_cliente" |
     "correo_cliente" |
-    "direccion_cliente" |
-    "acceso_precio1" |
-    "acceso_precio2" |
-    "acceso_precio3" |
-    "acceso_precio4" |
-    "cantidad_acceso_precios" |
+    "direccion_cliente" |    
     "ciudad_cliente" |
-    "ruc" |
-    "contacto" |
+    "ruc_cliente" |    
     "estado" |
     "usuario_modificador"
 >;

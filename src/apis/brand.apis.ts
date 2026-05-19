@@ -5,15 +5,14 @@ import {
     type BrandFormData,
     type BrandFormDataEdit,
     type Brand,
-    type BrandFormDataAdd,
-    brandDataSchemaPagination,
+    type BrandFormDataAdd,    
 } from "@/types/brand.interface";
 
 // * Get all brands
-export async function getBrandsPagination() {
+export async function getBrands() {
     try {
         const { data } = await api("/brands");
-        const response = brandDataSchemaPagination.safeParse(data)
+        const response = brandDataSchema.safeParse(data)
         if (response.success) {
             return response.data;
         }

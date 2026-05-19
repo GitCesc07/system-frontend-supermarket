@@ -20,6 +20,7 @@ export default function ToogleFieldsDialogSupplier({ showFields, setShowFields }
         "Telefono",
         "Estado",
         "Fecha creación",
+        "Fecha modificación",
         "Usuario creador",
         "Usuario modificador"
     ]);

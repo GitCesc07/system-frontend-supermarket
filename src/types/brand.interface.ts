@@ -8,6 +8,7 @@ const brandShema = z.object({
   descripcion: z.string(),
   estado: z.number(),
   fecha_creacion: z.string(),
+  fecha_modificacion: z.string(),
   nombre_usuario_creador: z.string().optional(),
   nombre_usuario_modificador: z.string().optional()
 });
@@ -19,26 +20,11 @@ export const brandDataSchema = z.array(
     descripcion: true,
     estado: true,
     fecha_creacion: true,
+    fecha_modificacion: true,
     nombre_usuario_creador: true,
     nombre_usuario_modificador: true
   })
 );
-
-export const brandDataSchemaPagination = z.object({
-  result: brandDataSchema,
-  totalCount: z.number(),
-  page: z.number(),
-  totalPages: z.number()
-});
-
-export const brandDataSchemaPaginationData = brandDataSchemaPagination.pick({
-  result: true,
-  totalCount: true,
-  page: true,
-  totalPages: true,
-});
-
-export type BrandPaginationData = z.infer<typeof brandDataSchemaPagination>;
 
 export type Brand = z.infer<typeof brandShema>;
 

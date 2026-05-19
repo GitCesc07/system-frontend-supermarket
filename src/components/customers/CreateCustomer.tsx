@@ -1,37 +1,38 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Edit, X } from "lucide-react";
-import { stateValue } from "@/types/state.interface";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Plus, Save } from "lucide-react";
 import type { ErrorData } from "@/types/errors.interface";
 import { toast } from "sonner";
-import type { SupplierFormDataEdit } from "@/types/suppliers.interface";
-import { getSupplierById, updateSupplier } from "@/apis/suppliers.apis";
+import type { SupplierFormDataAdd } from "@/types/suppliers.interface";
+import { stateValue } from "@/types/state.interface";
+import { createCustomer } from "@/apis/customers.interface";
 
-export default function EditSupplier({ supplier, onClose }: { supplier: SupplierFormDataEdit, onClose: () => void }) {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const queryParams = new URLSearchParams(location.search)
-    const supplierId = queryParams.get("editSupplier")!;
-
-    console.log(supplierId);
-
-    const { data } = useQuery({
-        queryKey: ["suppliers", supplierId],
-        queryFn: () => getSupplierById({ id: supplierId }),
-        enabled: !!supplierId,
-        retry: false
-    });
+export default function CreateCustomer() {
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const [open, setOpen] = useState(false);
-    const [editeSupplier, setEditeSupplier] = useState(supplier);
 
-    const queryClient = useQueryClient();
+    const [newCustomer, setNewCustomer] = useState({
+        codigo_cliente: '',
+        nombre_cliente: '',
+        direccion_cliente: '',
+        ciudad_cliente: '',
+        correo_cliente: '',
+        telefono_cliente: '',
+        celular_cliente: '',
+        ruc_cliente: '',        
+        estado: 1,
+        usuario_creador: ''
+    })
+
+    const queryClient = useQueryClient()
 
     const { mutate } = useMutation({
-        mutationFn: updateSupplier,
+        mutationFn: createCustomer,
         onError: (error: ErrorData) => {
             toast.error(error.message, {
                 position: "top-right",
@@ -43,8 +44,7 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
             });
         },
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["suppliers"] })
-            queryClient.invalidateQueries({ queryKey: ["editSupplier", supplierId] })
+            queryClient.invalidateQueries({ queryKey: ["customers"] });
             toast.success(data, {
                 position: "top-right",
                 closeButton: true,
@@ -54,47 +54,57 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                 }
             });
             navigate(location.pathname, { replace: true });
-            reset();
-            onClose();
+            onClickClearForm();
         }
-    });
-
+    })
 
     const {
-        reset,
-        handleSubmit
-    } = useForm<SupplierFormDataEdit>();
+        handleSubmit,
+        reset
+    } = useForm<SupplierFormDataAdd>({ defaultValues: newCustomer });
 
-    useEffect(() => {
-        if (supplierId == "" || supplierId == null || supplierId == undefined) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setOpen(false);
-            reset();
-        } else {
-            setOpen(true);
-        }
-    }, [supplierId, reset])
+    function onClickClearForm() {
+        setNewCustomer({
+            codigo_cliente: '',
+            nombre_cliente: '',
+            direccion_cliente: '',
+            ciudad_cliente: '',
+            correo_cliente: '',
+            telefono_cliente: '',
+            celular_cliente: '',
+            ruc_cliente: '',            
+            estado: 1,
+            usuario_creador: ''
+        })
+        reset();
+        setOpen(false);
+    }
 
-    const onSubmitEdit = () => {
-        const formData = editeSupplier;
-        const dataSuppliers = { supplierId, formData }
-        mutate(dataSuppliers);
-    }    
-    if (data) return (
+    const onSubmitCreateSupplier = () => {
+        const data = newCustomer;
+        mutate(data);
+    }
+    return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent
-                className="[&>button]:hidden w-full md:max-w-md"
-                onInteractOutside={(e) => e.preventDefault()}
-                onEscapeKeyDown={(e) => e.preventDefault()}
+            <DialogTrigger
+                className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
+                onClick={() => {
+                    navigate(location.pathname + "?createSupplier");
+                    setOpen(true);
+                }}
             >
+                <Plus className="size-5" />
+                Crear cliente
+            </DialogTrigger>
+            <DialogContent className="w-full md:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Edita proveedor</DialogTitle>
+                    <DialogTitle>Crear cliente</DialogTitle>
                     <DialogDescription>
-                        Edita tus proveedores aquí...
+                        Crea tus clientees aquí...
                     </DialogDescription>
                 </DialogHeader>
                 <form
-                    onSubmit={handleSubmit(onSubmitEdit)}
+                    onSubmit={handleSubmit(onSubmitCreateSupplier)}
                     className="space-y-3"
                 >
                     <div className="flex flex-col md:flex-row items-center justify-center gap-y-4 md:gap-x-4">
@@ -105,11 +115,11 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                             </label>
                             <input
                                 className="py-1 px-4 font-normal border border-gray-300 dark:border-gray-700 text-base w-full rounded-md placeholder:text-gray-300"
-                                placeholder="RUC del proveedor..."
+                                placeholder="RUC del cliente..."
                                 id="ruc"
-                                value={editeSupplier.ruc_proveedor}
+                                value={newCustomer.ruc_cliente}
                                 onChange={(e) => {
-                                    setEditeSupplier({ ...editeSupplier, ruc_proveedor: e.target.value });
+                                    setNewCustomer({ ...newCustomer, ruc_cliente: e.target.value });
                                 }}
                                 required
                                 minLength={14}
@@ -119,16 +129,16 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                     </div>
 
                     <div className="w-full">
-                        <label className="w-full text-left font-bold" htmlFor="nombre_proveedor">
-                            Proveedor:
+                        <label className="w-full text-left font-bold" htmlFor="nombre_cliente">
+                            Cliente:
                         </label>
                         <input
                             className="py-1 px-4 font-normal border border-gray-300 dark:border-gray-700 text-base w-full rounded-md placeholder:text-gray-300"
-                            placeholder="Proveedor..."
-                            id="nombre_proveedor"
-                            value={editeSupplier.nombre_proveedor}
+                            placeholder="cliente..."
+                            id="nombre_cliente"
+                            value={newCustomer.nombre_cliente}
                             onChange={(e) => {
-                                setEditeSupplier({ ...editeSupplier, nombre_proveedor: e.target.value });
+                                setNewCustomer({ ...newCustomer, nombre_cliente: e.target.value });
                             }}
                             minLength={2}
                             required
@@ -139,17 +149,17 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                     <div className="flex flex-col md:flex-row items-center justify-center gap-y-4 md:gap-x-4">
 
                         <div className="w-full">
-                            <label className="w-full text-left font-bold" htmlFor="telefono_proveedor">
+                            <label className="w-full text-left font-bold" htmlFor="telefono_cliente">
                                 Teléfono:
                             </label>
                             <input
                                 className="py-1 px-4 font-normal text-base border border-gray-300 dark:border-gray-700 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                                placeholder="Teléfono del proveedor..."
+                                placeholder="Teléfono del cliente..."
                                 id="telefono"
                                 required
-                                value={editeSupplier.telefono_proveedor}
+                                value={newCustomer.telefono_cliente}
                                 onChange={(e) => {
-                                    setEditeSupplier({ ...editeSupplier, telefono_proveedor: e.target.value });
+                                    setNewCustomer({ ...newCustomer, telefono_cliente: e.target.value });
                                 }}
                                 minLength={8}
                                 maxLength={8}
@@ -157,17 +167,17 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                         </div>
 
                         <div className="w-full">
-                            <label className="w-full text-left font-bold" htmlFor="celular_proveedor">
+                            <label className="w-full text-left font-bold" htmlFor="celular_cliente">
                                 Celular:
                             </label>
                             <input
                                 className="py-1 px-4 font-normal text-base border border-gray-300 dark:border-gray-700 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                                placeholder="Celular del proveedor..."
-                                id="celular_proveedor"
+                                placeholder="Celular del cliente..."
+                                id="celular_cliente"
                                 required
-                                value={editeSupplier.celular_proveedor}
+                                value={newCustomer.celular_cliente}
                                 onChange={(e) => {
-                                    setEditeSupplier({ ...editeSupplier, celular_proveedor: e.target.value });
+                                    setNewCustomer({ ...newCustomer, celular_cliente: e.target.value });
                                 }}
                                 minLength={8}
                                 maxLength={8}
@@ -177,7 +187,7 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                     </div>
 
                     <div className="w-full">
-                        <label className="w-full text-left font-bold" htmlFor="direccion_proveedor">
+                        <label className="w-full text-left font-bold" htmlFor="direccion_cliente">
                             Dirección:
                         </label>
                         <input
@@ -185,17 +195,17 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                             maxLength={190}
                             required
                             className="py-1 px-4 font-normal text-base border border-gray-300 dark:border-gray-700 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                            placeholder="Dirección del proveedor..."
-                            id="direccion_proveedor"
-                            value={editeSupplier.direccion_proveedor}
+                            placeholder="Dirección del cliente..."
+                            id="direccion_cliente"
+                            value={newCustomer.direccion_cliente}
                             onChange={(e) => {
-                                setEditeSupplier({ ...editeSupplier, direccion_proveedor: e.target.value });
+                                setNewCustomer({ ...newCustomer, direccion_cliente: e.target.value });
                             }}
                         />
                     </div>
 
                     <div className="w-full">
-                        <label className="w-full text-left font-bold" htmlFor="ciudad_proveedor">
+                        <label className="w-full text-left font-bold" htmlFor="ciudad_cliente">
                             Ciudad:
                         </label>
                         <input
@@ -203,27 +213,27 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                             required
                             maxLength={190}
                             className="py-1 px-4 font-normal text-base border border-gray-300 dark:border-gray-700 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                            placeholder="Ciudad del proveedor..."
-                            id="ciudad_proveedor"
-                            value={editeSupplier.ciudad_proveedor}
+                            placeholder="Ciudad del cliente..."
+                            id="ciudad_cliente"
+                            value={newCustomer.ciudad_cliente}
                             onChange={(e) => {
-                                setEditeSupplier({ ...editeSupplier, ciudad_proveedor: e.target.value });
+                                setNewCustomer({ ...newCustomer, ciudad_cliente: e.target.value });
                             }}
                         />
                     </div>
 
                     <div className="w-full">
-                        <label className="w-full text-left font-bold" htmlFor="correo_proveedor">
+                        <label className="w-full text-left font-bold" htmlFor="correo_cliente">
                             Correo:
                         </label>
                         <input
                             type="emial"
                             className="py-1 px-4 font-normal text-base border border-gray-300 dark:border-gray-700 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                            placeholder="Correo del proveedor..."
-                            id="correo_proveedor"
-                            value={editeSupplier.correo_proveedor}
+                            placeholder="Correo del cliente..."
+                            id="correo_cliente"
+                            value={newCustomer.correo_cliente}
                             onChange={(e) => {
-                                setEditeSupplier({ ...editeSupplier, correo_proveedor: e.target.value });
+                                setNewCustomer({ ...newCustomer, correo_cliente: e.target.value });
                             }}
                             minLength={7}
                             required
@@ -239,10 +249,9 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
                                 </label>
                                 <select
                                     id="estado"
-                                    value={editeSupplier.estado}
                                     className="w-full border border-gray-300 dark:border-gray-700 rounded-md py-1 px-2"
                                     onChange={(e) => {
-                                        setEditeSupplier({ ...editeSupplier, estado: +e.target.value });
+                                        setNewCustomer({ ...newCustomer, estado: +e.target.value });
                                     }}
                                 >
                                     {
@@ -263,26 +272,14 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
 
                     <button
                         type="submit"
-                        className="w-full mt-4 md:w-auto mx-auto py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center gap-x-4 font-bold"
+                        className="w-full mt-4 md:w-[50%] mx-auto py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md flex items-center justify-center gap-x-4 font-bold"
                         aria-label="Close"
                     >
-                        <Edit className="size-5" />
-                        Modificar proveedor
+                        <Save className="size-5" />
+                        Guardar cliente
                     </button>
 
                 </form>
-                <DialogClose
-                    onClick={() => {
-                        setOpen(false)
-                        navigate(location.pathname, { replace: true });
-                        reset();
-                        onClose();
-                    }}
-                    className="absolute right-4 top-4"
-                    asChild
-                >
-                    <X className="size-5" />
-                </DialogClose>
             </DialogContent>
         </Dialog>
     )

@@ -12,6 +12,7 @@ const userShema = z.object({
   contraseña: z.string(),
   estado: z.number(),
   fecha_creacion: z.string(),
+  fecha_modificacion: z.string(),
   nombre_completo_creador: z.string().optional(),
   nombre_usuario_modificador: z.string().optional()
 });
@@ -26,6 +27,7 @@ export const userDataSchema = z.array(
     tipo_usuario: true,
     estado: true,
     fecha_creacion: true,
+    fecha_modificacion: true,
     nombre_completo_creador: true,
     nombre_usuario_modificador: true
   })

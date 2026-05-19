@@ -11,8 +11,7 @@ const supplierShema = z.object({
     correo_proveedor: z.string(),
     telefono_proveedor: z.string(),
     celular_proveedor: z.string(),
-    ruc: z.string(),
-    contacto: z.string(),
+    ruc_proveedor: z.string(),    
     estado: z.number(),
     fecha_creacion: z.string(),
     fecha_modificacion: z.string(),
@@ -32,10 +31,10 @@ export const supplierDataSchema = z.array(
         correo_proveedor: true,
         telefono_proveedor: true,
         celular_proveedor: true,
-        ruc: true,
-        contacto: true,
+        ruc_proveedor: true,        
         estado: true,
         fecha_creacion: true,
+        fecha_modificacion: true,
         nombre_usuario_creador: true,
         nombre_usuario_modificador: true
     })
@@ -53,8 +52,7 @@ const supplierFormShema = z.object({
     correo_proveedor: z.string(),
     telefono_proveedor: z.string(),
     celular_proveedor: z.string(),
-    ruc: z.string(),
-    contacto: z.string(),
+    ruc_proveedor: z.string(),    
     estado: z.number(),
     fecha_creacion: z.string(),
     fecha_modificacion: z.string(),
@@ -72,8 +70,7 @@ export const supplierFormDataSchema = z.array(
         correo_proveedor: true,
         telefono_proveedor: true,
         celular_proveedor: true,
-        ruc: true,
-        contacto: true,
+        ruc_proveedor: true,        
         estado: true,
         fecha_creacion: true,
         fecha_modificacion: true,
@@ -93,8 +90,7 @@ export type SupplierFormData = Pick<SupplierData,
     "correo_proveedor" |
     "telefono_proveedor" |
     "celular_proveedor" |
-    "ruc" |
-    "contacto" |
+    "ruc_proveedor" |    
     "estado" |
     "fecha_creacion" |
     "fecha_modificacion" |
@@ -109,8 +105,7 @@ export type SupplierFormDataAdd = Pick<SupplierData,
     "correo_proveedor" |
     "telefono_proveedor" |
     "celular_proveedor" |
-    "ruc" |
-    "contacto" |
+    "ruc_proveedor" |    
     "estado" |
     "usuario_creador"
 >;
@@ -124,8 +119,7 @@ export type SupplierFormDataInfo = Pick<SupplierData,
     "correo_proveedor" |
     "telefono_proveedor" |
     "celular_proveedor" |
-    "ruc" |
-    "contacto" |
+    "ruc_proveedor" |    
     "estado"
 >;
 
@@ -137,8 +131,7 @@ export type SupplierFormDataEdit = Pick<SupplierData,
     "correo_proveedor" |
     "telefono_proveedor" |
     "celular_proveedor" |
-    "ruc" |
-    "contacto" |
+    "ruc_proveedor" |    
     "estado" |
     "usuario_modificador"
 >;

@@ -43,8 +43,8 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search)
-    const modalEditUser = queryParams.get("editUser");
-    const showEditModal = modalEditUser ? true : false;
+    const modalEditSupplier = queryParams.get("editSupplier");
+    const showEditModal = modalEditSupplier ? true : false;
 
 
     const { data, isLoading, refetch, isError } = useQuery({
@@ -119,8 +119,8 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
         "Usuario modificador"
     ]);
 
-    const filteredUsers = Object.values(data || {}).filter(user =>
-        Object.values(user).some(value =>
+    const filteredSuppliers = Object.values(data || {}).filter(supplier =>
+        Object.values(supplier).some(value =>
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
@@ -220,67 +220,71 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
                                     </TableHeader>
                                     <TableBody>
                                         {
-                                            filteredUsers?.map(user => (
-                                                <TableRow key={user.id}>
+                                            filteredSuppliers?.map(supplier => (
+                                                <TableRow key={supplier.id}>
                                                     {
                                                         showFields.includes("id") &&
-                                                        <TableCell>{user.id}</TableCell>
+                                                        <TableCell>{supplier.id}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Código") &&
-                                                        <TableCell>{user.codigo_proveedor}</TableCell>
+                                                        <TableCell>{supplier.codigo_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("RUC") &&
-                                                        <TableCell>{user.ruc}</TableCell>
+                                                        <TableCell>{supplier.ruc_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Nombre") &&
-                                                        <TableCell>{user.nombre_proveedor}</TableCell>
+                                                        <TableCell>{supplier.nombre_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Dirección") &&
-                                                        <TableCell>{user.direccion_proveedor}</TableCell>
+                                                        <TableCell>{supplier.direccion_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Ciudad") &&
-                                                        <TableCell>{user.ciudad_proveedor}</TableCell>
+                                                        <TableCell>{supplier.ciudad_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Correo") &&
-                                                        <TableCell>{user.correo_proveedor}</TableCell>
+                                                        <TableCell>{supplier.correo_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Telefono") &&
-                                                        <TableCell>{user.telefono_proveedor}</TableCell>
+                                                        <TableCell>{supplier.telefono_proveedor}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Celular") &&
-                                                        <TableCell>{user.celular_proveedor}</TableCell>
+                                                        <TableCell>{supplier.celular_proveedor}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Estado") &&
                                                         <TableCell>
-                                                            <Badge variant={user.estado == 1 ? "secondary" : "destructive"}>
-                                                                {user.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
-                                                                {user.estado == 1 ? "Activo" : "Inactivo"}
+                                                            <Badge variant={supplier.estado == 1 ? "secondary" : "destructive"}>
+                                                                {supplier.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
+                                                                {supplier.estado == 1 ? "Activo" : "Inactivo"}
                                                             </Badge>
                                                         </TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha creación") &&
-                                                        <TableCell>{user.fecha_creacion}</TableCell>
+                                                        <TableCell>{supplier.fecha_creacion}</TableCell>
+                                                    }
+                                                    {
+                                                        showFields.includes("Fecha modificación") &&
+                                                        <TableCell>{supplier.fecha_modificacion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario creador") &&
-                                                        <TableCell>{user.nombre_usuario_creador}</TableCell>
+                                                        <TableCell>{supplier.nombre_usuario_creador}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario modificador") &&
-                                                        <TableCell>{user.nombre_usuario_modificador}</TableCell>
+                                                        <TableCell>{supplier.nombre_usuario_modificador}</TableCell>
                                                     }
 
                                                     <TableCell className="text-right">
@@ -295,7 +299,7 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                                     <DropdownMenuItem>
                                                                         <Button
                                                                             onClick={() => {
-                                                                                setEditingSupplier(user)
+                                                                                setEditingSupplier(supplier)
                                                                                 setOpenDialogEditSupplier(!openDialogEditSupplier)
                                                                                 refetch()
 
@@ -305,7 +309,7 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                                                     refetch()
                                                                                 }
                                                                                 else {
-                                                                                    navigate(location.pathname + `?editSupplier=${user.id}`)
+                                                                                    navigate(location.pathname + `?editSupplier=${supplier.id}`)
                                                                                     refetch()
                                                                                 }
                                                                             }}
@@ -319,7 +323,7 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                                     <DropdownMenuSeparator />
                                                                     <DropdownMenuItem
                                                                         onClick={() => {
-                                                                            setDeletedSupplier(user)
+                                                                            setDeletedSupplier(supplier)
                                                                             setOpenAlertDialogDelete(true);
                                                                         }}
                                                                     >
@@ -340,10 +344,10 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
 
                                         <TableRow>
                                             {
-                                                filteredUsers.length == 0 &&
+                                                filteredSuppliers.length == 0 &&
                                                 (
-                                                    <TableCell colSpan={8}>
-                                                        <div className="flex items-center flex-col justify-center">
+                                                    <TableCell colSpan={13}>
+                                                        <div className="flex items-center flex-col justify-center w-full h-96 mx-auto">
                                                             <TableEmpty />
                                                             <p className='text-center font-bold text-3xl'>No se encontraron resultados...</p>
                                                         </div>

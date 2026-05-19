@@ -33,28 +33,27 @@ import TableEmpty from "@/components/ui-components/TableEmpty";
 import type { ErrorData } from "@/types/errors.interface";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
-import ToogleFieldsDialogSupplier from "@/components/suppliers/ToogleFieldsDialogSupplier";
-import { deleteCustomer, getCustomers } from "@/apis/customers.interface";
-import type { CustomerFormDataDelete, CustomerFormDataInfo } from "@/types/customers.interface";
 import CreateCustomer from "@/components/customers/CreateCustomer";
-import EditCustomer from "@/components/customers/EditCustomer";
+import { deleteBrand, getBrands } from "@/apis/brand.apis";
+import type { BrandFormDataDelete, BrandFormDataInfo } from "@/types/brand.interface";
+import ToogleFieldsDialogBrand from "@/components/brand/ToogleFieldsDialogBrand";
 
-export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions }) {
+export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search)
-    const modalEditCustomers = queryParams.get("editCustomers");
-    const showEditModal = modalEditCustomers ? true : false;
+    const modalEditBrands = queryParams.get("editBrands|");
+    const showEditModal = modalEditBrands ? true : false;
 
 
     const { data, isLoading, refetch, isError } = useQuery({
-        queryKey: ["customers"],
-        queryFn: getCustomers,
+        queryKey: ["brands"],
+        queryFn: getBrands,
     });
 
     const queryClient = useQueryClient();
     const { mutate } = useMutation({
-        mutationFn: deleteCustomer,
+        mutationFn: deleteBrand,
         onError: (error: ErrorData) => {
             toast.error(error.message, {
                 position: "top-right",
@@ -66,7 +65,7 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
             });
         },
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["customers"] })
+            queryClient.invalidateQueries({ queryKey: ["brands"] })
             toast.success(data, {
                 position: "top-right",
                 closeButton: true,
@@ -75,7 +74,7 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                     onClick: () => toast.dismiss()
                 }
             });
-            setDeletedCustomer(null)
+            setDeletedBrand(null)
         }
     })
 
@@ -98,20 +97,15 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [openDialogEditCustomer, setOpenDialogEditCustomer] = useState(showEditModal)
+    const [openDialogEditBrand, setOpenDialogEditBrand] = useState(showEditModal)
     const [openAlertDialogDelete, setOpenAlertDialogDelete] = useState(false);
 
 
-    const [editingCustomer, setEditingCustomer] = useState<CustomerFormDataInfo | null>(null)
-    const [deletedCustomer, setDeletedCustomer] = useState<CustomerFormDataDelete | null>(null)
+    const [editingBrand, setEditingBrand] = useState<BrandFormDataInfo | null>(null)
+    const [deletedBrand, setDeletedBrand] = useState<BrandFormDataDelete | null>(null)
     const [showFields, setShowFields] = useState<string[]>([
-        "Código",
-        "RUC",
-        "Nombre",
-        "Dirección",
-        "Ciudad",
-        "Correo",
-        "Telefono",
+        "Marca",
+        "Descripcion",
         "Estado",
         "Fecha creación",
         "Fecha modificación",
@@ -119,8 +113,8 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
         "Usuario modificador"
     ]);
 
-    const filteredCustomers = Object.values(data || {}).filter(customer =>
-        Object.values(customer).some(value =>
+    const filteredBrands = Object.values(data || {}).filter(brand =>
+        Object.values(brand).some(value =>
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
@@ -135,8 +129,8 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
 
 
     const onClickDelete = () => {
-        if (deletedCustomer != null) {
-            mutate(deletedCustomer?.id);
+        if (deletedBrand != null) {
+            mutate(deletedBrand?.id);
         }
     }
     return (
@@ -187,10 +181,10 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                     </Tooltip>
 
                                     {
-                                        dataAuth?.permisos_cliente[0].guardar == 1 && (<CreateCustomer />)
+                                        dataAuth?.permisos_marca[0].guardar == 1 && (<CreateCustomer />)
                                     }
 
-                                    <ToogleFieldsDialogSupplier showFields={showFields} setShowFields={setShowFields} />
+                                    <ToogleFieldsDialogBrand showFields={showFields} setShowFields={setShowFields} />
                                 </div>
                             </section>
 
@@ -199,14 +193,8 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                     <TableCaption>Registro de clientes.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
-                                            {showFields.includes("Código") && <TableHead>Código</TableHead>}
-                                            {showFields.includes("RUC") && <TableHead>RUC</TableHead>}
-                                            {showFields.includes("Nombre") && <TableHead>Nombre</TableHead>}
-                                            {showFields.includes("Dirección") && <TableHead>Dirección</TableHead>}
-                                            {showFields.includes("Ciudad") && <TableHead>Ciudad</TableHead>}
-                                            {showFields.includes("Correo") && <TableHead>Correo</TableHead>}
-                                            {showFields.includes("Telefono") && <TableHead>Telefono</TableHead>}
-                                            {showFields.includes("Celular") && <TableHead>Celular</TableHead>}
+                                            {showFields.includes("Marca") && <TableHead>Código</TableHead>}
+                                            {showFields.includes("Descripción") && <TableHead>RUC</TableHead>}                                            
                                             {showFields.includes("Estado") && <TableHead>Estado</TableHead>}
                                             {showFields.includes("Fecha creación") && <TableHead>Fecha creación</TableHead>}
                                             {showFields.includes("Fecha modificación") && <TableHead>Fecha modificación</TableHead>}
@@ -220,71 +208,47 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                     </TableHeader>
                                     <TableBody>
                                         {
-                                            filteredCustomers?.map(customer => (
-                                                <TableRow key={customer.id}>
+                                            filteredBrands?.map(brand => (
+                                                <TableRow key={brand.id}>
                                                     {
                                                         showFields.includes("id") &&
-                                                        <TableCell>{customer.id}</TableCell>
+                                                        <TableCell>{brand.id}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("Código") &&
-                                                        <TableCell>{customer.codigo_cliente}</TableCell>
+                                                        showFields.includes("Marca") &&
+                                                        <TableCell>{brand.nombre_marca}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("RUC") &&
-                                                        <TableCell>{customer.ruc_cliente}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Nombre") &&
-                                                        <TableCell>{customer.nombre_cliente}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Dirección") &&
-                                                        <TableCell>{customer.direccion_cliente}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Ciudad") &&
-                                                        <TableCell>{customer.ciudad_cliente}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Correo") &&
-                                                        <TableCell>{customer.correo_cliente}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Telefono") &&
-                                                        <TableCell>{customer.telefono_cliente}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Celular") &&
-                                                        <TableCell>{customer.celular_cliente}</TableCell>
-                                                    }
+                                                        showFields.includes("Descripción") &&
+                                                        <TableCell>{brand.descripcion}</TableCell>
+                                                    }                                                    
 
                                                     {
                                                         showFields.includes("Estado") &&
                                                         <TableCell>
-                                                            <Badge variant={customer.estado == 1 ? "secondary" : "destructive"}>
-                                                                {customer.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
-                                                                {customer.estado == 1 ? "Activo" : "Inactivo"}
+                                                            <Badge variant={brand.estado == 1 ? "secondary" : "destructive"}>
+                                                                {brand.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
+                                                                {brand.estado == 1 ? "Activo" : "Inactivo"}
                                                             </Badge>
                                                         </TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha creación") &&
-                                                        <TableCell>{customer.fecha_creacion}</TableCell>
+                                                        <TableCell>{brand.fecha_creacion}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha modificación") &&
-                                                        <TableCell>{customer.fecha_modificacion}</TableCell>
+                                                        <TableCell>{brand.fecha_modificacion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario creador") &&
-                                                        <TableCell>{customer.nombre_usuario_creador}</TableCell>
+                                                        <TableCell>{brand.nombre_usuario_creador}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario modificador") &&
-                                                        <TableCell>{customer.nombre_usuario_modificador}</TableCell>
+                                                        <TableCell>{brand.nombre_usuario_modificador}</TableCell>
                                                     }
 
                                                     <TableCell className="text-right">
@@ -299,17 +263,17 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                                     <DropdownMenuItem>
                                                                         <Button
                                                                             onClick={() => {
-                                                                                setEditingCustomer(customer)
-                                                                                setOpenDialogEditCustomer(!openDialogEditCustomer)
+                                                                                setEditingBrand(brand)
+                                                                                setOpenDialogEditBrand(!openDialogEditBrand)
                                                                                 refetch()
 
-                                                                                if (openDialogEditCustomer) {
+                                                                                if (openDialogEditBrand) {
                                                                                     navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditCustomer(!openDialogEditCustomer)
+                                                                                    setOpenDialogEditBrand(!openDialogEditBrand)
                                                                                     refetch()
                                                                                 }
                                                                                 else {
-                                                                                    navigate(location.pathname + `?editCustomer=${customer.id}`)
+                                                                                    navigate(location.pathname + `?editBrand=${brand.id}`)
                                                                                     refetch()
                                                                                 }
                                                                             }}
@@ -317,13 +281,13 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                                             className="flex items-center justify-center gap-x-3"
                                                                         >
                                                                             <UserPenIcon className="size-4" />
-                                                                            Modificar cliente
+                                                                            Modificar marca
                                                                         </Button>
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuSeparator />
                                                                     <DropdownMenuItem
                                                                         onClick={() => {
-                                                                            setDeletedCustomer(customer)
+                                                                            setDeletedBrand(brand)
                                                                             setOpenAlertDialogDelete(true);
                                                                         }}
                                                                     >
@@ -331,7 +295,7 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                                             variant="destructive"
                                                                         >
                                                                             <Trash className="size-4" />
-                                                                            Eliminar cliente
+                                                                            Eliminar marca
                                                                         </Button>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuGroup>
@@ -344,7 +308,7 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
 
                                         <TableRow>
                                             {
-                                                filteredCustomers.length == 0 &&
+                                                filteredBrands.length == 0 &&
                                                 (
                                                     <TableCell colSpan={13}>
                                                         <div className="flex items-center flex-col justify-center w-full h-96 mx-auto">
@@ -357,18 +321,18 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                         </TableRow>
 
                                         {
-                                            editingCustomer && (
-                                                <EditCustomer customer={{ ...editingCustomer, usuario_modificador: "" }} onClose={() => setEditingCustomer(null)} />
+                                            editingBrand && (
+                                                <EditBrand brand={{ ...editingBrand, usuario_modificador: "" }} onClose={() => setEditingBrand(null)} />
                                             )
                                         }
 
                                         {
-                                            (deletedCustomer != null || deletedCustomer != undefined) && (
-                                                <AlertDialog open={openAlertDialogDelete} onOpenChange={() => setDeletedCustomer(null)}>
+                                            (deletedBrand != null || deletedBrand != undefined) && (
+                                                <AlertDialog open={openAlertDialogDelete} onOpenChange={() => setDeletedBrand(null)}>
                                                     <AlertDialogDelete
                                                         icon={MessageCircleQuestion}
-                                                        title="Eliminar cliente"
-                                                        description={`¿Seguro deseas eliminar el cliente: ${deletedCustomer.nombre_cliente}?`}
+                                                        title="Eliminar marca"
+                                                        description={`¿Seguro deseas eliminar la marca: ${deletedBrand.nombre_marca}?`}
                                                         buttonCancel="¡No, eliminar!"
                                                         buttonConfirm="¡Si, eliminar!"
                                                         onClickConfirm={handleChangeState}

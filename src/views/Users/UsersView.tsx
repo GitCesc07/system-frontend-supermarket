@@ -117,6 +117,7 @@ export default function UsersView({ dataAuth }: { dataAuth: AuthPermissions }) {
     "Tipo",
     "Estado",
     "Fecha creación",
+    "Fecha modificación",
     "Usuario creador",
     "Usuario modificador"
   ]);
@@ -208,6 +209,7 @@ export default function UsersView({ dataAuth }: { dataAuth: AuthPermissions }) {
                       {showFields.includes("Tipo") && <TableHead>Tipo</TableHead>}
                       {showFields.includes("Estado") && <TableHead>Estado</TableHead>}
                       {showFields.includes("Fecha creación") && <TableHead>Fecha creación</TableHead>}
+                      {showFields.includes("Fecha modificación") && <TableHead>Fecha modificación</TableHead>}
                       {showFields.includes("Usuario creador") && <TableHead>Usuario creador</TableHead>}
                       {showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>}
                       {
@@ -257,6 +259,10 @@ export default function UsersView({ dataAuth }: { dataAuth: AuthPermissions }) {
                           {
                             showFields.includes("Fecha creación") &&
                             <TableCell>{user.fecha_creacion}</TableCell>
+                          }
+                          {
+                            showFields.includes("Fecha modificación") &&
+                            <TableCell>{user.fecha_modificacion}</TableCell>
                           }
 
                           {

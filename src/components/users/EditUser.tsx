@@ -89,9 +89,9 @@ export default function EditUser({ user, onClose }: { user: UserFormDataEdit, on
                 onEscapeKeyDown={(e) => e.preventDefault()}
             >
                 <DialogHeader>
-                    <DialogTitle>Crear usuario</DialogTitle>
+                    <DialogTitle>Edita usuario</DialogTitle>
                     <DialogDescription>
-                        Crea tus usuarios aquí...
+                        Edita tus usuarios aquí...
                     </DialogDescription>
                 </DialogHeader>
                 <form

@@ -86,7 +86,7 @@ export default function EditUserPerfil({ id_usuario }: { id_usuario: string }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger
-                className="flex items-center text-sm justify-center gap-x-4 dark:border-gray-950 bg-gray-50 hover:bg-gray-100 dark:bg-gray-950 rounded-lg py-1 px-2 w-full"
+                className="flex items-center text-sm justify-center gap-x-4 dark:border-gray-950 bg-gray-50 hover:bg-gray-100 dark:bg-[#171717] dark:hover:bg-black/5 rounded-lg py-1 px-2 w-full"
                 onClick={() => {
                     navigate(location.pathname + `?editDataUser=${id_usuario}`)
                     setOpen(true);
