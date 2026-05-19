@@ -24,7 +24,7 @@ export default function CreateCustomer() {
         correo_cliente: '',
         telefono_cliente: '',
         celular_cliente: '',
-        ruc_cliente: '',        
+        ruc_cliente: '',
         estado: 1,
         usuario_creador: ''
     })
@@ -72,7 +72,7 @@ export default function CreateCustomer() {
             correo_cliente: '',
             telefono_cliente: '',
             celular_cliente: '',
-            ruc_cliente: '',            
+            ruc_cliente: '',
             estado: 1,
             usuario_creador: ''
         })
@@ -89,7 +89,7 @@ export default function CreateCustomer() {
             <DialogTrigger
                 className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
                 onClick={() => {
-                    navigate(location.pathname + "?createSupplier");
+                    navigate(location.pathname + "?createCustomer");
                     setOpen(true);
                 }}
             >
@@ -239,7 +239,7 @@ export default function CreateCustomer() {
                             required
                             maxLength={100}
                         />
-                    </div>                   
+                    </div>
 
                     <div className="flex flex-col md:flex-row items-center justify-center gap-y-4 md:gap-x-4">
                         <div className="w-full flex flex-col md:flex-row items-center justify-center gap-y-4 md:gap-x-4">
@@ -257,7 +257,7 @@ export default function CreateCustomer() {
                                     {
                                         stateValue.map((state) => (
                                             <option
-                                            className="bg-gray-100 dark:bg-gray-950"
+                                                className="bg-gray-100 dark:bg-gray-950"
                                                 key={state.value}
                                                 value={state.value}
                                             >

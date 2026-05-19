@@ -33,28 +33,28 @@ import TableEmpty from "@/components/ui-components/TableEmpty";
 import type { ErrorData } from "@/types/errors.interface";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
-import { deleteBrand, getBrands } from "@/apis/brand.apis";
-import type { BrandFormDataDelete, BrandFormDataInfo } from "@/types/brand.interface";
-import ToogleFieldsDialogBrand from "@/components/brand/ToogleFieldsDialogBrand";
-import EditBrand from "@/components/brand/EditBrand";
-import CreateBrand from "@/components/brand/CreateBrand";
+import { deleteCategory, getAllCategories } from "@/apis/categories.apis";
+import type { CategoryFormDataDelete, CategoryFormDataInfo } from "@/types/categories.interface.";
+import ToogleFieldsDialogCategory from "@/components/category/ToogleFieldsDialogCategory";
+import CreateCategory from "@/components/category/CreateCategory";
+import EditCategory from "@/components/category/EditCategory";
 
-export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) {
+export default function CategoriesView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search)
-    const modalEditBrands = queryParams.get("editBrands");
-    const showEditModal = modalEditBrands ? true : false;
+    const modalEditCategories = queryParams.get("editCategories");
+    const showEditModal = modalEditCategories ? true : false;
 
 
     const { data, isLoading, refetch, isError } = useQuery({
-        queryKey: ["brands"],
-        queryFn: getBrands,
+        queryKey: ["categories"],
+        queryFn: getAllCategories,
     });
 
     const queryClient = useQueryClient();
     const { mutate } = useMutation({
-        mutationFn: deleteBrand,
+        mutationFn: deleteCategory,
         onError: (error: ErrorData) => {
             toast.error(error.message, {
                 position: "top-right",
@@ -66,7 +66,7 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
             });
         },
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["brands"] })
+            queryClient.invalidateQueries({ queryKey: ["categories"] })
             toast.success(data, {
                 position: "top-right",
                 closeButton: true,
@@ -75,7 +75,7 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                     onClick: () => toast.dismiss()
                 }
             });
-            setDeletedBrand(null)
+            setDeletedCategory(null)
         }
     })
 
@@ -98,14 +98,14 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [openDialogEditBrand, setOpenDialogEditBrand] = useState(showEditModal)
+    const [openDialogEditCategory, setOpenDialogEditCategory] = useState(showEditModal)
     const [openAlertDialogDelete, setOpenAlertDialogDelete] = useState(false);
 
 
-    const [editingBrand, setEditingBrand] = useState<BrandFormDataInfo | null>(null)
-    const [deletedBrand, setDeletedBrand] = useState<BrandFormDataDelete | null>(null)
+    const [editingCategory, setEditingCategory] = useState<CategoryFormDataInfo | null>(null)
+    const [deletedCategory, setDeletedCategory] = useState<CategoryFormDataDelete | null>(null)
     const [showFields, setShowFields] = useState<string[]>([
-        "Marca",
+        "Categoría",
         "Descripción",
         "Estado",
         "Fecha creación",
@@ -114,8 +114,8 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
         "Usuario modificador"
     ]);
 
-    const filteredBrands = Object.values(data || {}).filter(brand =>
-        Object.values(brand).some(value =>
+    const filteredCategories = Object.values(data || {}).filter(category =>
+        Object.values(category).some(value =>
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
@@ -130,8 +130,8 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
 
 
     const onClickDelete = () => {
-        if (deletedBrand != null) {
-            mutate(deletedBrand?.id);
+        if (deletedCategory != null) {
+            mutate(deletedCategory?.id);
         }
     }
     return (
@@ -182,19 +182,19 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                     </Tooltip>
 
                                     {
-                                        dataAuth?.permisos_marca[0].guardar == 1 && (<CreateBrand />)
+                                        dataAuth?.permisos_categoria[0].guardar == 1 && (<CreateCategory />)
                                     }
 
-                                    <ToogleFieldsDialogBrand showFields={showFields} setShowFields={setShowFields} />
+                                    <ToogleFieldsDialogCategory showFields={showFields} setShowFields={setShowFields} />
                                 </div>
                             </section>
 
                             <div className="mt-3 w-full h-[80%] md:h-[90%] mx-auto">
                                 <Table>
-                                    <TableCaption>Registro de marcas.</TableCaption>
+                                    <TableCaption>Registro de categorías.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
-                                            {showFields.includes("Marca") && <TableHead>Marca</TableHead>}
+                                            {showFields.includes("Categoría") && <TableHead>Categoría</TableHead>}
                                             {showFields.includes("Descripción") && <TableHead>Descripción</TableHead>}
                                             {showFields.includes("Estado") && <TableHead>Estado</TableHead>}
                                             {showFields.includes("Fecha creación") && <TableHead>Fecha creación</TableHead>}
@@ -209,47 +209,47 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                     </TableHeader>
                                     <TableBody>
                                         {
-                                            filteredBrands?.map(brand => (
-                                                <TableRow key={brand.id}>
+                                            filteredCategories?.map(category => (
+                                                <TableRow key={category.id}>
                                                     {
                                                         showFields.includes("id") &&
-                                                        <TableCell>{brand.id}</TableCell>
+                                                        <TableCell>{category.id}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("Marca") &&
-                                                        <TableCell>{brand.nombre_marca}</TableCell>
+                                                        showFields.includes("Categoría") &&
+                                                        <TableCell>{category.nombre_categoria}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Descripción") &&
-                                                        <TableCell>{brand.descripcion}</TableCell>
+                                                        <TableCell>{category.descripcion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Estado") &&
                                                         <TableCell>
-                                                            <Badge variant={brand.estado == 1 ? "secondary" : "destructive"}>
-                                                                {brand.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
-                                                                {brand.estado == 1 ? "Activo" : "Inactivo"}
+                                                            <Badge variant={category.estado == 1 ? "secondary" : "destructive"}>
+                                                                {category.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
+                                                                {category.estado == 1 ? "Activo" : "Inactivo"}
                                                             </Badge>
                                                         </TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha creación") &&
-                                                        <TableCell>{brand.fecha_creacion}</TableCell>
+                                                        <TableCell>{category.fecha_creacion}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha modificación") &&
-                                                        <TableCell>{brand.fecha_modificacion}</TableCell>
+                                                        <TableCell>{category.fecha_modificacion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario creador") &&
-                                                        <TableCell>{brand.nombre_usuario_creador}</TableCell>
+                                                        <TableCell>{category.nombre_usuario_creador}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario modificador") &&
-                                                        <TableCell>{brand.nombre_usuario_modificador}</TableCell>
+                                                        <TableCell>{category.nombre_usuario_modificador}</TableCell>
                                                     }
 
                                                     <TableCell className="text-right">
@@ -264,17 +264,17 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                                     <DropdownMenuItem>
                                                                         <Button
                                                                             onClick={() => {
-                                                                                setEditingBrand(brand)
-                                                                                setOpenDialogEditBrand(!openDialogEditBrand)
+                                                                                setEditingCategory(category)
+                                                                                setOpenDialogEditCategory(!openDialogEditCategory)
                                                                                 refetch()
 
-                                                                                if (openDialogEditBrand) {
+                                                                                if (openDialogEditCategory) {
                                                                                     navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditBrand(!openDialogEditBrand)
+                                                                                    setOpenDialogEditCategory(!openDialogEditCategory)
                                                                                     refetch()
                                                                                 }
                                                                                 else {
-                                                                                    navigate(location.pathname + `?editBrand=${brand.id}`)
+                                                                                    navigate(location.pathname + `?editCategory=${category.id}`)
                                                                                     refetch()
                                                                                 }
                                                                             }}
@@ -282,13 +282,13 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                                             className="flex items-center justify-center gap-x-3"
                                                                         >
                                                                             <UserPenIcon className="size-4" />
-                                                                            Modificar marca
+                                                                            Modificar categoría
                                                                         </Button>
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuSeparator />
                                                                     <DropdownMenuItem
                                                                         onClick={() => {
-                                                                            setDeletedBrand(brand)
+                                                                            setDeletedCategory(category)
                                                                             setOpenAlertDialogDelete(true);
                                                                         }}
                                                                     >
@@ -296,7 +296,7 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                                             variant="destructive"
                                                                         >
                                                                             <Trash className="size-4" />
-                                                                            Eliminar marca
+                                                                            Eliminar categoría
                                                                         </Button>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuGroup>
@@ -309,7 +309,7 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
 
                                         <TableRow>
                                             {
-                                                filteredBrands.length == 0 &&
+                                                filteredCategories.length == 0 &&
                                                 (
                                                     <TableCell colSpan={13}>
                                                         <div className="flex items-center flex-col justify-center w-full h-96 mx-auto">
@@ -322,18 +322,18 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                         </TableRow>
 
                                         {
-                                            editingBrand && (
-                                                <EditBrand brand={{ ...editingBrand, usuario_modificador: "" }} onClose={() => setEditingBrand(null)} />
+                                            editingCategory && (
+                                                <EditCategory category={{ ...editingCategory, usuario_modificador: "" }} onClose={() => setEditingCategory(null)} />
                                             )
                                         }
 
                                         {
-                                            (deletedBrand != null || deletedBrand != undefined) && (
-                                                <AlertDialog open={openAlertDialogDelete} onOpenChange={() => setDeletedBrand(null)}>
+                                            (deletedCategory != null || deletedCategory != undefined) && (
+                                                <AlertDialog open={openAlertDialogDelete} onOpenChange={() => setDeletedCategory(null)}>
                                                     <AlertDialogDelete
                                                         icon={MessageCircleQuestion}
-                                                        title="Eliminar marca"
-                                                        description={`¿Seguro deseas eliminar la marca: ${deletedBrand.nombre_marca}?`}
+                                                        title="Eliminar categoría"
+                                                        description={`¿Seguro deseas eliminar la categoría: ${deletedCategory.nombre_categoria}?`}
                                                         buttonCancel="¡No, eliminar!"
                                                         buttonConfirm="¡Si, eliminar!"
                                                         onClickConfirm={handleChangeState}

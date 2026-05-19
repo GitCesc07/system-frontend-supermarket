@@ -7,9 +7,8 @@ import { Edit, X } from "lucide-react";
 import { stateValue } from "@/types/state.interface";
 import type { ErrorData } from "@/types/errors.interface";
 import { toast } from "sonner";
-import { getSupplierById } from "@/apis/suppliers.apis";
 import type { CustomerFormDataEdit } from "@/types/customers.interface";
-import { updateCustomer } from "@/apis/customers.interface";
+import { getCustomerById, updateCustomer } from "@/apis/customers.interface";
 
 export default function EditCustomer({ customer, onClose }: { customer: CustomerFormDataEdit, onClose: () => void }) {
     const navigate = useNavigate()
@@ -19,7 +18,7 @@ export default function EditCustomer({ customer, onClose }: { customer: Customer
 
     const { data } = useQuery({
         queryKey: ["customers", customerId],
-        queryFn: () => getSupplierById({ id: customerId }),
+        queryFn: () => getCustomerById({ id: customerId }),
         enabled: !!customerId,
         retry: false
     });
@@ -229,7 +228,7 @@ export default function EditCustomer({ customer, onClose }: { customer: Customer
                             required
                             maxLength={100}
                         />
-                    </div>                   
+                    </div>
 
                     <div className="flex flex-col md:flex-row items-center justify-center gap-y-4 md:gap-x-4">
                         <div className="w-full flex flex-col md:flex-row items-center justify-center gap-y-4 md:gap-x-4">
@@ -248,7 +247,7 @@ export default function EditCustomer({ customer, onClose }: { customer: Customer
                                     {
                                         stateValue.map((state) => (
                                             <option
-                                            className="bg-gray-100 dark:bg-gray-950"
+                                                className="bg-gray-100 dark:bg-gray-950"
                                                 key={state.value}
                                                 value={state.value}
                                             >

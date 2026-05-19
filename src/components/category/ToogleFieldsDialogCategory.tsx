@@ -9,9 +9,9 @@ import {
 import { Save } from "lucide-react";
 import { useState } from "react";
 
-export default function ToogleFieldsDialogBrand({ showFields, setShowFields }: { showFields: string[], setShowFields: (fields: string[]) => void }) {
+export default function ToogleFieldsDialogCategory({ showFields, setShowFields }: { showFields: string[], setShowFields: (fields: string[]) => void }) {
     const [allFields] = useState<string[]>([
-        "Marca",
+        "Categoría",
         "Descripción",
         "Estado",
         "Fecha creación",
