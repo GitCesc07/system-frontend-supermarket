@@ -1,8 +1,8 @@
 import { isAxiosError } from "axios";
 import api from "../lib/axios";
 import {
-    productDataSchema,    
-    type ProductData,    
+    productDataSchema,
+    type ProductData,
     type ProductFormData,
     type ProductFormDataAdd,
     type ProductFormDataInfo,
@@ -13,6 +13,7 @@ export async function getProducts() {
     try {
         const { data } = await api("/products/")
         const response = productDataSchema.safeParse(data);
+        console.log(response);
         if (response.success) {
             return response.data;
         }
@@ -72,6 +73,18 @@ export async function deleteProduct(productId: ProductData["id"]) {
     try {
         const { data } = await api.delete<string>(`/products/${productId}`);
         return data;
+    } catch (error) {
+        if (isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.error);
+        }
+    }
+}
+
+// * Upload image
+export async function uploadImage(formData: FormData) {
+    try {
+        const { data } = await api.post("products/upload", formData);
+        return data
     } catch (error) {
         if (isAxiosError(error) && error.response) {
             throw new Error(error.response.data.error);

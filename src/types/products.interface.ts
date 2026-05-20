@@ -15,12 +15,13 @@ const productShema = z.object({
     expiracion: z.number(),
     fecha_expiracion: z.string(),
     fecha_creacion: z.string(),
-    id_marca: z.string().nullable(),
-    marca: z.string().nullable(),
-    id_categoria: z.string().nullable(),
-    categoria: z.string().nullable(),
-    nombre_usuario_creador: z.string().optional(),
-    nombre_usuario_modificador: z.string().optional(),
+    fecha_modificacion: z.string(),
+    id_marca: z.string(),
+    marca: z.string(),
+    id_categoria: z.string(),
+    categoria: z.string(),
+    nombre_usuario_creador: z.string(),
+    nombre_usuario_modificador: z.string(),
 });
 
 export const productDataSchema = z.array(
@@ -37,6 +38,7 @@ export const productDataSchema = z.array(
         expiracion: true,
         fecha_expiracion: true,
         fecha_creacion: true,
+        fecha_modificacion: true,
         id_marca: true,
         marca: true,
         id_categoria: true,
@@ -53,18 +55,16 @@ const productFormShema = z.object({
     nombre_producto: z.string(),
     descripcion_producto: z.string(),
     precio_compra: z.string(),
-    precio_venta_promedio: z.string(),
-    cantidad: z.number(),
-    cantidad_minima: z.string(),
-    cantidad_maxima: z.string(),
+    precio_venta_promedio: z.string(),    
+    cantidad_minima: z.number(),
     imagen_url: z.string(),
     estado: z.number(),
     expiracion: z.number(),
     fecha_expiracion: z.string(),
     fecha_creacion: z.string(),
     fecha_modificacion: z.string(),
-    id_marca: z.string().nullable(),
-    id_categoria: z.string().nullable()
+    id_marca: z.string(),
+    id_categoria: z.string()
 });
 
 export const productFormDataSchema = z.array(
@@ -74,10 +74,8 @@ export const productFormDataSchema = z.array(
         nombre_producto: true,
         descripcion_producto: true,
         precio_compra: true,
-        precio_venta_promedio: true,
-        cantidad: true,
-        cantidad_minima: true,
-        cantidad_maxima: true,
+        precio_venta_promedio: true,        
+        cantidad_minima: true,        
         imagen_url: true,
         estado: true,
         expiracion: true,
@@ -99,10 +97,8 @@ export type ProductFormData = Pick<ProductData,
     "nombre_producto" |
     "descripcion_producto" |
     "precio_compra" |
-    "precio_venta_promedio" |
-    "cantidad" |
-    "cantidad_minima" |
-    "cantidad_maxima" |
+    "precio_venta_promedio" |    
+    "cantidad_minima" |    
     "imagen_url" |
     "estado" |
     "expiracion" |
@@ -119,10 +115,8 @@ export type ProductDataCombobox = Pick<ProductData,
     "nombre_producto" |
     "descripcion_producto" |
     "precio_compra" |
-    "precio_venta_promedio" |
-    "cantidad" |
-    "cantidad_minima" |
-    "cantidad_maxima" |
+    "precio_venta_promedio" |    
+    "cantidad_minima" |    
     "imagen_url" |
     "estado">;
 
@@ -155,8 +149,7 @@ export type ProductFormDataInfoKardex = Pick<ProductData,
     "fecha_expiracion" |
     "id_marca" | "id_categoria">;
 
-export type ProductFormDataAdd = Pick<ProductData,
-    "codigo" |
+export type ProductFormDataAdd = Pick<ProductData,    
     "nombre_producto" |
     "descripcion_producto" |
     "precio_compra" |
