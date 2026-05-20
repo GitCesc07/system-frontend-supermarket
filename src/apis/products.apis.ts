@@ -5,7 +5,7 @@ import {
     type ProductData,
     type ProductFormData,
     type ProductFormDataAdd,
-    type ProductFormDataInfo,
+    type ProductFormDataInfo
 } from "@/types/products.interface";
 
 // * Get all products
@@ -13,7 +13,6 @@ export async function getProducts() {
     try {
         const { data } = await api("/products/")
         const response = productDataSchema.safeParse(data);
-        console.log(response);
         if (response.success) {
             return response.data;
         }
@@ -80,8 +79,15 @@ export async function deleteProduct(productId: ProductData["id"]) {
     }
 }
 
+interface UploadResponse {
+    message: string;
+    result: {
+        path: string;
+        publicUrl: string
+    };
+}
 // * Upload image
-export async function uploadImage(formData: FormData) {
+export async function uploadImage(formData: FormData): Promise<UploadResponse> {
     try {
         const { data } = await api.post("products/upload", formData);
         return data
@@ -89,5 +95,7 @@ export async function uploadImage(formData: FormData) {
         if (isAxiosError(error) && error.response) {
             throw new Error(error.response.data.error);
         }
+
+        throw error;
     }
 }

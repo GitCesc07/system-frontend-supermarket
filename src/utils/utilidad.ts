@@ -28,6 +28,16 @@ export function formatDateByDataBase(date: Date) {
     return dateByDataBase
 }
 
+export function formatDateInput(date: string): string {
+    const [dia, mes, ano] = date.split('/');
+
+    // 3. Reordenamos a formato AAAA-MM-DD (ISO)
+    const formatoIso = `${ano}-${mes}-${dia}`;
+
+    // 4. Actualizamos el estado
+    return formatoIso;
+}
+
 
 //* formats for currency
 export function formatCurrency(value: string): string {

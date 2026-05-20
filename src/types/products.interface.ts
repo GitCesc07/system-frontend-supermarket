@@ -55,7 +55,7 @@ const productFormShema = z.object({
     nombre_producto: z.string(),
     descripcion_producto: z.string(),
     precio_compra: z.string(),
-    precio_venta_promedio: z.string(),    
+    precio_venta_promedio: z.string(),
     cantidad_minima: z.number(),
     imagen_url: z.string(),
     estado: z.number(),
@@ -74,8 +74,8 @@ export const productFormDataSchema = z.array(
         nombre_producto: true,
         descripcion_producto: true,
         precio_compra: true,
-        precio_venta_promedio: true,        
-        cantidad_minima: true,        
+        precio_venta_promedio: true,
+        cantidad_minima: true,
         imagen_url: true,
         estado: true,
         expiracion: true,
@@ -97,8 +97,8 @@ export type ProductFormData = Pick<ProductData,
     "nombre_producto" |
     "descripcion_producto" |
     "precio_compra" |
-    "precio_venta_promedio" |    
-    "cantidad_minima" |    
+    "precio_venta_promedio" |
+    "cantidad_minima" |
     "imagen_url" |
     "estado" |
     "expiracion" |
@@ -115,8 +115,8 @@ export type ProductDataCombobox = Pick<ProductData,
     "nombre_producto" |
     "descripcion_producto" |
     "precio_compra" |
-    "precio_venta_promedio" |    
-    "cantidad_minima" |    
+    "precio_venta_promedio" |
+    "cantidad_minima" |
     "imagen_url" |
     "estado">;
 
@@ -149,7 +149,7 @@ export type ProductFormDataInfoKardex = Pick<ProductData,
     "fecha_expiracion" |
     "id_marca" | "id_categoria">;
 
-export type ProductFormDataAdd = Pick<ProductData,    
+export type ProductFormDataAdd = Pick<ProductData,
     "nombre_producto" |
     "descripcion_producto" |
     "precio_compra" |
@@ -172,7 +172,16 @@ export type ProductFormDataEdit = Pick<ProductData,
     "estado" |
     "expiracion" |
     "fecha_expiracion" |
-    "id_marca" | "id_categoria"
+    "id_marca" |
+    "id_categoria"
 >;
 
 export type ProductFormDataDelete = Pick<ProductData, "id" | "nombre_producto">;
+
+export interface UploadResponse {
+    message: string;
+    result: {
+        path: string;
+        publicUrl: string
+    };
+}

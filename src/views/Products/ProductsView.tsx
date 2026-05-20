@@ -39,6 +39,7 @@ import ToogleFieldsDialogProducts from "@/components/products/ToogleFieldsDialog
 import ViewImageDialog from "@/components/products/ViewImageDialog";
 import { Dialog } from "@/components/ui/dialog";
 import Createproduct from "@/components/products/Createproduct";
+import EditProduct from "@/components/products/EditProduct";
 
 export default function ProductsView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
@@ -239,9 +240,9 @@ export default function ProductsView({ dataAuth }: { dataAuth: AuthPermissions }
                                                         showFields.includes("Descripción") &&
                                                         <TableCell>
                                                             <div className="truncate w-56">
-                                                            {product.descripcion_producto}
+                                                                {product.descripcion_producto}
                                                             </div>
-                                                            </TableCell>
+                                                        </TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Cantidad minima") &&
@@ -410,11 +411,15 @@ export default function ProductsView({ dataAuth }: { dataAuth: AuthPermissions }
                                             }
                                         </TableRow>
 
-                                        {/* {
+                                        {
                                             editingProduct && (
-                                                <EditCustomer product={{ ...editingProduct, usuario_modificador: "" }} onClose={() => setEditingProduct(null)} />
+                                                <Dialog open={openDialogEditProduct} onOpenChange={() => {
+                                                    setOpenDialogEditProduct(!openDialogEditProduct)
+                                                }}>
+                                                    <EditProduct product={editingProduct} onClose={() => setEditingProduct(null)} />
+                                                </Dialog>
                                             )
-                                        } */}
+                                        }
 
                                         {
                                             imagenView && (
