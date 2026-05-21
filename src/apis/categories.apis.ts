@@ -59,8 +59,7 @@ type CategoryAPIType = {
 // * Updta category by id
 export async function updateCategory({ categoryId, formData }: Pick<CategoryAPIType, "formData" | "categoryId">) {
     try {
-        const { data } = await api.patch<string>(`/categories/updateCategory/${categoryId}`, formData);
-        console.log(data);
+        const { data } = await api.patch<string>(`/categories/updateCategory/${categoryId}`, formData);        
         return data
     } catch (error) {
         if (isAxiosError(error) && error.response) {

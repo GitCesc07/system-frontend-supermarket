@@ -14,9 +14,7 @@ export default function EditSupplier({ supplier, onClose }: { supplier: Supplier
     const navigate = useNavigate()
     const location = useLocation()
     const queryParams = new URLSearchParams(location.search)
-    const supplierId = queryParams.get("editSupplier")!;
-
-    console.log(supplierId);
+    const supplierId = queryParams.get("editSupplier")!;    
 
     const { data } = useQuery({
         queryKey: ["suppliers", supplierId],

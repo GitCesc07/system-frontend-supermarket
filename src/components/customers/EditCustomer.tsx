@@ -77,8 +77,7 @@ export default function EditCustomer({ customer, onClose }: { customer: Customer
         const formData = editeCustomer;
         const dataCustomers = { customerId, formData }
         mutate(dataCustomers);
-    }
-    console.log(data);
+    }    
     if (data) return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent

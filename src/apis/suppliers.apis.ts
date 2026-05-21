@@ -27,8 +27,7 @@ export async function getAllSupplier() {
 export async function getSupplierById({ id }: Pick<SupplierFormDataInfo, "id">) {
     try {
         const { data } = await api(`/suppliers/${id}`);
-        const response = supplierDataSchema.safeParse(data);
-        console.log(response);
+        const response = supplierDataSchema.safeParse(data);        
         if (response.success) {
             return response.data;
         }

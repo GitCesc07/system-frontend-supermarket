@@ -127,8 +127,7 @@ export async function getPermissionsUser({ id_usuario }: Pick<PermissionsUserFor
 // * Create or Update permissions for user
 export async function addOrUpdatePermissionsUser({ formData, id_usuario }: Pick<PermissonsUserAPIType, "formData" | "id_usuario">) {
     try {
-        const { data } = await api.post<string>(`/users/createPermissions/${id_usuario}`, formData);
-        console.log(data);
+        const { data } = await api.post<string>(`/users/createPermissions/${id_usuario}`, formData);        
         return data
     } catch (error) {
         if (isAxiosError(error) && error.response) {
