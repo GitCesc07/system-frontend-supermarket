@@ -84,7 +84,7 @@ export function NavUser({
     return (
         <>
             <div id="miElemento" className={`flex items-center justify-center flex-col
-            w-full border-t border-gray-200 dark:border-gray-700 rounded-lg p-2 transition-all duration-700 ease-in-out ${openProfile == true ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}>
+            w-full border-t border-gray-200 dark:border-gray-700 rounded-lg p-2 transition-all duration-700 ease-in-out ${openProfile == true ? "h-auto" : "hidden h-0"}`}>
                 <div className="flex items-center gap-2 px-1 py-1 text-left text-sm w-full">
                     <Avatar className="size-8 rounded-lg">
                         <AvatarUser />

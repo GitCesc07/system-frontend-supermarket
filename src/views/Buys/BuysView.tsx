@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button"
@@ -7,7 +7,6 @@ import {
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -25,59 +24,30 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { BadgeCheck, Ban, Ellipsis, Loader2, MessageCircleQuestion, Search, Trash, UserPenIcon } from "lucide-react";
+import { BadgeCheck, Ban, Ellipsis, Loader2, Search, UserPenIcon } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import TableEmpty from "@/components/ui-components/TableEmpty";
-import type { ErrorData } from "@/types/errors.interface";
-import { AlertDialog } from "@/components/ui/alert-dialog";
-import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
-import { deleteBrand, getBrands } from "@/apis/brand.apis";
-import type { BrandFormDataDelete, BrandFormDataInfo } from "@/types/brand.interface";
-import ToogleFieldsDialogBrand from "@/components/brand/ToogleFieldsDialogBrand";
-import EditBrand from "@/components/brand/EditBrand";
-import CreateBrand from "@/components/brand/CreateBrand";
+import { Dialog } from "@/components/ui/dialog";
+import Createproduct from "@/components/products/Createproduct";
+import { getBuys } from "@/apis/buys.apis";
+import type { BuysFormDataInfo } from "@/types/buys.interface";
+import ToogleFieldsDialogBuys from "@/components/buys/ToogleFieldsDialogBuys";
+import { formatCurrency } from "@/utils/utilidad";
 
-export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) {
+export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search)
-    const modalEditBrands = queryParams.get("editBrands");
-    const showEditModal = modalEditBrands ? true : false;
+    const modalEditBuys = queryParams.get("editBuys");
+    const showEditModal = modalEditBuys ? true : false;
 
 
     const { data, isLoading, refetch, isError } = useQuery({
-        queryKey: ["brands"],
-        queryFn: getBrands,
+        queryKey: ["buys"],
+        queryFn: getBuys,
     });
-
-    const queryClient = useQueryClient();
-    const { mutate } = useMutation({
-        mutationFn: deleteBrand,
-        onError: (error: ErrorData) => {
-            toast.error(error.message, {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar",
-                    onClick: () => toast.dismiss()
-                }
-            });
-        },
-        onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["brands"] })
-            toast.success(data, {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar  todas",
-                    onClick: () => toast.dismiss()
-                }
-            });
-            setDeletedBrand(null)
-        }
-    })
 
     const inputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
@@ -98,42 +68,33 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [openDialogEditBrand, setOpenDialogEditBrand] = useState(showEditModal)
-    const [openAlertDialogDelete, setOpenAlertDialogDelete] = useState(false);
+    const [openDialogEditBuys, setOpenDialogEditBuys] = useState(showEditModal)
 
 
-    const [editingBrand, setEditingBrand] = useState<BrandFormDataInfo | null>(null)
-    const [deletedBrand, setDeletedBrand] = useState<BrandFormDataDelete | null>(null)
+    const [editingBuys, setEditingBuys] = useState<BuysFormDataInfo | null>(null);
     const [showFields, setShowFields] = useState<string[]>([
-        "Marca",
-        "Descripción",
+        "Número compra",
+        "Número factura proveedor",
+        "Termino",
         "Estado",
+        "Observaciones",
+        "Subtotal",
+        "Total",
+        "Proveedor",
         "Fecha creación",
         "Fecha modificación",
         "Usuario creador",
         "Usuario modificador"
     ]);
 
-    const filteredBrands = Object.values(data || {}).filter(brand =>
-        Object.values(brand).some(value =>
+    const filteredProducts = Object.values(data || {}).filter(buys =>
+        Object.values(buys).some(value =>
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
 
     if (isError) return <Navigate to={"/404"} />
 
-    const handleChangeState = (state: boolean) => {
-        if (state == true) {
-            onClickDelete()
-        }
-    }
-
-
-    const onClickDelete = () => {
-        if (deletedBrand != null) {
-            mutate(deletedBrand?.id);
-        }
-    }
     return (
         <div className="w-full h-full flex items-center justify-center">
             {
@@ -182,21 +143,26 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                     </Tooltip>
 
                                     {
-                                        dataAuth?.permisos_marca[0].guardar == 1 && (<CreateBrand />)
+                                        dataAuth?.permisos_compra[0].guardar == 1 && (<Createproduct />)
                                     }
 
-                                    <ToogleFieldsDialogBrand showFields={showFields} setShowFields={setShowFields} />
+                                    <ToogleFieldsDialogBuys showFields={showFields} setShowFields={setShowFields} />
                                 </div>
                             </section>
 
                             <div className="mt-3 w-full h-[80%] md:h-[90%] mx-auto">
                                 <Table>
-                                    <TableCaption>Registro de marcas.</TableCaption>
+                                    <TableCaption>Registro de productos.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
-                                            {showFields.includes("Marca") && <TableHead>Marca</TableHead>}
-                                            {showFields.includes("Descripción") && <TableHead>Descripción</TableHead>}
+                                            {showFields.includes("Número compra") && <TableHead>Número compra</TableHead>}
+                                            {showFields.includes("Número factura proveedor") && <TableHead>Número factura proveedor</TableHead>}
+                                            {showFields.includes("Termino") && <TableHead>Termino</TableHead>}
                                             {showFields.includes("Estado") && <TableHead>Estado</TableHead>}
+                                            {showFields.includes("Observaciones") && <TableHead>Observaciones</TableHead>}
+                                            {showFields.includes("Subtotal") && <TableHead>Subtotal</TableHead>}
+                                            {showFields.includes("Total") && <TableHead>Total</TableHead>}
+                                            {showFields.includes("Proveedor") && <TableHead>Proveedor</TableHead>}
                                             {showFields.includes("Fecha creación") && <TableHead>Fecha creación</TableHead>}
                                             {showFields.includes("Fecha modificación") && <TableHead>Fecha modificación</TableHead>}
                                             {
@@ -215,47 +181,87 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                     </TableHeader>
                                     <TableBody>
                                         {
-                                            filteredBrands?.map(brand => (
-                                                <TableRow key={brand.id}>
+                                            filteredProducts?.map(buy => (
+                                                <TableRow key={buy.id}>
                                                     {
                                                         showFields.includes("id") &&
-                                                        <TableCell>{brand.id}</TableCell>
+                                                        <TableCell>{buy.id}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("Marca") &&
-                                                        <TableCell>{brand.nombre_marca}</TableCell>
+                                                        showFields.includes("Número compra") &&
+                                                        <TableCell>{buy.numero_compra}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("Descripción") &&
-                                                        <TableCell>{brand.descripcion}</TableCell>
+                                                        showFields.includes("Número factura proveedor") &&
+                                                        <TableCell>
+                                                            <div className="truncate w-56">
+                                                                {buy.numero_factura_proveedor}
+                                                            </div>
+                                                        </TableCell>
+                                                    }
+                                                    {
+                                                        showFields.includes("Termino") &&
+                                                        <TableCell>{buy.termino}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Estado") &&
                                                         <TableCell>
-                                                            <Badge variant={brand.estado == 1 ? "secondary" : "destructive"}>
-                                                                {brand.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
-                                                                {brand.estado == 1 ? "Activo" : "Inactivo"}
+                                                            <Badge variant={buy.estado == 1 ? "secondary" : "destructive"}>
+                                                                {buy.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
+                                                                {buy.estado == 1 ? "Activo" : "Inactivo"}
                                                             </Badge>
                                                         </TableCell>
                                                     }
+
+                                                    {
+                                                        showFields.includes("Observaciones") &&
+                                                        <TableCell>
+                                                            {buy.observaciones}
+                                                        </TableCell>
+                                                    }
+
+                                                    {
+                                                        showFields.includes("Subtotal") &&
+                                                        <TableCell>
+                                                            {
+                                                                formatCurrency(buy.subtotal)
+                                                            }
+                                                        </TableCell>
+                                                    }
+
+                                                    {
+                                                        showFields.includes("Total") &&
+                                                        <TableCell>
+                                                            {formatCurrency(buy.total)}
+                                                        </TableCell>
+                                                    }
+
+                                                    {
+                                                        showFields.includes("Proveedor") &&
+                                                        <TableCell>
+                                                            {buy.proveedor}
+                                                        </TableCell>
+                                                    }
+
                                                     {
                                                         showFields.includes("Fecha creación") &&
-                                                        <TableCell>{brand.fecha_creacion}</TableCell>
+                                                        <TableCell>{buy.fecha_creacion}</TableCell>
                                                     }
+
                                                     {
                                                         showFields.includes("Fecha modificación") &&
-                                                        <TableCell>{brand.fecha_modificacion}</TableCell>
+                                                        <TableCell>{buy.fecha_modificacion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario creador") &&
-                                                        <TableCell>{brand.nombre_usuario_creador}</TableCell>
+                                                        <TableCell>{buy.nombre_usuario_creador}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario modificador") &&
-                                                        <TableCell>{brand.nombre_usuario_modificador}</TableCell>
+                                                        <TableCell>{buy.nombre_usuario_modificador}</TableCell>
                                                     }
 
                                                     <TableCell className="text-right">
@@ -270,17 +276,17 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                                     <DropdownMenuItem>
                                                                         <Button
                                                                             onClick={() => {
-                                                                                setEditingBrand(brand)
-                                                                                setOpenDialogEditBrand(!openDialogEditBrand)
+                                                                                setEditingBuys({ ...buy, detalles_compra: [] })
+                                                                                setOpenDialogEditBuys(!openDialogEditBuys)
                                                                                 refetch()
 
-                                                                                if (openDialogEditBrand) {
+                                                                                if (openDialogEditBuys) {
                                                                                     navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditBrand(!openDialogEditBrand)
+                                                                                    setOpenDialogEditBuys(!openDialogEditBuys)
                                                                                     refetch()
                                                                                 }
                                                                                 else {
-                                                                                    navigate(location.pathname + `?editBrand=${brand.id}`)
+                                                                                    navigate(location.pathname + `?editBuy=${buy.id}`)
                                                                                     refetch()
                                                                                 }
                                                                             }}
@@ -288,21 +294,7 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                                             className="flex items-center justify-center gap-x-3"
                                                                         >
                                                                             <UserPenIcon className="size-4" />
-                                                                            Modificar marca
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => {
-                                                                            setDeletedBrand(brand)
-                                                                            setOpenAlertDialogDelete(true);
-                                                                        }}
-                                                                    >
-                                                                        <Button
-                                                                            variant="destructive"
-                                                                        >
-                                                                            <Trash className="size-4" />
-                                                                            Eliminar marca
+                                                                            Modificar compra
                                                                         </Button>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuGroup>
@@ -315,9 +307,9 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
 
                                         <TableRow>
                                             {
-                                                filteredBrands.length == 0 &&
+                                                filteredProducts.length == 0 &&
                                                 (
-                                                    <TableCell colSpan={13}>
+                                                    <TableCell colSpan={14}>
                                                         <div className="flex items-center flex-col justify-center w-full h-96 mx-auto">
                                                             <TableEmpty />
                                                             <p className='text-center font-bold text-3xl'>No se encontraron resultados...</p>
@@ -328,26 +320,14 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                         </TableRow>
 
                                         {
-                                            editingBrand && (
-                                                <EditBrand brand={{ ...editingBrand, usuario_modificador: "" }} onClose={() => setEditingBrand(null)} />
+                                            editingBuys && (
+                                                <Dialog open={openDialogEditBuys} onOpenChange={() => {
+                                                    setOpenDialogEditBuys(!openDialogEditBuys)
+                                                }}>
+                                                    <EditBuy product={editingBuys} onClose={() => setEditingBuys(null)} />
+                                                </Dialog>
                                             )
                                         }
-
-                                        {
-                                            (deletedBrand != null || deletedBrand != undefined) && (
-                                                <AlertDialog open={openAlertDialogDelete} onOpenChange={() => setDeletedBrand(null)}>
-                                                    <AlertDialogDelete
-                                                        icon={MessageCircleQuestion}
-                                                        title="Eliminar marca"
-                                                        description={`¿Seguro deseas eliminar la marca: ${deletedBrand.nombre_marca}?`}
-                                                        buttonCancel="¡No, eliminar!"
-                                                        buttonConfirm="¡Si, eliminar!"
-                                                        onClickConfirm={handleChangeState}
-                                                    />
-                                                </AlertDialog>
-                                            )
-                                        }
-
                                     </TableBody>
                                 </Table>
                             </div>

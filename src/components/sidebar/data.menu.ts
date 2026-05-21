@@ -1,8 +1,8 @@
 import {
     BadgeCheck,
     BadgeDollarSign,
+    Ban,
     Combine,
-    FileOutput,
     Hammer,
     Home,
     Package,
@@ -57,6 +57,16 @@ export const dataMenu = {
             icon: Hammer
         },
         {
+            title: "Productos vencidos",
+            url: "/expiredProducts",
+            icon: Ban
+        },
+        {
+            title: "Productos deteriorados",
+            url: "/damagedProducts",
+            icon: Ban
+        },
+        {
             title: "Inventario",
             url: "/inventory",
             icon: Package
@@ -65,11 +75,6 @@ export const dataMenu = {
             title: "Compras",
             url: "/buys",
             icon: ShoppingCartIcon
-        },
-        {
-            title: "Proformas",
-            url: "/salesQuote",
-            icon: FileOutput
         },
         {
             title: "Ventas",
@@ -88,23 +93,3 @@ export const dataMenu = {
         }
     ]
 }
-
-// {
-//             title: "Proveedores",
-//             url: "/suppliers",
-//             icon: Truck,
-//             items: [
-//                 {
-//                     title: "Genesis",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Explorer",
-//                     url: "#",
-//                 },
-//                 {
-//                     title: "Quantum",
-//                     url: "#",
-//                 },
-//             ],
-//         },   

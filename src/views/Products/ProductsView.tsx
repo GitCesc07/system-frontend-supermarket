@@ -216,8 +216,14 @@ export default function ProductsView({ dataAuth }: { dataAuth: AuthPermissions }
                                             {showFields.includes("Categoría") && <TableHead>Categoría</TableHead>}
                                             {showFields.includes("Fecha creación") && <TableHead>Fecha creación</TableHead>}
                                             {showFields.includes("Fecha modificación") && <TableHead>Fecha modificación</TableHead>}
-                                            {showFields.includes("Usuario creador") && <TableHead>Usuario creador</TableHead>}
-                                            {showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>}
+                                            {
+                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                                showFields.includes("Usuario creador") && <TableHead>Usuario creador</TableHead>
+                                            }
+                                            {
+                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                                showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>
+                                            }
                                             {
                                                 dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
                                                 <TableHead className="text-right">Acción</TableHead>

@@ -14,6 +14,7 @@ import CustomersView from "./views/Customers/CustomersView";
 import BrandsView from "./views/Brands/BrandsView";
 import CategoriesView from "./views/Categories/CategoriesView";
 import ProductsView from "./views/Products/ProductsView";
+import BuysView from "./views/Buys/BuysView";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -48,6 +49,9 @@ export function Router() {
           }
           {
             dataAuth?.marca && (<Route path="/products" element={<ProductsView dataAuth={dataAuth} />} />)
+          }
+          {
+            dataAuth?.marca && (<Route path="/buys" element={<BuysView dataAuth={dataAuth} />} />)
           }
         </Route>
       </Routes>
