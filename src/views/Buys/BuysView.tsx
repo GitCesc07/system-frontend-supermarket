@@ -24,7 +24,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { BadgeCheck, Ban, Ellipsis, Loader2, Search, UserPenIcon } from "lucide-react";
+import { BadgeCheck, Ban, Edit, Ellipsis, Loader2, Search } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ import type { BuysFormDataInfo } from "@/types/buys.interface";
 import ToogleFieldsDialogBuys from "@/components/buys/ToogleFieldsDialogBuys";
 import { formatCurrency } from "@/utils/utilidad";
 import CreateBuy from "@/components/buys/CreateBuy";
+import EditBuys from "@/components/buys/EditBuy";
 
 export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const [editingBuys, setEditingBuys] = useState<BuysFormDataInfo | null>(null);
     const [showFields, setShowFields] = useState<string[]>([
         "Número compra",
-        "Factura proveedor",        
+        "Factura proveedor",
         "Estado",
         "Observaciones",
         "Subtotal",
@@ -122,7 +123,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                 color="gray"
                                                 onClick={() => {
                                                     refetch();
-                                                    toast.error("Datos actualizados correctamente...", {
+                                                    toast.success("Datos actualizados correctamente...", {
                                                         position: "top-right",
                                                         closeButton: true,
                                                         action: {
@@ -151,7 +152,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
 
                             <div className="mt-3 w-full h-[80%] md:h-[90%] mx-auto">
                                 <Table>
-                                    <TableCaption>Registro de productos.</TableCaption>
+                                    <TableCaption>Registro de compras.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
                                             {showFields.includes("Número compra") && <TableHead>Número compra</TableHead>}
@@ -191,11 +192,9 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                         <TableCell>{buy.numero_compra}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("Número factura proveedor") &&
+                                                        showFields.includes("Factura proveedor") &&
                                                         <TableCell>
-                                                            <div className="truncate w-56">
-                                                                {buy.numero_factura_proveedor}
-                                                            </div>
+                                                            {buy.numero_factura_proveedor}
                                                         </TableCell>
                                                     }
 
@@ -288,7 +287,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                             variant="outline"
                                                                             className="flex items-center justify-center gap-x-3"
                                                                         >
-                                                                            <UserPenIcon className="size-4" />
+                                                                            <Edit className="size-4" />
                                                                             Modificar compra
                                                                         </Button>
                                                                     </DropdownMenuItem>
@@ -319,7 +318,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                 <Dialog open={openDialogEditBuys} onOpenChange={() => {
                                                     setOpenDialogEditBuys(!openDialogEditBuys)
                                                 }}>
-                                                    <EditBuy product={editingBuys} onClose={() => setEditingBuys(null)} />
+                                                    <EditBuys buy={editingBuys} dataAuth={dataAuth} onClose={() => setEditingBuys(null)} />
                                                 </Dialog>
                                             )
                                         }

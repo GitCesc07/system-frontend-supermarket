@@ -6,7 +6,8 @@ import { inventoryDataSchema } from "../types/inventory.interface";
 export async function getInventory() {
     try {
         const { data } = await api("/inventory/");
-        const response = inventoryDataSchema.safeParse(data)
+        const response = inventoryDataSchema.safeParse(data);
+        console.log(response);
         if (response.success) {
             return response.data;
         }

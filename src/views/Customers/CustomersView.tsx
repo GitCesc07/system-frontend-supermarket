@@ -167,7 +167,7 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                 color="gray"
                                                 onClick={() => {
                                                     refetch();
-                                                    toast.error("Datos actualizados correctamente...", {
+                                                    toast.success("Datos actualizados correctamente...", {
                                                         position: "top-right",
                                                         closeButton: true,
                                                         action: {

@@ -16,7 +16,6 @@ export default function ToogleFieldsDialogInventory({ showFields, setShowFields 
         "Descripciòn",
         "Cantidad minima",
         "Imagen",
-        "Expiración",
         "Stock",
         "Vencidos",
         "Deteriorados",

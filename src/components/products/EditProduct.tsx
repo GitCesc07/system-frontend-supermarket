@@ -29,6 +29,7 @@ export default function EditProduct({ product, onClose }: { product: ProductForm
     const [isDragging, setIsDragging] = useState(false);
     const fileinputRef = useRef<HTMLInputElement>(null);
     const [imageUpload, setImageUpload] = useState(false);
+    const [isChangeDateExpired, setIsChangeDateExpired] = useState(false);
     const [expirationActive, setExpirationActive] = useState(0);
 
     const [editProduct, setEditProduct] = useState(product);
@@ -271,6 +272,8 @@ export default function EditProduct({ product, onClose }: { product: ProductForm
         });
         setOpenComboBoxBrand(false);
         setOpenComboBoxCategory(false);
+        setIsChangeDateExpired(false);
+        setExpirationActive(0);
     }
 
     const onsubmitCreateProduct = () => {
@@ -299,6 +302,7 @@ export default function EditProduct({ product, onClose }: { product: ProductForm
         }
 
         const formData = editProduct;
+        console.log(editProduct);
         const data = { productId, formData };
         mutate(data);
     }
@@ -507,8 +511,9 @@ export default function EditProduct({ product, onClose }: { product: ProductForm
                                 disabled={expirationActive === 0 && editProduct.expiracion === 0 ? true : false}
                                 type="date"
                                 className={`border border-gray-300 text-sm rounded-lg focus:ring-blue-500 block w-full ps-10 p-2.5 outline-none ${expirationActive === 0 || editProduct.expiracion === 0 && "cursor-not-allowed"}`}
-                                value={formatDateInput(editProduct.fecha_expiracion)}
+                                value={isChangeDateExpired == true ? editProduct.fecha_expiracion : formatDateInput(editProduct.fecha_expiracion)}
                                 onChange={(e) => {
+                                    setIsChangeDateExpired(true);
                                     setEditProduct({ ...editProduct, fecha_expiracion: e.target.value });
                                 }}
                                 min={today}

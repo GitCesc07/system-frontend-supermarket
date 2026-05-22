@@ -106,7 +106,7 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                 color="gray"
                                                 onClick={() => {
                                                     refetch();
-                                                    toast.error("Datos actualizados correctamente...", {
+                                                    toast.success("Datos actualizados correctamente...", {
                                                         position: "top-right",
                                                         closeButton: true,
                                                         action: {
@@ -136,12 +136,11 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                         <TableRow>
                                             {showFields.includes("Producto") && <TableHead>Producto</TableHead>}
                                             {showFields.includes("Descripción") && <TableHead>Descripción</TableHead>}
-                                            {showFields.includes("Cantidad minima") && <TableHead>Cantidad minima</TableHead>}
+                                            {showFields.includes("Cantidad minima") && <TableHead className="text-center">Cantidad minima</TableHead>}
                                             {showFields.includes("Imagen") && <TableHead>Imagen</TableHead>}
-                                            {showFields.includes("Expiración") && <TableHead>Expiración</TableHead>}
                                             {showFields.includes("Stock") && <TableHead>Stock</TableHead>}
-                                            {showFields.includes("Vencidos") && <TableHead>Vencidos</TableHead>}
-                                            {showFields.includes("Deteriorados") && <TableHead>Deteriorados</TableHead>}
+                                            {showFields.includes("Vencidos") && <TableHead className="text-center">Vencidos</TableHead>}
+                                            {showFields.includes("Deteriorados") && <TableHead className="text-center">Deteriorados</TableHead>}
                                             {showFields.includes("Marca") && <TableHead>Marca</TableHead>}
                                             {showFields.includes("Categoría") && <TableHead>Categoría</TableHead>}
                                             {
@@ -172,7 +171,7 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                     }
                                                     {
                                                         showFields.includes("Cantidad minima") &&
-                                                        <TableCell>{product.cantidad_minima}</TableCell>
+                                                        <TableCell align="center">{product.cantidad_minima}</TableCell>
                                                     }
 
                                                     {
@@ -212,19 +211,6 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                     }
 
                                                     {
-                                                        showFields.includes("Expiración") &&
-                                                        <TableCell align="center">
-                                                            <input
-                                                                className="opacity-90"
-                                                                disabled
-                                                                type="checkbox"
-                                                                checked={product.expiracion == 1 ? true : false}
-                                                                name="" id=""
-                                                            />
-                                                        </TableCell>
-                                                    }
-
-                                                    {
                                                         showFields.includes("Stock") &&
                                                         <TableCell className={`${product.stock <= product.cantidad_minima ? "darK:text-red-300 text-red-500" : ""}`}>
                                                             {product.stock}
@@ -232,14 +218,14 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                     }
                                                     {
                                                         showFields.includes("Vencidos") &&
-                                                        <TableCell>
+                                                        <TableCell align="center">
                                                             {product.producto_vencido}
                                                         </TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Deteriorados") &&
-                                                        <TableCell>
+                                                        <TableCell align="center">
                                                             {product.producto_deteriorado}
                                                         </TableCell>
                                                     }

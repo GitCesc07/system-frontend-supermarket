@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Calculator, ChevronDown, ChevronUp, Edit, Plus, PlusIcon, Save, Search, Trash2 } from "lucide-react";
+import { Calculator, ChevronDown, ChevronUp, Edit, MessageCircleQuestion, Plus, PlusIcon, Save, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { BuysFormDataAdd, TempPurchasingFormData, TempPurchasingFormDataDetails, TempPurchasingFormDataPaymentmethod } from "@/types/buys.interface";
 import type { SupplierFormDataInfo } from "@/types/suppliers.interface";
@@ -15,18 +15,17 @@ import type { AuthPermissions } from "@/types/auth.interface";
 import { formatCurrency } from "@/utils/utilidad";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import TableEmpty from "../ui-components/TableEmpty";
+import { AlertDialog } from "../ui/alert-dialog";
+import AlertDialogDelete from "../ui-components/AlertDialogDelete";
+import { getAllSupplier } from "@/apis/suppliers.apis";
 
 export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate()
     const location = useLocation()
     let precioCompra: number;
 
-    const today = new Date().toISOString().split("T")[0];
-
     const [open, setOpen] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
-    const [endDate, setEndDate] = useState("");
-    const [daysDifference, setDaysDifference] = useState(0);
     const [subtotal, setSubtotal] = useState(0);
     const [total, setTotal] = useState(0);
     const [taxesValue, setTaxesValue] = useState(15);
@@ -67,7 +66,6 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         usuario_creador: ''
     });
 
-    const [termino, setTermino] = useState(0);
     const [transferencia, setTransferencia] = useState(false);
     const [montoTransferencia, setMontoTransferencia] = useState("");
     const [observacionesTransferencia, setObservacionesTransferencia] = useState("");
@@ -99,7 +97,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         }, 500);
     }, [dataProducts, handleCalculateTotalWithTaxes]);
 
-
+    // * Productos
     const { data: databaseProducts, refetch: refetchProduct } = useQuery({
         queryKey: ["products"],
         queryFn: getProducts,
@@ -116,6 +114,23 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         nombre_producto: ""
     });
 
+
+    // * Proveedores
+    const { data: databaseSuppliers, refetch: refetchSupplier } = useQuery({
+        queryKey: ["suppliers"],
+        queryFn: getAllSupplier,
+    });
+    const [openComboBoxSupplier, setOpenComboBoxSupplier] = useState(false);
+    const [searchTermSupplier, setSearchTermSupplier] = useState("");
+    const filteredSuppliers = Object.values(databaseSuppliers || {}).filter(supplier =>
+        Object.values(supplier).some(value =>
+            value.toString().toLowerCase().includes(searchTermSupplier.toLowerCase())
+        )
+    );
+    const [dataSupplierComboBox, setDataSupplierComboBox] = useState({
+        id_proveedor: "",
+        nombre_proveedor: ""
+    });
 
     // * Get supplier information                
     const [supplierData, setSupplierData] = useState<SupplierFormDataInfo | null>(null)
@@ -145,6 +160,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         })
         setSubtotal(0);
         setProductId(null);
+        setDataProductComboBox({
+            id_producto: "",
+            nombre_producto: ""
+        })
     }
 
     const editProduct = () => {
@@ -193,7 +212,6 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     onClick: () => toast.dismiss()
                 }
             });
-
             setOpenAlertDialogDeleted(null);
         }
     }
@@ -293,10 +311,8 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     }
 
     const handleSelectionProduct = (dataProduct: TempPurchasingFormData) => {
-
-        if (dataProducts.find(item => item.id_producto === dataProduct.id_producto)) {
-
-            toast.success("El producto ya se encuentra agregado...", {
+        if (dataProducts.find(item => item.id_producto == dataProduct.id_producto)) {
+            toast.warning("El producto ya se encuentra agregado...", {
                 position: "top-right",
                 closeButton: true,
                 action: {
@@ -304,14 +320,13 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     onClick: () => toast.dismiss()
                 }
             });
-
             return;
+        } else {
+            setProductId(dataProduct)
+            newProducts.id_producto = dataProduct!.id_producto;
+            newProducts.nombre_producto = dataProduct!.nombre_producto;
         }
 
-        setProductId(dataProduct)
-        newProducts.id_producto = dataProduct!.id_producto;
-        newProducts.nombre_producto = dataProduct!.nombre_producto;
-        // newProducts.precio_compra = dataProduct!.precio_compra;
     }
 
     const queryClient = useQueryClient();
@@ -420,11 +435,8 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         setMontoEfectivo("");
         setTarjeta(false);
         setMontoTarjeta("");
-        setTermino(0);
         reset();
         setDataProducts([]);
-        setDaysDifference(0);
-        setEndDate("");
         setTotal(0);
         setSubtotal(0);
         setEditId(null);
@@ -444,62 +456,11 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     }
 
     const onSubmitCreateBuys = () => {
-        const dataStorage = getDataLocalStorage(dataProducts);
 
-        if (dataStorage.length <= 0) {
-
-            toast.success("No hay productos seleccionados...", {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar  todas",
-                    onClick: () => toast.dismiss()
-                }
-            });
-            return;
-        }
-        newBuys.detalles_compra = dataStorage;
-        newBuys.impuesto_manual = [{
-            porcentaje: taxesValue.toString() + "%",
-            valor_porcentaje: taxesValue,
-            valor_cantidad: valorImpuesto
-        }];
-
-        const paymentMethods: TempPurchasingFormDataPaymentmethod[] = [];
-        if (transferencia) {
-
-            if (+montoTransferencia <= 0) {
-                MySwal.fire({
-                    position: "center",
-                    title: "Movimientos de transferencia",
-                    icon: "error",
-                    html:
-                        <div className="flex flex-col items-center">
-                            <p className="text-red-500 font-bold">
-                                Debes agregar el monto de pago...
-                            </p>
-                        </div>
-                    ,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-                return;
-            }
-            else {
-
-                paymentMethods.push({
-                    metodo: "Transferencia",
-                    monto: montoTransferencia,
-                    observaciones: observacionesTransferencia,
-                });
-            }
-
-        }
-
-        if (tarjeta) {
-            if (+montoTarjeta <= 0) {
-                toast.success("Tarjeta: ", {
-                    description: "Debes agregar el monto de pago...",
+        if (openAlertDialogDeleted == null) {
+            const dataStorage = getDataLocalStorage(dataProducts);
+            if (dataStorage.length <= 0) {
+                toast.success("No hay productos seleccionados...", {
                     position: "top-right",
                     closeButton: true,
                     action: {
@@ -509,20 +470,112 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 });
                 return;
             }
-            else {
-                paymentMethods.push({
-                    metodo: "Tarjeta",
-                    monto: montoTarjeta,
-                    observaciones: observacionesTarjeta,
-                });
+            newBuys.detalles_compra = dataStorage;
+            newBuys.impuesto_manual = [{
+                porcentaje: taxesValue.toString() + "%",
+                valor_porcentaje: taxesValue,
+                valor_cantidad: valorImpuesto
+            }];
+
+            const paymentMethods: TempPurchasingFormDataPaymentmethod[] = [];
+            if (transferencia) {
+
+                if (+montoTransferencia <= 0) {
+                    toast.success("Transferencia: ", {
+                        description: "Debes agregar el monto de pago...",
+                        position: "top-right",
+                        closeButton: true,
+                        action: {
+                            label: "Cerrar  todas",
+                            onClick: () => toast.dismiss()
+                        }
+                    });
+                    return;
+                }
+                else {
+
+                    paymentMethods.push({
+                        metodo: "Transferencia",
+                        monto: montoTransferencia,
+                        observaciones: observacionesTransferencia,
+                    });
+                }
+
             }
-        }
 
-        if (efectivo) {
-            if (+montoEfectivo <= 0) {
+            if (tarjeta) {
+                if (+montoTarjeta <= 0) {
+                    toast.success("Tarjeta: ", {
+                        description: "Debes agregar el monto de pago...",
+                        position: "top-right",
+                        closeButton: true,
+                        action: {
+                            label: "Cerrar  todas",
+                            onClick: () => toast.dismiss()
+                        }
+                    });
+                    return;
+                }
+                else {
+                    paymentMethods.push({
+                        metodo: "Tarjeta",
+                        monto: montoTarjeta,
+                        observaciones: observacionesTarjeta,
+                    });
+                }
+            }
 
-                toast.success("Efectivo: ", {
-                    description: "Debes agregar el monto de pago...",
+            if (efectivo) {
+                if (+montoEfectivo <= 0) {
+
+                    toast.success("Efectivo: ", {
+                        description: "Debes agregar el monto de pago...",
+                        position: "top-right",
+                        closeButton: true,
+                        action: {
+                            label: "Cerrar  todas",
+                            onClick: () => toast.dismiss()
+                        }
+                    });
+                    return;
+                }
+                else {
+                    paymentMethods.push({
+                        metodo: "Efectivo",
+                        monto: montoEfectivo,
+                        observaciones: observacionesEfectivo,
+                    });
+                }
+            }
+
+            if (cheque) {
+                if (+montoCheque <= 0) {
+
+                    toast.success("Cheque: ", {
+                        description: "Debes agregar el monto de pago...",
+                        position: "top-right",
+                        closeButton: true,
+                        action: {
+                            label: "Cerrar  todas",
+                            onClick: () => toast.dismiss()
+                        }
+                    });
+                    return;
+                }
+                else {
+                    paymentMethods.push({
+                        metodo: "Cheque",
+                        monto: montoCheque,
+                        observaciones: observacionesCheque,
+                    });
+                }
+            }
+            newBuys.metodo_pago = paymentMethods;
+
+            const result = montoCheque + montoEfectivo + montoTarjeta + montoTransferencia;
+            if (+result > +newBuys.total) {
+
+                toast.success("La suma de los metodos de pagar no puede ser mayor al monto total...", {
                     position: "top-right",
                     closeButton: true,
                     action: {
@@ -532,20 +585,9 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 });
                 return;
             }
-            else {
-                paymentMethods.push({
-                    metodo: "Efectivo",
-                    monto: montoEfectivo,
-                    observaciones: observacionesEfectivo,
-                });
-            }
-        }
+            else if (+result < +newBuys.total) {
 
-        if (cheque) {
-            if (+montoCheque <= 0) {
-
-                toast.success("Cheque: ", {
-                    description: "Debes agregar el monto de pago...",
+                toast.success("La suma de los metodos de pagar no puede ser menor al monto total...", {
                     position: "top-right",
                     closeButton: true,
                     action: {
@@ -555,49 +597,15 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 });
                 return;
             }
-            else {
-                paymentMethods.push({
-                    metodo: "Cheque",
-                    monto: montoCheque,
-                    observaciones: observacionesCheque,
-                });
-            }
+            const data = newBuys;
+            mutate(data);
         }
-        newBuys.metodo_pago = paymentMethods;
-
-        const result = montoCheque + montoEfectivo + montoTarjeta + montoTransferencia;
-        if (+result > +newBuys.total) {
-
-            toast.success("La suma de los metodos de pagar no puede ser mayor al monto total...", {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar  todas",
-                    onClick: () => toast.dismiss()
-                }
-            });
-            return;
-        }
-        else if (+result < +newBuys.total) {
-
-            toast.success("La suma de los metodos de pagar no puede ser menor al monto total...", {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar  todas",
-                    onClick: () => toast.dismiss()
-                }
-            });
-            return;
-        }
-        const data = newBuys;
-        mutate(data);
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger
-                className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
+                className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
                 onClick={() => {
                     navigate(location.pathname + "?createBuy");
                     setOpen(true);
@@ -621,439 +629,484 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 <form
                     onSubmit={handleSubmit(onSubmitCreateBuys)}
                 >
-                    <div className="h-80 mx-auto touch-pan-y scrollbar-thin-custom scroll-smooth w-full md:w-full px-1 sm:p-4 overflow-scroll py-4">
-                        <div className="flex flex-col md:flex-row items-start justify-start gap-x-4">
-                            <fieldset className="flex h-full w-full flex-col items-center border border-gray-300 dark:border-gray-800 rounded-lg p-4">
-                                <legend className="uppercase font-bold">Datos de la compra</legend>
-                                <div className="w-full">
-                                    <label htmlFor="numero_factura_proveedor" className="font-bold">Número Factura Proveedor:</label>
-                                    <input
-                                        id="numero_factura_proveedor"
-                                        className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2"
-                                        value={newBuys.numero_factura_proveedor}
-                                        onChange={(e) => setNewBuys({ ...newBuys, numero_factura_proveedor: e.target.value })}
-                                        type="text"
-                                        required
-                                        minLength={2}
-                                        placeholder="Ejemplo: xxxxx..."
-                                    />
-                                </div>
-
-                                <div className="flex flex-1 w-full items-center justify-center">
-                                    <div className="w-full">
-                                        <label htmlFor="observaciones" className="font-bold">Observaciones:</label>
-                                        <textarea
-                                            id="observaciones"
-                                            className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2"
-                                            placeholder="Ejemplo: xxxxx..."
-                                            value={newBuys.observaciones}
-                                            onChange={(e) => setNewBuys({ ...newBuys, observaciones: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                            </fieldset>
+                    <div className="h-80 mx-auto flex items-start gap-y-4 md:gap-x-8 justify-center flex-col md:flex-row w-full md:w-full px-1 sm:p-4 py-4">
+                        <fieldset className="flex w-full h-72 flex-col gap-y-6 items-center border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                            <legend className="uppercase font-bold">Datos de la compra</legend>
                             <div className="w-full">
-                                <fieldset className="w-full border border-gray-300 dark:border-gray-800 rounded-lg p-4">
-                                    <legend className="uppercase font-bold">Metodo de pagos</legend>
-
-                                    <div className="flex items-center flex-col md:flex-row justify-center w-full gap-4">
-
-                                        <div className="flex items-center flex-col gap-4 w-full">
-
-                                            <div className="w-full flex flex-col items-center justify-center gap-y-4">
-                                                <div className="flex items-center justify-start md:justify-center flex-row-reverse gap-x-1">
-                                                    <label
-                                                        className="w-full md:w-28"
-                                                        htmlFor="transferenicaCheck"
-                                                    >Transferencia</label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name=""
-                                                        id="transferenicaCheck"
-                                                        onChange={(e) => {
-                                                            setTransferencia(e.target.checked);
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                {
-                                                    transferencia == true ?
-                                                        (
-                                                            <div className="flex w-full items-center justify-center flex-col gap-y-3">
-                                                                <div className="flex w-full items-center justify-center flex-col">
-                                                                    <label className="w-full" htmlFor="monto_transferencia">Monto:</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="border w-full border-gray-300 outline-none rounded-md py-1 px-2"
-                                                                        name=""
-                                                                        id="monto_transferencia"
-                                                                        value={transferencia == true ? montoTransferencia : 0}
-                                                                        onChange={(e) => {
-                                                                            setMontoTransferencia(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="flex w-full items-center justify-center flex-col">
-                                                                    <label className="w-full" htmlFor="observaciones_transferencia">Observaciones:</label>
-                                                                    <textarea
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="observaciones_transferencia"
-                                                                        value={transferencia == true ? observacionesTransferencia : ""}
-                                                                        onChange={(e) => {
-                                                                            setObservacionesTransferencia(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                        :
-                                                        (null)
-                                                }
-                                            </div>
-
-                                            <div className="w-full flex flex-col items-center justify-center gap-y-4">
-                                                <div className="flex items-center justify-start flex-row-reverse gap-x-1">
-                                                    <label
-                                                        className="w-full md:w-28"
-                                                        htmlFor="tarjetaCheck"
-                                                    >
-                                                        Tarjeta</label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name=""
-                                                        id="tarjetaCheck"
-                                                        onChange={(e) => {
-                                                            setTarjeta(e.target.checked);
-                                                        }}
-                                                    />
-                                                </div>
-                                                {
-                                                    tarjeta == true ?
-                                                        (
-                                                            <div className="flex w-full items-center justify-center flex-col gap-y-3">
-                                                                <div className="flex w-full items-center justify-center flex-col">
-                                                                    <label className="w-full" htmlFor="monto_tarjeta">Monto:</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="monto_tarjeta"
-                                                                        value={tarjeta == true ? montoTarjeta : 0}
-                                                                        onChange={(e) => {
-                                                                            setMontoTarjeta(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="flex items-center justify-center flex-col w-full">
-                                                                    <label className="w-full" htmlFor="observaciones_tarjeta">Observaciones:</label>
-                                                                    <textarea
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="observaciones_tarjeta"
-                                                                        value={tarjeta == true ? observacionesTarjeta : ""}
-                                                                        onChange={(e) => {
-                                                                            setObservacionesTarjeta(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                        :
-                                                        (null)
-                                                }
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center flex-col gap-4 w-full">
-                                            <div className="w-full flex flex-col items-center justify-center gap-y-4">
-
-                                                <div className="flex items-center justify-center flex-row-reverse gap-x-1">
-                                                    <label
-                                                        htmlFor="efectivoCheck"
-                                                        className="w-full md:w-28"
-                                                    >
-                                                        Efectivo
-                                                    </label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name=""
-                                                        id="efectivoCheck"
-                                                        onChange={(e) => {
-                                                            setEfectivo(e.target.checked);
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                {
-                                                    efectivo == true ?
-                                                        (
-                                                            <div className="flex w-full items-center justify-center flex-col gap-y-3">
-                                                                <div className="flex w-full items-center justify-center flex-col">
-                                                                    <label className="w-full" htmlFor="monto_efectivo">Monto:</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="monto_efectivo"
-                                                                        value={efectivo == true ? montoEfectivo : 0}
-                                                                        onChange={(e) => {
-                                                                            setMontoEfectivo(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="flex items-center justify-center flex-col w-full">
-                                                                    <label className="w-full" htmlFor="observaciones_efectivo">Observaciones:</label>
-                                                                    <textarea
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="observaciones_efectivo"
-                                                                        value={efectivo == true ? observacionesEfectivo : ""}
-                                                                        onChange={(e) => {
-                                                                            setObservacionesEfectivo(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                        :
-                                                        (null)
-                                                }
-                                            </div>
-
-                                            <div className="w-full flex flex-col items-center justify-center gap-y-4">
-                                                <div className="flex items-center justify-center flex-row-reverse gap-x-1">
-                                                    <label className="w-full md:w-28" htmlFor="chequeCheck">Cheque</label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name=""
-                                                        id="chequeCheck"
-                                                        onChange={(e) => {
-                                                            setCheque(e.target.checked);
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                {
-                                                    cheque == true ?
-                                                        (
-                                                            <div className="flex w-full items-center justify-center flex-col gap-y-3">
-                                                                <div className="flex w-full items-center justify-center flex-col">
-                                                                    <label className="w-full" htmlFor="monto_cheque">Monto:</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="monto_cheque"
-                                                                        value={cheque == true ? montoCheque : 0}
-                                                                        onChange={(e) => {
-                                                                            setMontoCheque(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="flex w-full items-center justify-center flex-col">
-                                                                    <label className="w-full" htmlFor="observaciones_cheque">Observaciones:</label>
-                                                                    <textarea
-                                                                        className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
-                                                                        name=""
-                                                                        id="observaciones_cheque"
-                                                                        value={cheque == true ? observacionesCheque : ""}
-                                                                        onChange={(e) => {
-                                                                            setObservacionesCheque(e.target.value);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                        :
-                                                        (null)
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
+                                <label htmlFor="numero_factura_proveedor" className="font-bold">Número Factura Proveedor:</label>
+                                <input
+                                    id="numero_factura_proveedor"
+                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                    value={newBuys.numero_factura_proveedor}
+                                    onChange={(e) => setNewBuys({ ...newBuys, numero_factura_proveedor: e.target.value })}
+                                    type="text"
+                                    required
+                                    minLength={2}
+                                    placeholder="Ejemplo: xxxxx..."
+                                />
                             </div>
 
-                        </div>
+                            <div className="flex flex-1 w-full items-start justify-center">
+                                <div className="w-full">
+                                    <label htmlFor="observaciones" className="font-bold">Observaciones:</label>
+                                    <textarea
+                                        id="observaciones"
+                                        className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                        placeholder="Ejemplo: xxxxx..."
+                                        value={newBuys.observaciones}
+                                        onChange={(e) => setNewBuys({ ...newBuys, observaciones: e.target.value })}
+                                        rows={6}
+                                    />
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset className="w-full scrollbar-thin-custom touch-pan-y scroll-smooth overflow-scroll h-72 border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                            <legend className="uppercase font-bold">Metodo de pagos</legend>
 
-                        <div className="flex flex-col md:flex-row items-start w-full justify-center gap-x-4">
-                            <fieldset className="flex flex-1 w-full flex-col items-center mt-4 border border-gray-300 dark:border-gray-800 px-1 sm:p-4 rounded-lg py-4">
-                                <legend className="uppercase font-bold">Datos del producto</legend>
-                                <div className="w-full flex-col flex items-start -mt-3">
-                                    <label htmlFor="nombre_producto" className="font-bold mb-1">Productos:</label>
-                                    <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-800 py-1 px-2 cursor-pointer ${openComboBoxProduct == true ? "rounded-t-md" : "rounded-md"}`}
-                                        onClick={() => {
-                                            setOpenComboBoxProduct(!openComboBoxProduct)
-                                            refetchProduct();
-                                        }}
-                                    >
-                                        <span className="cursor-pointer">{dataProductComboBox.nombre_producto == "" ? "Selecciona producto" : dataProductComboBox.nombre_producto}</span>
+                            <div className="flex items-center flex-col md:flex-row justify-center w-full gap-4">
+
+                                <div className="flex items-center flex-col gap-4 w-full">
+
+                                    <div className="w-full flex flex-col items-center justify-center gap-y-4">
+                                        <div className="flex items-center justify-start md:justify-center flex-row-reverse gap-x-1">
+                                            <label
+                                                className="w-full md:w-28"
+                                                htmlFor="transferenicaCheck"
+                                            >Transferencia</label>
+                                            <input
+                                                type="checkbox"
+                                                name=""
+                                                id="transferenicaCheck"
+                                                onChange={(e) => {
+                                                    setTransferencia(e.target.checked);
+                                                }}
+                                            />
+                                        </div>
 
                                         {
-                                            openComboBoxProduct == true ?
+                                            transferencia == true ?
                                                 (
-                                                    <ChevronUp className="size-5" />
+                                                    <div className="flex w-full items-center justify-center flex-col gap-y-3">
+                                                        <div className="flex w-full items-center justify-center flex-col">
+                                                            <label className="w-full" htmlFor="monto_transferencia">Monto:</label>
+                                                            <input
+                                                                type="number"
+                                                                className="border w-full border-gray-300 outline-none rounded-md py-1 px-2"
+                                                                name=""
+                                                                id="monto_transferencia"
+                                                                value={transferencia == true ? montoTransferencia : 0}
+                                                                onChange={(e) => {
+                                                                    setMontoTransferencia(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="flex w-full items-center justify-center flex-col">
+                                                            <label className="w-full" htmlFor="observaciones_transferencia">Observaciones:</label>
+                                                            <textarea
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="observaciones_transferencia"
+                                                                value={transferencia == true ? observacionesTransferencia : ""}
+                                                                onChange={(e) => {
+                                                                    setObservacionesTransferencia(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 )
                                                 :
-                                                (
-                                                    <ChevronDown className="size-5" />
-                                                )
+                                                (null)
                                         }
                                     </div>
+
+                                    <div className="w-full flex flex-col items-center justify-center gap-y-4">
+                                        <div className="flex items-center justify-start flex-row-reverse gap-x-1">
+                                            <label
+                                                className="w-full md:w-28"
+                                                htmlFor="tarjetaCheck"
+                                            >
+                                                Tarjeta</label>
+                                            <input
+                                                type="checkbox"
+                                                name=""
+                                                id="tarjetaCheck"
+                                                onChange={(e) => {
+                                                    setTarjeta(e.target.checked);
+                                                }}
+                                            />
+                                        </div>
+                                        {
+                                            tarjeta == true ?
+                                                (
+                                                    <div className="flex w-full items-center justify-center flex-col gap-y-3">
+                                                        <div className="flex w-full items-center justify-center flex-col">
+                                                            <label className="w-full" htmlFor="monto_tarjeta">Monto:</label>
+                                                            <input
+                                                                type="number"
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="monto_tarjeta"
+                                                                value={tarjeta == true ? montoTarjeta : 0}
+                                                                onChange={(e) => {
+                                                                    setMontoTarjeta(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="flex items-center justify-center flex-col w-full">
+                                                            <label className="w-full" htmlFor="observaciones_tarjeta">Observaciones:</label>
+                                                            <textarea
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="observaciones_tarjeta"
+                                                                value={tarjeta == true ? observacionesTarjeta : ""}
+                                                                onChange={(e) => {
+                                                                    setObservacionesTarjeta(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )
+                                                :
+                                                (null)
+                                        }
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center flex-col gap-4 w-full">
+                                    <div className="w-full flex flex-col items-center justify-center gap-y-4">
+
+                                        <div className="flex items-center justify-center flex-row-reverse gap-x-1">
+                                            <label
+                                                htmlFor="efectivoCheck"
+                                                className="w-full md:w-28"
+                                            >
+                                                Efectivo
+                                            </label>
+                                            <input
+                                                type="checkbox"
+                                                name=""
+                                                id="efectivoCheck"
+                                                onChange={(e) => {
+                                                    setEfectivo(e.target.checked);
+                                                }}
+                                            />
+                                        </div>
+
+                                        {
+                                            efectivo == true ?
+                                                (
+                                                    <div className="flex w-full items-center justify-center flex-col gap-y-3">
+                                                        <div className="flex w-full items-center justify-center flex-col">
+                                                            <label className="w-full" htmlFor="monto_efectivo">Monto:</label>
+                                                            <input
+                                                                type="number"
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="monto_efectivo"
+                                                                value={efectivo == true ? montoEfectivo : 0}
+                                                                onChange={(e) => {
+                                                                    setMontoEfectivo(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="flex items-center justify-center flex-col w-full">
+                                                            <label className="w-full" htmlFor="observaciones_efectivo">Observaciones:</label>
+                                                            <textarea
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="observaciones_efectivo"
+                                                                value={efectivo == true ? observacionesEfectivo : ""}
+                                                                onChange={(e) => {
+                                                                    setObservacionesEfectivo(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )
+                                                :
+                                                (null)
+                                        }
+                                    </div>
+
+                                    <div className="w-full flex flex-col items-center justify-center gap-y-4">
+                                        <div className="flex items-center justify-center flex-row-reverse gap-x-1">
+                                            <label className="w-full md:w-28" htmlFor="chequeCheck">Cheque</label>
+                                            <input
+                                                type="checkbox"
+                                                name=""
+                                                id="chequeCheck"
+                                                onChange={(e) => {
+                                                    setCheque(e.target.checked);
+                                                }}
+                                            />
+                                        </div>
+
+                                        {
+                                            cheque == true ?
+                                                (
+                                                    <div className="flex w-full items-center justify-center flex-col gap-y-3">
+                                                        <div className="flex w-full items-center justify-center flex-col">
+                                                            <label className="w-full" htmlFor="monto_cheque">Monto:</label>
+                                                            <input
+                                                                type="number"
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="monto_cheque"
+                                                                value={cheque == true ? montoCheque : 0}
+                                                                onChange={(e) => {
+                                                                    setMontoCheque(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="flex w-full items-center justify-center flex-col">
+                                                            <label className="w-full" htmlFor="observaciones_cheque">Observaciones:</label>
+                                                            <textarea
+                                                                className="border border-gray-300 outline-none rounded-md py-1 px-2 w-full"
+                                                                name=""
+                                                                id="observaciones_cheque"
+                                                                value={cheque == true ? observacionesCheque : ""}
+                                                                onChange={(e) => {
+                                                                    setObservacionesCheque(e.target.value);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )
+                                                :
+                                                (null)
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-start w-full justify-center gap-x-4">
+                        <fieldset className="flex flex-1 w-full flex-col items-center mt-4 border border-gray-300 dark:border-gray-600 px-1 sm:p-4 rounded-lg py-4">
+                            <legend className="uppercase font-bold">Datos del producto</legend>
+                            <div className="w-full flex-col flex items-start -mt-3">
+                                <label htmlFor="nombre_producto" className="font-bold mb-1">Productos:</label>
+                                <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-600 py-1 px-2 cursor-pointer ${openComboBoxProduct == true ? "rounded-t-md" : "rounded-md"}`}
+                                    onClick={() => {
+                                        setOpenComboBoxProduct(!openComboBoxProduct)
+                                        refetchProduct();
+                                    }}
+                                >
+                                    <span className="cursor-pointer">{dataProductComboBox.nombre_producto == "" ? "Selecciona producto" : dataProductComboBox.nombre_producto}</span>
+
                                     {
                                         openComboBoxProduct == true ?
                                             (
-                                                <div className="w-full top-0 right-0 h-32 sticky mx-auto overflow-auto touch-pan-y scrollbar-thin-custom transition-all duration-700 ease-in-out">
-                                                    <ul className="rounded-b-lg border border-gray-300 dark:border-gray-800">
-                                                        <>
-                                                            <div className="w-full border-b border-gray-300 dark:border-gray-800  py-1 px-2 flex items-center gap-x-1">
-                                                                <Search className="size-5 text-gray-400" href="searchProduct" />
-                                                                <input
-                                                                    id="searchProduct"
-                                                                    type="text"
-                                                                    value={searchTermProduct}
-                                                                    onChange={(e) => setSearchTermProduct(e.target.value)}
-                                                                    placeholder="Buscar..."
-                                                                    className="w-full border-none outline-none placeholder:text-gray-400"
-                                                                />
-                                                            </div>
-
-                                                            {
-                                                                filteredProducts?.map((product, index) => (
-                                                                    <li
-                                                                        key={index}
-                                                                        className="hover:bg-gray-300 py-1 px-4 cursor-pointer"
-                                                                        onClick={() => {
-                                                                            // setProductId({ ...newProduct, id_producto: product.id });
-                                                                            setSearchTermProduct("");
-                                                                            setOpenComboBoxProduct(!openComboBoxProduct);
-                                                                            setDataProductComboBox({ ...dataProductComboBox, id_producto: product.id, nombre_producto: product.nombre_producto });
-                                                                        }}
-                                                                    >
-                                                                        {product.nombre_producto}
-                                                                    </li>
-                                                                ))
-                                                            }
-                                                        </>
-                                                    </ul>
-                                                </div>
+                                                <ChevronUp className="size-5" />
                                             )
                                             :
-                                            (null)
+                                            (
+                                                <ChevronDown className="size-5" />
+                                            )
                                     }
                                 </div>
+                                {
+                                    openComboBoxProduct == true ?
+                                        (
+                                            <div className="w-full top-0 right-0 h-32 sticky mx-auto overflow-auto touch-pan-y scrollbar-thin-custom transition-all duration-700 ease-in-out">
+                                                <ul className="rounded-b-lg border border-gray-300 dark:border-gray-600">
+                                                    <>
+                                                        <div className="w-full border-b border-gray-300 dark:border-gray-600  py-1 px-2 flex items-center gap-x-1">
+                                                            <Search className="size-5 text-gray-400" href="searchProduct" />
+                                                            <input
+                                                                id="searchProduct"
+                                                                type="text"
+                                                                value={searchTermProduct}
+                                                                onChange={(e) => setSearchTermProduct(e.target.value)}
+                                                                placeholder="Buscar..."
+                                                                className="w-full border-none outline-none placeholder:text-gray-400"
+                                                            />
+                                                        </div>
 
-                                <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                                    <label htmlFor="precio_compra" className="font-bold mb-1">Precio:</label>
-                                    <input
-                                        className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
-                                        id="precio_compra"
-                                        required
-                                        disabled={editId != null || newProducts.id_producto == "" ? true : false}
-                                        value={+newProducts.precio_compra == 0 || editId != null ? "" : newProducts.precio_compra}
-                                        onChange={(e) => setNewProducts({ ...newProducts, precio_compra: e.target.value })}
-                                        type="number"
-                                        placeholder="Precio del producto..."
-                                    />
-                                </div>
+                                                        {
+                                                            filteredProducts?.map((product, index) => (
+                                                                <li
+                                                                    key={index}
+                                                                    className="hover:bg-gray-300 py-1 px-4 cursor-pointer"
+                                                                    onClick={() => {
+                                                                        setNewProducts({
+                                                                            ...newProducts,
+                                                                            id_producto: product.id,
+                                                                            nombre_producto: product.nombre_producto,
+                                                                            precio_compra: product.precio_compra,
+                                                                            cantidad: "0",
+                                                                        })
+                                                                        setSearchTermProduct("");
+                                                                        setOpenComboBoxProduct(!openComboBoxProduct);
+                                                                        setDataProductComboBox({ ...dataProductComboBox, id_producto: product.id, nombre_producto: product.nombre_producto });
+                                                                        handleSelectionProduct({
+                                                                            id_producto: product.id,
+                                                                            nombre_producto: product.nombre_producto,
+                                                                            precio_compra: product.precio_compra,
+                                                                            cantidad: "0",
+                                                                            id_inventario: "",
+                                                                            stock: 0,
+                                                                            subtotal_compra: "0",
+                                                                            subtotal_venta: "0"
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    {product.nombre_producto}
+                                                                </li>
+                                                            ))
+                                                        }
+                                                    </>
+                                                </ul>
+                                            </div>
+                                        )
+                                        :
+                                        (null)
+                                }
+                            </div>
 
-                                <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                                    <label htmlFor="cantidad" className="font-bold mb-1">Cantidad comprada:</label>
-                                    <input
-                                        className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
-                                        id="cantidad"
-                                        required
-                                        disabled={editId != null || newProducts.id_producto == "" ? true : false}
-                                        value={+newProducts.cantidad == 0 || editId != null ? "" : newProducts.cantidad}
-                                        onChange={(e) => {
-                                            if (editId == null) {
-                                                handleCalculateSubtotal(+e.target.value);
-                                            }
+                            <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
+                                <label htmlFor="precio_compra" className="font-bold mb-1">Precio:</label>
+                                <input
+                                    className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
+                                    id="precio_compra"
+                                    required
+                                    disabled={editId != null || newProducts.id_producto == "" ? true : false}
+                                    value={+newProducts.precio_compra == 0 || editId != null ? "" : newProducts.precio_compra}
+                                    onChange={(e) => setNewProducts({ ...newProducts, precio_compra: e.target.value })}
+                                    type="number"
+                                    placeholder="Precio del producto..."
+                                />
+                            </div>
 
-                                            handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
-                                            setNewProducts({ ...newProducts, cantidad: e.target.value });
-                                        }}
-                                        onKeyDown={keyPressDown}
-                                        type="number"
-                                        placeholder="Ejemplo: xxx..."
-                                    />
-                                </div>
+                            <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
+                                <label htmlFor="cantidad" className="font-bold mb-1">Cantidad comprada:</label>
+                                <input
+                                    className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
+                                    id="cantidad"
+                                    required
+                                    disabled={editId != null || newProducts.id_producto == "" ? true : false}
+                                    value={+newProducts.cantidad == 0 || editId != null ? "" : newProducts.cantidad}
+                                    onChange={(e) => {
+                                        if (editId == null) {
+                                            handleCalculateSubtotal(+e.target.value);
+                                        }
 
-                                <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                                    <label htmlFor="subtotal" className="font-bold mb-1">Subtotal:</label>
-                                    <input
-                                        className="w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
-                                        id="subtotal"
-                                        value={editId != null ? "" : formatCurrency(subtotal.toString())}
-                                        type="text"
-                                        disabled placeholder="Subtotal por producto..."
+                                        handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
+                                        setNewProducts({ ...newProducts, cantidad: e.target.value });
+                                    }}
+                                    onKeyDown={keyPressDown}
+                                    type="number"
+                                    placeholder="Ejemplo: xxx..."
+                                />
+                            </div>
 
-                                    />
-                                </div>
+                            <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
+                                <label htmlFor="subtotal" className="font-bold mb-1">Subtotal:</label>
+                                <input
+                                    className="w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                                    id="subtotal"
+                                    value={editId != null ? "" : formatCurrency(subtotal.toString())}
+                                    type="text"
+                                    disabled placeholder="Subtotal por producto..."
 
-                                <div className="w-full flex items-center justify-center mt-8">
+                                />
+                            </div>
+
+                            <div className="w-full flex items-center justify-center mt-8">
+
+                                {
+                                    editId == null ?
+                                        (
+                                            <button
+                                                type="button"
+                                                className={`w-full md:w-56 py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base border border-gray-400 hover:border-gray-600 outline-none rounded-md ${+newProducts.cantidad <= 0 && "cursor-not-allowed"}`}
+                                                onClick={addProducts}
+                                                disabled={
+                                                    +newProducts.cantidad <= 0 ?
+                                                        true
+                                                        :
+                                                        false
+                                                }
+                                            >
+                                                <PlusIcon className="size-5" />
+                                                Agregar producto
+                                            </button>
+                                        )
+                                        :
+                                        ""
+                                }
+
+                            </div>
+                        </fieldset>
+
+                        <fieldset className="flex flex-1 w-full flex-col items-center mt-4 border border-gray-300 dark:border-gray-600 px-1 sm:p-4 rounded-lg py-4">
+                            <legend className="uppercase font-bold">Datos del poveedor</legend>
+                            <div className="w-full flex-col flex items-start -mt-3 h-72">
+                                <label htmlFor="nombre_proveedor" className="font-bold mb-1">Proveedor:</label>
+                                <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-600 py-1 px-2 cursor-pointer ${openComboBoxSupplier == true ? "rounded-t-md" : "rounded-md"}`}
+                                    onClick={() => {
+                                        setOpenComboBoxSupplier(!openComboBoxSupplier)
+                                        refetchSupplier();
+                                    }}
+                                >
+                                    <span className="cursor-pointer">{dataSupplierComboBox.nombre_proveedor == "" ? "Selecciona proveedor" : dataSupplierComboBox.nombre_proveedor}</span>
 
                                     {
-                                        editId == null ?
+                                        openComboBoxSupplier == true ?
                                             (
-                                                <button
-                                                    type="button"
-                                                    className={`w-full bg-white md:w-56 py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base border border-gray-400 hover:border-gray-600 outline-none rounded-md ${+newProducts.cantidad <= 0 && "cursor-not-allowed"}`}
-                                                    onClick={addProducts}
-                                                    disabled={
-                                                        +newProducts.cantidad <= 0 ?
-                                                            true
-                                                            :
-                                                            false
-                                                    }
-                                                >
-                                                    <PlusIcon className="size-5" />
-                                                    Agregar producto
-                                                </button>
+                                                <ChevronUp className="size-5" />
                                             )
                                             :
-                                            ""
+                                            (
+                                                <ChevronDown className="size-5" />
+                                            )
                                     }
-
                                 </div>
-                            </fieldset>
+                                {
+                                    openComboBoxSupplier == true ?
+                                        (
+                                            <div className="w-full top-0 right-0 h-72 sticky mx-auto overflow-auto touch-pan-y scrollbar-thin-custom transition-all duration-700 ease-in-out">
+                                                <ul className="rounded-b-lg border border-gray-300 dark:border-gray-600">
+                                                    <>
+                                                        <div className="w-full border-b border-gray-300 dark:border-gray-600  py-1 px-2 flex items-center gap-x-1">
+                                                            <Search className="size-5 text-gray-400" href="searchSupplier" />
+                                                            <input
+                                                                id="searchSupplier"
+                                                                type="text"
+                                                                value={searchTermSupplier}
+                                                                onChange={(e) => setSearchTermSupplier(e.target.value)}
+                                                                placeholder="Buscar..."
+                                                                className="w-full border-none outline-none placeholder:text-gray-400"
+                                                            />
+                                                        </div>
 
-                            {/* <fieldset className="flex flex-1 w-full items-center justify-center mt-4 border border-gray-300 dark:border-gray-800 rounded-lg px-1 py-2 sm:p-4">
-                                <legend className="uppercase font-bold">Datos del proveedor</legend>
-                                <div className="w-full flex items-center justify-center flex-col py-4">
-                                    <div className="w-full flex items-center justify-center gap-x-2">
-                                        <SupplierComboBoxBuys onSelectionChange={handleSelectionSupplier} />
-                                    </div>
-
-                                    <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                                        <label htmlFor="nombre_proveedor" className="font-bold mb-1">Proveedor:</label>
-                                        <input
-                                            className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2"
-                                            id="nombre_proveedor"
-                                            value={supplierData == null || supplierData == undefined ? "" : supplierData?.nombre_proveedor}
-                                            type="text"
-                                            disabled
-                                            placeholder="Tus proveedores aquí..."
-                                        />
-                                    </div>
-
-                                    <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                                        <label htmlFor="ruc" className="font-bold mb-1">RUC:</label>
-                                        <input
-                                            className="w-full border border-gray-300 dark:border-gray-800  outline-none rounded-md py-1 px-2"
-                                            id="ruc"
-                                            value={supplierData == null || supplierData == undefined ? "" : supplierData?.ruc}
-                                            type="text"
-                                            disabled
-                                            placeholder="RUC del proveedor..."
-                                        />
-                                    </div>
-                                </div>
-                            </fieldset> */}
-                        </div>
+                                                        {
+                                                            filteredSuppliers?.map((supplier, index) => (
+                                                                <li
+                                                                    key={index}
+                                                                    className="hover:bg-gray-300 py-1 px-4 cursor-pointer"
+                                                                    onClick={() => {
+                                                                        setSearchTermSupplier("");
+                                                                        setOpenComboBoxSupplier(!openComboBoxSupplier);
+                                                                        setDataSupplierComboBox({ ...dataSupplierComboBox, id_proveedor: supplier.id, nombre_proveedor: supplier.nombre_proveedor });
+                                                                        handleSelectionSupplier(supplier);
+                                                                    }}
+                                                                >
+                                                                    {supplier.nombre_proveedor}
+                                                                </li>
+                                                            ))
+                                                        }
+                                                    </>
+                                                </ul>
+                                            </div>
+                                        )
+                                        :
+                                        (null)
+                                }
+                            </div>
+                        </fieldset>
                     </div>
-
-                    <div className='w-full md:w-[74%] mx-auto md:mx-0 mt-4 flex items-center justify-center gap-x-1 border border-gray-300 dark:border-gray-800 py-1 px-2'>
+                    <div className='w-full md:w-[74%] mx-auto md:mx-0 mt-4 flex items-center justify-center gap-x-1 border border-gray-300 dark:border-gray-600 py-1 px-2'>
                         <Search className="size-5" />
                         <input
                             type="text"
@@ -1064,9 +1117,9 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                         />
                     </div>
 
-                    <div className="h-auto w-full lg:w-full flex-col lg:flex-row flex md:gap-x-4 gap-y-4 items-start justify-center mx-auto">
+                    <div className="h-104 w-full lg:w-full flex-col lg:flex-row flex md:gap-x-4 gap-y-4 items-start justify-center mx-auto">
                         <div className="w-full h-full lg:w-[75%] scrollbar-thin-custom touch-pan-x touch-pan-y scroll-smooth overflow-scroll top-0">
-                            <Table className="overflow-x-auto h-full overflow-y-auto touch-pan-y touch-pan-x p-2 w-[1250px] md:w-full scrollbar-thin-custom">
+                            <Table className="h-full p-2 w-312.5 md:w-full scrollbar-thin-custom">
                                 <TableHeader className="top-0 sticky">
                                     <TableRow>
                                         <TableHead>Producto</TableHead>
@@ -1080,7 +1133,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                 <TableBody>
                                     {
                                         filtereddataProducts?.map(product => (
-                                            <TableRow key={product.id_producto} className="hover:bg-gray-100/85 transition-all duration-200">
+                                            <TableRow key={product.id_producto} className="hover:bg-gray-100/85 dark:hover:bg-gray-800/95 transition-all duration-200">
 
                                                 <TableCell>
                                                     {
@@ -1093,7 +1146,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                         editId === product.id_producto ?
                                                             (
                                                                 <input
-                                                                    className="w-14 border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2"
+                                                                    className="w-14 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
                                                                     id="cantidad"
                                                                     required
                                                                     value={newProducts.cantidad == "0" ? "" : newProducts.cantidad}
@@ -1120,7 +1173,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                         editId === product.id_producto && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER ?
                                                             (
                                                                 <input
-                                                                    className="w-24 border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2"
+                                                                    className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
                                                                     id="precio_compra"
                                                                     required
                                                                     value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
@@ -1241,14 +1294,14 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             </Table>
                         </div>
 
-                        <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-800 rounded-lg py-4 px-2 h md:h-96 scrollbar-thin-custom touch-pan-y scroll-smooth overflow-scroll">
+                        <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-600 rounded-lg py-4 px-2 h-104">
                             <legend className="uppercase font-bold">Montos de la compra</legend>
 
                             <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
                                 <label htmlFor="total_productos" className="font-bold w-full">Total productos:</label>
                                 <input
                                     id="total_productos"
-                                    className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
                                     value={dataProducts.length}
                                     type="text"
                                     disabled
@@ -1259,7 +1312,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                 <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de compra:</label>
                                 <input
                                     id="subtotal_compra"
-                                    className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
+                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
                                     value={formatCurrency(handleCalculateTotal().toString())}
                                     type="text"
                                     disabled
@@ -1270,7 +1323,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                 <label htmlFor="value_tax" className="font-bold text-start w-full">IVA:</label>
                                 <input
                                     id="value_tax"
-                                    className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
                                     value={valorImpuesto === 0 ? "0.00" : formatCurrency(valorImpuesto.toString())}
                                     type="text"
                                     disabled
@@ -1292,7 +1345,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                 <label htmlFor="impuesto" className="font-bold text-start w-full">% del impuesto:</label>
                                 <input
                                     id="impuesto"
-                                    className={`w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2 ${isChecked == false && "cursor-not-allowed"}`}
+                                    className={`w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 ${isChecked == false && "cursor-not-allowed"}`}
                                     value={taxesValue}
                                     onChange={(e) => {
                                         setTaxesValue(+e.target.value);
@@ -1305,7 +1358,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             <div className="flex w-full items-center justify-center mx-auto">
                                 <button
                                     type="button"
-                                    className="w-full border border-gray-300 dark:border-gray-800 rounded-md py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base"
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base"
                                     onClick={() => handleCalculateTotalWithTaxes()}
                                 >
                                     Calcular con impuesto
@@ -1317,7 +1370,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                 <label htmlFor="total_compra" className="font-bold w-full ">Total de compra:</label>
                                 <input
                                     id="total_compra"
-                                    className="w-full border border-gray-300 dark:border-gray-800 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
+                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
                                     value={total === 0 ? formatCurrency(handleCalculateTotal().toString()) : formatCurrency(total.toString())}
                                     type="text"
                                     disabled
@@ -1333,7 +1386,6 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                         )
                     } */}
 
-
                     <div className="w-full">
                         <div
 
@@ -1341,7 +1393,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                         >
                             <button
                                 type="submit"
-                                className={`w-full md:w-auto border border-gray-300 py-2 px-4 bg-slate-50/85 rounded-md flex items-center justify-center gap-x-4 font-bold hover:bg-slate-100/85 transition-all duration-200 ${supplierData?.nombre_proveedor === undefined ? "cursor-not-allowed" : undefined}`}
+                                className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined ? "cursor-not-allowed" : undefined}`}
                                 aria-label="Close"
                                 disabled={supplierData?.nombre_proveedor === undefined ? true : false}
                             >
@@ -1353,7 +1405,22 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     </div>
                 </form>
 
+                {
+                    openAlertDialogDeleted && (
+                        <AlertDialog open={openAlertDialogDeleted != null && true} onOpenChange={() => setOpenAlertDialogDeleted(null)}>
+                            <AlertDialogDelete
+                                icon={MessageCircleQuestion}
+                                title="Remover producto"
+                                description={`¿Seguro deseas remover el producto: ${openAlertDialogDeleted.nombre_producto}?`}
+                                buttonCancel="¡No, remover!"
+                                buttonConfirm="¡Si, remover!"
+                                onClickConfirm={changeDeleteState}
+                            />
+                        </AlertDialog>
+                    )
+                }
+
             </DialogContent>
-        </Dialog >
+        </Dialog>
     )
 }
