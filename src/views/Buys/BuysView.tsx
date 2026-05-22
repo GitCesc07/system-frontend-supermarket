@@ -30,11 +30,11 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import TableEmpty from "@/components/ui-components/TableEmpty";
 import { Dialog } from "@/components/ui/dialog";
-import Createproduct from "@/components/products/Createproduct";
 import { getBuys } from "@/apis/buys.apis";
 import type { BuysFormDataInfo } from "@/types/buys.interface";
 import ToogleFieldsDialogBuys from "@/components/buys/ToogleFieldsDialogBuys";
 import { formatCurrency } from "@/utils/utilidad";
+import CreateBuy from "@/components/buys/CreateBuy";
 
 export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
@@ -74,8 +74,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const [editingBuys, setEditingBuys] = useState<BuysFormDataInfo | null>(null);
     const [showFields, setShowFields] = useState<string[]>([
         "Número compra",
-        "Número factura proveedor",
-        "Termino",
+        "Factura proveedor",        
         "Estado",
         "Observaciones",
         "Subtotal",
@@ -143,7 +142,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                     </Tooltip>
 
                                     {
-                                        dataAuth?.permisos_compra[0].guardar == 1 && (<Createproduct />)
+                                        dataAuth?.permisos_compra[0].guardar == 1 && (<CreateBuy dataAuth={dataAuth} />)
                                     }
 
                                     <ToogleFieldsDialogBuys showFields={showFields} setShowFields={setShowFields} />
@@ -156,7 +155,7 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                     <TableHeader>
                                         <TableRow>
                                             {showFields.includes("Número compra") && <TableHead>Número compra</TableHead>}
-                                            {showFields.includes("Número factura proveedor") && <TableHead>Número factura proveedor</TableHead>}
+                                            {showFields.includes("Factura proveedor") && <TableHead>Factura proveedor</TableHead>}
                                             {showFields.includes("Termino") && <TableHead>Termino</TableHead>}
                                             {showFields.includes("Estado") && <TableHead>Estado</TableHead>}
                                             {showFields.includes("Observaciones") && <TableHead>Observaciones</TableHead>}
@@ -198,10 +197,6 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                 {buy.numero_factura_proveedor}
                                                             </div>
                                                         </TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Termino") &&
-                                                        <TableCell>{buy.termino}</TableCell>
                                                     }
 
                                                     {

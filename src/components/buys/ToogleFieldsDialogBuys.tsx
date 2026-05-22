@@ -12,8 +12,7 @@ import { useState } from "react";
 export default function ToogleFieldsDialogBuys({ showFields, setShowFields }: { showFields: string[], setShowFields: (fields: string[]) => void }) {
     const [allFields] = useState<string[]>([
         "Número compra",
-        "Número factura proveedor",
-        "Termino",
+        "Factura proveedor",        
         "Estado",
         "Observaciones",
         "Subtotal",

@@ -78,8 +78,7 @@ const buysTaxManualFormShema = z.object({
 const buysFormShema = z.object({
     id: z.string(),
     numero_factura_proveedor: z.string(),
-    numero_compra: z.string(),
-    termino: z.string(),
+    numero_compra: z.string(),    
     observaciones: z.string(),
     estado: z.number(),
     subtotal: z.string(),
@@ -101,8 +100,7 @@ export const buysFormDataSchema = z.array(
     buysFormShema.pick({
         id: true,
         numero_factura_proveedor: true,
-        numero_compra: true,
-        termino: true,
+        numero_compra: true,        
         estado: true,
         observaciones: true,
         subtotal: true,
@@ -124,8 +122,7 @@ export type BuysData = z.infer<typeof buysFormShema>;
 export type BuysFormData = Pick<BuysData,
     "id" |
     "numero_factura_proveedor" |
-    "numero_compra" |
-    "termino" |
+    "numero_compra" |    
     "observaciones" |
     "estado" |
     "subtotal" |
@@ -142,8 +139,7 @@ export type BuysFormData = Pick<BuysData,
 export type BuysFormDataInfo = Pick<BuysData,
     "id" |
     "numero_factura_proveedor" |
-    "numero_compra" |
-    "termino" |
+    "numero_compra" |    
     "estado" |
     "observaciones" |
     "subtotal" |
@@ -157,8 +153,7 @@ export type BuysFormDataInfo = Pick<BuysData,
 >;
 
 export type BuysFormDataAdd = Pick<BuysData,
-    "numero_factura_proveedor" |
-    "termino" |
+    "numero_factura_proveedor" |    
     "observaciones" |
     "subtotal" |
     "estado" |
@@ -175,6 +170,7 @@ export type BuysFormDataDelete = Pick<BuysData, "id" | "numero_compra">;
 // * Temporary purchasing data
 const tempPurchasingDetailsShema = z.object({
     id_producto: z.string(),
+    nombre_producto: z.string(),
     precio_compra: z.string(),
     cantidad: z.string(),
     subtotal: z.string(),
@@ -185,6 +181,7 @@ const tempPurchasingDetailsShema = z.object({
 export const tempPurchasingDetailsDataSchema = z.array(
     tempPurchasingDetailsShema.pick({
         id_producto: true,
+        nombre_producto: true,
         precio_compra: true,
         cantidad: true,
         subtotal: true,
@@ -214,6 +211,7 @@ export type TempPurchasingDetails = z.infer<typeof tempPurchasingDetailsShema>;
 
 export type TempPurchasingFormDataDetails = Pick<TempPurchasingDetails,
     "id_producto" |
+    "nombre_producto" |
     "precio_compra" |
     "cantidad" |
     "subtotal"
@@ -223,6 +221,7 @@ export type TempPurchasingFormDataDetails = Pick<TempPurchasingDetails,
 const tempPurchasingShema = z.object({
     id_inventario: z.string(),
     id_producto: z.string(),
+    nombre_producto: z.string(),
     precio_compra: z.string(),
     cantidad: z.string(),
     stock: z.number(),
@@ -236,6 +235,7 @@ export const tempPurchasingDataSchema = z.array(
     tempPurchasingShema.pick({
         id_inventario: true,
         id_producto: true,
+        nombre_producto: true,
         precio_compra: true,
         cantidad: true,
         stock: true,
@@ -249,6 +249,7 @@ export type TempPurchasing = z.infer<typeof tempPurchasingShema>;
 export type TempPurchasingFormData = Pick<TempPurchasing,
     "id_inventario" |
     "id_producto" |
+    "nombre_producto" |
     "precio_compra" |
     "cantidad" |
     "stock" |
@@ -260,6 +261,7 @@ export type TempPurchasingFormData = Pick<TempPurchasing,
 export type TempPurchasingFormDataAdd = Pick<TempPurchasing,
     "id_inventario" |
     "cantidad" |
+    "nombre_producto" |
     "subtotal_compra" |
     "subtotal_venta" |
     "id_producto"
