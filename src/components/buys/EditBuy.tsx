@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Calculator, ChevronDown, ChevronUp, Edit, MessageCircleQuestion, PlusIcon, Save, Search, Trash2, X } from "lucide-react";
+import { Calculator, ChevronDown, ChevronUp, Edit, Edit2, MessageCircleQuestion, PlusIcon, Save, Search, Trash2, X } from "lucide-react";
 import type { ErrorData } from "@/types/errors.interface";
 import { toast } from "sonner";
 import type { BuysFormDataInfo, TempPurchasingFormData, TempPurchasingFormDataDetails, TempPurchasingFormDataPaymentmethod } from "@/types/buys.interface";
@@ -12,7 +12,7 @@ import { getAllSupplier } from "@/apis/suppliers.apis";
 import type { SupplierFormDataInfo } from "@/types/suppliers.interface";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import type { AuthPermissions } from "@/types/auth.interface";
-import { updateBuys } from "@/apis/buys.apis";
+import { getDetailsBuysById, updateBuys } from "@/apis/buys.apis";
 import { formatCurrency } from "@/utils/utilidad";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import TableEmpty from "../ui-components/TableEmpty";
@@ -61,15 +61,26 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
     const [cheque, setCheque] = useState(false);
     const [montoCheque, setMontoCheque] = useState("");
     const [observacionesCheque, setObservacionesCheque] = useState("");
-    const [openAlertDialogDeleted, setOpenAlertDialogDeleted] = useState<TempPurchasingFormData | null>(null)
+    const [openAlertDialogDeleted, setOpenAlertDialogDeleted] = useState<TempPurchasingFormData | null>(null);
+
+    const { data } = useQuery({
+        queryKey: ["buys", buysId],
+        queryFn: () => getDetailsBuysById({ id: buysId }),
+        enabled: !!buysId,
+        retry: false
+    });
 
 
     useEffect(() => {
-        const storedProducts = sessionStorage.getItem("tempProductsEditBuys");
-        if (storedProducts) {
-            setDataProducts(JSON.parse(storedProducts));
+        if (data) {
+            sessionStorage.setItem("tempProductsEditBuys", JSON.stringify(data));
+            const storedProducts = sessionStorage.getItem("tempProductsEditBuys");
+            if (storedProducts) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setDataProducts(JSON.parse(storedProducts));
+            }
         }
-    }, [])
+    }, [data])
 
     useEffect(() => {
         sessionStorage.setItem("tempProductsEditBuys", JSON.stringify(dataProducts));
@@ -81,6 +92,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
 
     useEffect(() => {
         if (editBuy.metodo_pago[0].metodo == "Efectivo") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setEfectivo(true);
             setMontoEfectivo(editBuy.metodo_pago[0].monto);
             setObservacionesEfectivo(editBuy.metodo_pago[0].observaciones!);
@@ -666,6 +678,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                             type="checkbox"
                                             name=""
                                             id="transferenicaCheck"
+                                            checked={editBuy.metodo_pago[0].metodo == "Transferencia" ? true : false}
                                             onChange={(e) => {
                                                 setTransferencia(e.target.checked);
                                             }}
@@ -718,6 +731,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                         <input
                                             type="checkbox"
                                             name=""
+                                            checked={editBuy.metodo_pago[0].metodo == "Tarjeta" ? true : false}
                                             id="tarjetaCheck"
                                             onChange={(e) => {
                                                 setTarjeta(e.target.checked);
@@ -774,6 +788,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                         <input
                                             type="checkbox"
                                             name=""
+                                            checked={editBuy.metodo_pago[0].metodo == "Efectivo" ? true : false}
                                             id="efectivoCheck"
                                             onChange={(e) => {
                                                 setEfectivo(e.target.checked);
@@ -823,6 +838,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                         <input
                                             type="checkbox"
                                             name=""
+                                            checked={editBuy.metodo_pago[0].metodo == "Cheque" ? true : false}
                                             id="chequeCheck"
                                             onChange={(e) => {
                                                 setCheque(e.target.checked);
@@ -1038,7 +1054,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                     refetchSupplier();
                                 }}
                             >
-                                <span className="cursor-pointer">{dataSupplierComboBox.nombre_proveedor == "" ? "Selecciona proveedor" : dataSupplierComboBox.nombre_proveedor}</span>
+                                <span className="cursor-pointer">{dataSupplierComboBox.nombre_proveedor == "" && editBuy.proveedor == "" ? "Selecciona proveedor" : editBuy.proveedor != "" || editBuy.proveedor != undefined || editBuy.proveedor != null ? editBuy.proveedor : dataSupplierComboBox.nombre_proveedor}</span>
 
                                 {
                                     openComboBoxSupplier == true ?
@@ -1115,7 +1131,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                     <TableHead>Cantidad</TableHead>
                                     <TableHead>P. Unitario</TableHead>
                                     <TableHead>Subtotal</TableHead>
-                                    <TableHead>Acción</TableHead>
+                                    <TableHead className="text-center">Acción</TableHead>
                                 </TableRow>
                             </TableHeader>
 
@@ -1130,7 +1146,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                                 }
                                             </TableCell>
 
-                                            <TableCell align="center">
+                                            <TableCell>
                                                 {
                                                     editId === product.id_producto ?
                                                         (
@@ -1185,7 +1201,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                                                 }
                                             </TableCell>
 
-                                            <TableCell>
+                                            <TableCell align="right">
                                                 {
                                                     editId === product.id_producto ? (
                                                         <div className="flex items-center justify-center">
@@ -1371,12 +1387,12 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                     >
                         <button
                             type="submit"
-                            className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined ? "cursor-not-allowed" : undefined}`}
+                            className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined && editBuy.id_proveedor == undefined || editBuy.id_proveedor == null ? "cursor-not-allowed" : undefined}`}
                             aria-label="Close"
-                            disabled={supplierData?.nombre_proveedor === undefined ? true : false}
+                            disabled={supplierData?.nombre_proveedor === undefined && editBuy.id_proveedor == undefined || editBuy.id_proveedor == null ? true : false}
                         >
-                            <Save className="size-5" />
-                            Guardar compra
+                            <Edit2 className="size-5" />
+                            Modificar compra
                         </button>
 
                     </div>
