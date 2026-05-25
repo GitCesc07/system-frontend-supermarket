@@ -6,24 +6,25 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Save } from "lucide-react";
+import { Eye, Save } from "lucide-react";
 import { useState } from "react";
+import { Button } from "../ui/button";
 
 export default function ToogleFieldsDialogKardex({ showFields, setShowFields }: { showFields: string[], setShowFields: (fields: string[]) => void }) {
     const [allFields] = useState<string[]>([
-        "Producto",
-        "Descripción",
-        "Cantidad minima",
-        "Imagen",
-        "Estado",
-        "Expiracion",
-        "Fecha expiración",
-        "Marca",
-        "Categoría",
         "Fecha creación",
-        "Fecha modificación",
-        "Usuario creador",
-        "Usuario modificador"
+        "Descripción",
+        "Nombre producto",
+        "Tipo",
+        "Cantidad entrada",
+        "Precio entrada",
+        "Total entrada",
+        "Cantidad salida",
+        "Precio salida",
+        "Total salida",
+        "Cantidad disponible",
+        "Precio disponible",
+        "Total disponible"
     ]);
     const [localShowFields, setLocalShowFields] = useState(showFields)
 
@@ -40,7 +41,12 @@ export default function ToogleFieldsDialogKardex({ showFields, setShowFields }: 
     }
     return (
         <Dialog>
-            <DialogTrigger className="border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 py-1 px-2 rounded-lg cursor-pointer w-full md:w-auto">Mostrar campos</DialogTrigger>
+            <DialogTrigger>
+                <Button variant="outline" className="cursor-pointer w-full md:w-auto flex items-center justify-center gap-x-4">
+                    <Eye className="size-5" />
+                    Mostrar campos
+                </Button>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle> Mostrar u Ocultar</DialogTitle>
@@ -63,15 +69,16 @@ export default function ToogleFieldsDialogKardex({ showFields, setShowFields }: 
                         </div>
                     ))}
                     <div className="mt-6.25 flex justify-center">
-                        <button
+                        <Button
+                            variant="outline"
                             type="submit"
-                            className="w-full md:w-auto border bg-gray-200 dark:bg-mist-900 border-gray-300 dark:border-gray-800 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold"
+                            className="w-full md:w-auto flex items-center justify-center gap-x-4 font-bold"
                             aria-label="Close"
                             onClick={handleSave}
                         >
                             <Save className="size-5" />
                             Guardar configuraciones
-                        </button>
+                        </Button>
                     </div>
                 </DialogHeader>
             </DialogContent>

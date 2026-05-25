@@ -17,6 +17,7 @@ import ProductsView from "./views/Products/ProductsView";
 import BuysView from "./views/Buys/BuysView";
 import InventoryView from "./views/Inventory/InventoryView";
 import KardexView from "./views/Kardex/KardexView";
+import CompanyView from "./views/Company/CompanyView";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -60,6 +61,9 @@ export function Router() {
           }
           {
             dataAuth?.marca && (<Route path="/kardex" element={<KardexView dataAuth={dataAuth} />} />)
+          }
+          {
+            dataAuth?.empresa && (<Route path="/company" element={<CompanyView dataAuth={dataAuth} />} />)
           }
         </Route>
       </Routes>

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import type { SupplierFormDataAdd } from "@/types/suppliers.interface";
 import { stateValue } from "@/types/state.interface";
 import { createCategory } from "@/apis/categories.apis";
+import { Button } from "../ui/button";
 
 export default function CreateCategory() {
     const navigate = useNavigate();
@@ -101,7 +102,7 @@ export default function CreateCategory() {
                         </label>
                         <input
                             className="py-1 px-4 font-normal text-base border border-gray-500 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                            placeholder="Tu marca..."
+                            placeholder="Tu categoría..."
                             id="nombre_categoria"
                             value={newCategory.nombre_categoria}
                             onChange={(e) => {
@@ -119,7 +120,7 @@ export default function CreateCategory() {
                         </label>
                         <input
                             className="py-1 px-4 font-normal text-base border border-gray-500 w-full rounded-md placeholder:text-gray-300 outline-none focus-visible:border-gray-800"
-                            placeholder="Descripción de la marca..."
+                            placeholder="Descripción de la categoría..."
                             id="descripcion"
                             value={newCategory.descripcion}
                             onChange={(e) => {
@@ -157,14 +158,14 @@ export default function CreateCategory() {
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
-                        className="w-full mt-4 md:w-[50%] mx-auto border border-gray-300 dark:border-gray-800 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold"
+                        className="w-full mt-4 md:w-[50%] mx-auto flex items-center justify-center gap-x-4 font-bold"
                         aria-label="Close"
                     >
                         <Save className="size-5" />
                         Guardar categoría
-                    </button>
+                    </Button>
 
                 </form>
             </DialogContent>

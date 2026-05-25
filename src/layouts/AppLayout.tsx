@@ -26,11 +26,6 @@ export default function AppLayout() {
 
     const [getPathname, setGetPathname] = useState("");
 
-    // const { data } = useQuery({
-    //     queryKey: ["/"],
-    //     queryFn: getDataInitial,
-    // });
-
     useEffect(() => {
         setGetPathname(location.pathname);
     }, [location.pathname]);
@@ -86,7 +81,8 @@ export default function AppLayout() {
                                                                 getPathname == "/sales" && "Venta" ||
                                                                 getPathname == "/kardex" && "Kardex" ||
                                                                 getPathname == "/reportsInventory" && "Reportes" ||
-                                                                getPathname == "/copyAndRestore" && "Copia y Resturación"
+                                                                getPathname == "/copyAndRestore" && "Copia y Resturación" ||
+                                                                getPathname == "/company" && "Empresa"
                                                             }
                                                         </h2>
                                                     </BreadcrumbPage>

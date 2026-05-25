@@ -82,7 +82,8 @@ export const kardexFormDataSchema = z.array(
 )
 
 export type KardexData = z.infer<typeof kardexFormShema>;
-export type BrandFormDataInfo = Pick<KardexData,
+export type KardexFormDataInfo = Pick<KardexData,
+    "id" |
     "fecha_creacion" |
     "descripcion" |
     "nombre_producto" |
@@ -97,4 +98,26 @@ export type BrandFormDataInfo = Pick<KardexData,
     "cantidad_disponible" |
     "precio_disponible" |
     "total_disponible"
+>;
+
+
+const kardexReturnFormShema = z.object({
+    id_producto: z.string(),
+    startDate: z.string(),
+    endDate: z.string(),
+});
+
+export const kardexReturnFormDataSchema = z.array(
+    kardexReturnFormShema.pick({
+        id_producto: true,
+        startDate: true,
+        endDate: true,
+    })
+)
+
+export type KardexReturnData = z.infer<typeof kardexReturnFormShema>;
+export type KardexReturnFormDataInfo = Pick<KardexReturnData,
+    "id_producto" |
+    "startDate" |
+    "endDate"
 >; 
