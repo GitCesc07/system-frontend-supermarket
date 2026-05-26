@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import type { SupplierFormDataAdd } from "@/types/suppliers.interface";
 import { stateValue } from "@/types/state.interface";
 import { createBrand } from "@/apis/brand.apis";
+import { Button } from "../ui/button";
 
 export default function CreateBrand() {
     const navigate = useNavigate();
@@ -157,14 +158,15 @@ export default function CreateBrand() {
                         </div>
                     </div>
 
-                    <button
+                    <Button
+                        variant="outline"
                         type="submit"
                         className="w-full mt-4 md:w-[50%] mx-auto border border-gray-300 dark:border-gray-800 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold"
                         aria-label="Close"
                     >
                         <Save className="size-5" />
                         Guardar marca
-                    </button>
+                    </Button>
 
                 </form>
             </DialogContent>

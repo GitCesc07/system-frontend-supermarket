@@ -75,15 +75,18 @@ export default function CreateCategory() {
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger
-                className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
-                onClick={() => {
-                    navigate(location.pathname + "?createCategory");
-                    setOpen(true);
-                }}
-            >
-                <Plus className="size-5" />
-                Crear categoría
+            <DialogTrigger>
+                <Button
+                    className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
+                    onClick={() => {
+                        navigate(location.pathname + "?createCategory");
+                        setOpen(true);
+                    }}
+                    variant="ghost"
+                >
+                    <Plus className="size-5" />
+                    Crear categoría
+                </Button>
             </DialogTrigger>
             <DialogContent className="w-full md:max-w-md">
                 <DialogHeader>
@@ -159,9 +162,10 @@ export default function CreateCategory() {
                     </div>
 
                     <Button
-                        type="submit"
-                        className="w-full mt-4 md:w-[50%] mx-auto flex items-center justify-center gap-x-4 font-bold"
                         aria-label="Close"
+                        type="submit"
+                        variant="ghost"
+                        className="w-full mt-4 md:w-[50%] mx-auto flex items-center border border-gray-300 dark:border-gray-800 justify-center gap-x-4 font-bold"
                     >
                         <Save className="size-5" />
                         Guardar categoría

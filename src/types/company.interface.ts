@@ -46,7 +46,6 @@ const companyFormShema = z.object({
     correo_empresa: z.string(),
     logotipo: z.string(),
     usuario_creador: z.string(),
-    usuario_modificador: z.string(),
     fecha_creacion: z.string(),
     fecha_modificacion: z.string()
 });
@@ -63,7 +62,6 @@ export const companyFormDataSchema = z.array(
         correo_empresa: true,
         logotipo: true,
         usuario_creador: true,
-        usuario_modificador: true,
         fecha_creacion: true,
         fecha_modificacion: true,
     })
@@ -87,7 +85,6 @@ export type CompanyFormData = Pick<CompanyData,
     "correo_empresa" |
     "logotipo" |
     "usuario_creador" |
-    "usuario_modificador" |
     "fecha_creacion" |
     "fecha_modificacion"
 >;
@@ -105,6 +102,7 @@ export type CompanyFormDataAdd = Pick<CompanyData,
 >;
 
 export type CompanyFormDataInfo = Pick<CompanyData,
+    "id" |
     "nombre_empresa" |
     "eslogan" |
     "direccion_empresa" |
@@ -124,8 +122,7 @@ export type CompanyFormDataEdit = Pick<CompanyData,
     "telefono_empresa" |
     "celular_empresa" |
     "correo_empresa" |
-    "logotipo" |
-    "usuario_modificador"
+    "logotipo"
 >;
 
 
