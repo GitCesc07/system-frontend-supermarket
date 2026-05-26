@@ -13,7 +13,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { Loader2, Search } from "lucide-react";
+import { File, Loader2, MessageCircleQuestion, Search } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import ToogleFieldsDialogKardex from "@/components/kardex/ToogleFieldsDialogKardex";
@@ -22,9 +22,15 @@ import TableCellKardex from "@/components/kardex/TableCellKardex";
 import { Button } from "@/components/ui/button";
 import DialogFilteredKardex from "@/components/kardex/DialogFilteredKardex";
 import type { KardexReturnFormDataInfo } from "@/types/kardex.interface";
+import type { ProductFormDataDelete } from "@/types/products.interface";
+import { AlertDialog } from "@/components/ui/alert-dialog";
+import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
+import api from "@/lib/axios";
 
 export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const [searchTerm, setSearchTerm] = useState("");
+    const [reportProduct, setReportProduct] = useState<ProductFormDataDelete["id"] | null>(null);
+    const [openAlertDialogReport, setOpenAlertDialogReport] = useState(false);
     const [dataReturn, setDataReturn] = useState({
         id_producto: "",
         startDate: "",
@@ -66,10 +72,16 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
     }, []);
 
     const handleSelectionProducts = (dataReturnInfo: KardexReturnFormDataInfo) => {
+        setDataReturn({
+            id_producto: "",
+            startDate: "",
+            endDate: "",
+        });
+
         setDataReturn(dataReturnInfo);
 
-        refreshRange();
         refetch();
+        refreshRange();
         refreshIdRange();
     }
 
@@ -90,7 +102,7 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
 
 
     const { data: dataIdRangeDate, refetch: refreshIdRange, isLoading: isLoadingIdRangeDate } = useQuery({
-        queryKey: ["kardexIdRangeDate", dataReturn.id_producto],
+        queryKey: ["kardexIdAndRangeDate", dataReturn.id_producto],
         queryFn: () => getKardexByidAndDate({ id: dataReturn.id_producto, startDate: dataReturn.startDate, endDate: dataReturn.endDate }),
         enabled: !!dataReturn.id_producto,
         retry: false
@@ -114,6 +126,101 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
             value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
+
+    const handleChangeState = (state: boolean) => {
+        if (state == true && dataReturn.id_producto != "" && dataReturn.startDate != "" && dataReturn.endDate != "") {
+            onClickCreateReportByIdAndRangeDate();
+            return;
+        }
+        if (state == true && dataReturn.startDate == "" && dataReturn.endDate == "") {
+            onClickCreateReportByIdProduct();
+            return;
+        } else {
+            onClickCreateReportByRangeDate()
+        }
+    }
+
+
+    const onClickCreateReportByIdProduct = async () => {
+        try {
+            // Realiza la solicitud GET para obtener el PDF
+            const response = await api(`/kardex/reportKardex/report/product/${dataReturn.id_producto}`, {
+                responseType: "blob", // Importante para manejar archivos binarios
+            });
+
+            const blob = response.data;
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            let errormessage = "";
+            if (error instanceof Error) {
+                errormessage = error.message;
+            }
+
+            toast.error(`Error al descargar el archivo: ${errormessage || "Error desconocido"}`, {
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+        }
+    }
+
+    const onClickCreateReportByRangeDate = async () => {
+        try {
+            // Realiza la solicitud GET para obtener el PDF
+            const response = await api(`/kardex/reportKardex/reportRangeDate/${dataReturn.startDate}/${dataReturn.endDate}`, {
+                responseType: "blob", // Importante para manejar archivos binarios
+            });
+
+            const blob = response.data;
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            let errormessage = "";
+            if (error instanceof Error) {
+                errormessage = error.message;
+            }
+
+            toast.error(`Error al descargar el archivo: ${errormessage || "Error desconocido"}`, {
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+        }
+    }
+
+    const onClickCreateReportByIdAndRangeDate = async () => {
+        try {
+            // Realiza la solicitud GET para obtener el PDF
+            const response = await api(`/kardex/reportKardex/report/product/${dataReturn.id_producto}/rangeDate/${dataReturn.startDate}/${dataReturn.endDate}`, {
+                responseType: "blob", // Importante para manejar archivos binarios
+            });
+
+            const blob = response.data;
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            let errormessage = "";
+            if (error instanceof Error) {
+                errormessage = error.message;
+            }
+
+            toast.error(`Error al descargar el archivo: ${errormessage || "Error desconocido"}`, {
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+        }
+    }
 
     return (
         <div className="w-full h-full flex items-center justify-center">
@@ -168,6 +275,25 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                     <ToogleFieldsDialogKardex showFields={showFields} setShowFields={setShowFields} />
 
                                     <DialogFilteredKardex onSelectDataFiltered={handleSelectionProducts} />
+
+                                    {
+                                        dataReturn.startDate != "" && dataReturn.endDate != "" || dataReturn.id_producto ?
+                                            (
+                                                <Button
+                                                    onClick={() => {
+                                                        setReportProduct(dataReturn.id_producto)
+                                                        setOpenAlertDialogReport(true);
+                                                    }}
+                                                    variant="ghost"
+                                                    className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-700"
+                                                >
+                                                    <File className="size-5" />
+                                                    Imprimir reporte
+                                                </Button>
+                                            )
+                                            :
+                                            (null)
+                                    }
                                 </div>
                             </section>
 
@@ -230,6 +356,21 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                     )
                                     }
                                 </Table>
+
+                                {
+                                    (reportProduct != null || reportProduct != undefined) && (
+                                        <AlertDialog open={openAlertDialogReport} onOpenChange={() => setReportProduct(null)}>
+                                            <AlertDialogDelete
+                                                icon={MessageCircleQuestion}
+                                                title="Crear reporte"
+                                                description={`¿Seguro deseas crear el reporte?`}
+                                                buttonCancel="¡No, crear!"
+                                                buttonConfirm="¡Si, crear!"
+                                                onClickConfirm={handleChangeState}
+                                            />
+                                        </AlertDialog>
+                                    )
+                                }
                             </div>
                         </div>
                     )

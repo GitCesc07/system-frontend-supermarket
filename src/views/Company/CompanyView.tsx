@@ -62,7 +62,7 @@ export default function CompanyView({ dataAuth }: { dataAuth: AuthPermissions })
                                                 data?.map(company => (
                                                     <>
 
-                                                        <div className="flex items-center justify-center flex-col gap-y-1 w-full size-24">
+                                                        <div className="flex items-center justify-center flex-col gap-y-1 w-full size-40">
                                                             <img src={company.logotipo == null || company.logotipo == "" || company.logotipo == undefined ? "image-notfound.svg" : company.logotipo} alt={company.nombre_empresa}
                                                                 className="size-full object-contain"
                                                             />

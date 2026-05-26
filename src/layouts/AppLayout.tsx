@@ -82,7 +82,9 @@ export default function AppLayout() {
                                                                 getPathname == "/kardex" && "Kardex" ||
                                                                 getPathname == "/reportsInventory" && "Reportes" ||
                                                                 getPathname == "/copyAndRestore" && "Copia y Resturación" ||
-                                                                getPathname == "/company" && "Empresa"
+                                                                getPathname == "/company" && "Empresa" ||
+                                                                getPathname == "/expiredProducts" && "Productos vencidos" ||
+                                                                getPathname == "/damagedProducts" && "Productos deteriorados"
                                                             }
                                                         </h2>
                                                     </BreadcrumbPage>

@@ -64,7 +64,6 @@ export default function DialogFilteredKardex({ onSelectDataFiltered }: { onSelec
             }
         } else {
             onSelectDataFiltered(dataValue);
-            console.log(dataValue);
 
             setOpen(false);
             setIsFilteredById(false);
@@ -75,6 +74,11 @@ export default function DialogFilteredKardex({ onSelectDataFiltered }: { onSelec
                 id_producto: "",
                 nombre_producto: ""
             });
+            setDataReturn({
+                id_producto: "",
+                startDate: "",
+                endDate: ""
+            })
         }
     }
 

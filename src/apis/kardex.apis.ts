@@ -50,3 +50,17 @@ export async function getKardexByidAndDate({ id, startDate, endDate }: Pick<Prod
         }
     }
 }
+
+export async function getReportKardexByIdProduct({ id }: { id: string }) {
+    try {
+        const { data } = await api(`/kardex/reportKardex/report/product/${id}`, {
+            responseType: "blob"
+        })
+        return data
+    } catch (error) {
+        console.log(error);
+        if (isAxiosError(error) && error.response) {
+            throw new Error(error.response.data.error);
+        }
+    }
+}

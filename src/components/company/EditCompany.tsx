@@ -3,7 +3,7 @@ import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { ImageIcon, ImageOff, ImageUp, Save, Upload, X } from "lucide-react";
+import { Edit, ImageIcon, ImageOff, ImageUp, Upload, X } from "lucide-react";
 import type { ErrorData } from "@/types/errors.interface";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -27,6 +27,7 @@ export default function EditCompany({ company, onClose }: EditCompanyProps) {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [changeImage, setChangeImage] = useState(false);
     const fileinputRef = useRef<HTMLInputElement>(null);
     const [imageUpload, setImageUpload] = useState(false);
 
@@ -215,16 +216,28 @@ export default function EditCompany({ company, onClose }: EditCompanyProps) {
                 </DialogDescription>
             </DialogHeader>
 
-            <div className="w-full md:mt-4 mx-auto p-4 md:p-6 bg-gray-100 dark:bg-gray-950 rounded-lg shadow-md">
+            <div className="w-full md:mt-4 mx-auto p-4 md:p-6 rounded-lg shadow-md">
                 {
-
-                    selectedFile ? (
-                        null
+                    editCompany.logotipo && (
+                        <div className={`${changeImage === true && "hidden"}`}>
+                            <p className="text-sm mb-2">Vista previa:</p>
+                            <div className="relative mx-auto size-40 rounded-md overflow-hidden">
+                                <img
+                                    loading="lazy"
+                                    draggable="false"
+                                    src={editCompany.logotipo}
+                                    alt="Preview"
+                                    style={{ objectFit: 'cover' }}
+                                />
+                            </div>
+                        </div>
                     )
-                        :
-                        (
-                            <>
-                                <h2 className="text-2xl font-bold mb-4">Subir imagen</h2>
+                }
+                {
+                    changeImage === true && (
+                        <>
+                            <h2 className="text-2xl font-bold mb-4">Subir imagen</h2>
+                            <div className="h-[85%] scroll-smooth mx-auto">
                                 <div
                                     className={`mb-4 border-2 border-dashed rounded-lg p-4 text-center ${isDragging ? 'border-primary bg-primary/10' : 'border-gray-300'
                                         }`}
@@ -234,79 +247,83 @@ export default function EditCompany({ company, onClose }: EditCompanyProps) {
                                 >
                                     <input
                                         type="file"
-                                        accept=".png, .jpg, .jpeg, .webp, .avif"
+                                        accept="image/jpg, image/jpeg, image/png"
                                         onChange={handleFileChange}
                                         ref={fileinputRef}
                                         className="hidden"
                                     />
                                     {selectedFile ? (
                                         <div className="space-y-2">
-                                            <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                                            <p className="text-sm text-gray-500">
-                                                {(selectedFile as File).name}
+                                            <ImageIcon className="mx-auto h-12 w-12" />
+                                            <p className="text-sm">
+                                                {selectedFile.name}
                                             </p>
                                         </div>
                                     ) : (
                                         <div className="space-y-2">
-                                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                            <Upload className="mx-auto h-12 w-12" />
                                             <p className="text-sm">
                                                 Arrastras y soltar la imagen aquí, o clic en seleccionar la imagen
                                             </p>
                                         </div>
                                     )}
-                                    <button type="button" onClick={handleSelectClick} className="w-full md:w-auto py-1 px-2 flex items-center justify-center gap-x-4 font-bold text-base mx-auto border border-gray-300 rounded-md">
+                                    <button type="button" onClick={handleSelectClick} className="w-full md:w-auto py-1 px-2 flex items-center justify-center gap-x-4 font-bold text-base mx-auto border border-gray-300 dark:border-gray-700 rounded-md">
                                         <ImageUp className="size-6" />
                                         Selecciona imagen aquí
                                     </button>
                                 </div>
-                            </>
-                        )
-                }
-                {error && (
-                    <ErrorMessage>{error}</ErrorMessage>
-                )}
-                {selectedFile && previewUrl && (
-                    <div>
-                        <p className="text-sm mb-2">Vista previa:</p>
-                        <div className="relative mx-auto size-40 object-contain rounded-md overflow-hidden">
-                            <img
-                                loading="lazy"
-                                draggable="false"
-                                src={previewUrl}
-                                alt="Preview"
-                                style={{ objectFit: 'cover' }}
-                            />
-                        </div>
 
+                                {
+                                    error &&
+                                    (<ErrorMessage>{error}</ErrorMessage>)
+                                }
 
-                        {
-                            imageUpload == false ?
-                                (
-                                    <div className="flex items-center mt-4 gap-y-4 md:gap-x-2 flex-col md:flex-row">
-                                        <button
-                                            disabled={imageUpload ? true : false}
-                                            type="button"
-                                            className="w-full md:w-56 py-1 px-2 flex items-center justify-center gap-x-4 font-bold text-base mx-auto border border-gray-300 dark:border-gray-700 rounded-md"
-                                            onClick={() => setSelectedFile(null)}
-                                        >
-                                            <ImageOff className="size-5" />
-                                            Remover imagen
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="w-full md:w-56 py-1 px-2 flex items-center justify-center gap-x-4 font-bold text-base mx-auto border border-gray-300 dark:border-gray-700 rounded-md"
-                                            onClick={() => onclickUploadImage(selectedFile)}
-                                        >
-                                            <ImageUp className="size-5" />
-                                            Subir imagen
-                                        </button>
+                                {selectedFile && previewUrl && (
+                                    <div>
+                                        <p className="text-sm mb-2">Vista previa:</p>
+                                        <div className="relative mx-auto size-40 rounded-md overflow-hidden">
+                                            <img
+                                                src={previewUrl}
+                                                alt="Preview"
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                        </div>
+                                        <div className="flex items-center mt-4 gap-y-4 md:gap-x-2 flex-col md:flex-row">
+                                            <button
+                                                disabled={imageUpload ? true : false}
+                                                type="button"
+                                                className="w-full bg-white md:w-56 py-1 px-2 flex items-center justify-center gap-x-4 font-bold text-base mx-auto border border-gray-300 dark:border-gray-700 rounded-md"
+                                                onClick={() => setSelectedFile(null)}
+                                            >
+                                                <ImageOff className="size-5" />
+                                                Remover imagen
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="w-full md:w-56 py-1 px-2 flex items-center justify-center gap-x-4 font-bold text-base mx-auto border border-gray-300 dark:border-gray-700     rounded-md"
+                                                onClick={() => onclickUploadImage(selectedFile)}
+                                            >
+                                                <ImageUp className="size-5" />
+                                                Subir imagen
+                                            </button>
+                                        </div>
                                     </div>
-                                )
-                                :
-                                (null)
-                        }
-                    </div>
-                )}
+                                )}
+                            </div>
+                        </>
+                    )
+                }
+                <div className="flex items-center justify-center mt-4 gap-x-4">
+                    <input
+                        className="size-4"
+                        id="imagen"
+                        type='checkbox'
+                        value={+changeImage}
+                        onChange={() => setChangeImage(!changeImage)}
+                    />
+                    <label htmlFor="imagen">Cambiar imagen</label>
+                </div>
             </div>
 
             <form
@@ -439,11 +456,11 @@ export default function EditCompany({ company, onClose }: EditCompanyProps) {
                 <Button
                     variant="outline"
                     type="submit"
-                    className="w-full mt-4 md:w-[50%] mx-auto border border-gray-300 dark:border-gray-800 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold"
+                    className="w-full mt-4 md:w-auto mx-auto border border-gray-300 dark:border-gray-800 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold"
                     aria-label="Close"
                 >
-                    <Save className="size-5" />
-                    Guardar información empresa
+                    <Edit className="size-5" />
+                    Editar información empresa
                 </Button>
 
             </form>
@@ -452,7 +469,7 @@ export default function EditCompany({ company, onClose }: EditCompanyProps) {
                 onClick={() => {
                     navigate(location.pathname, { replace: true });
                     reset();
-                    // onClose();
+                    onClose();
                 }}
                 className="absolute right-4 top-4"
                 asChild

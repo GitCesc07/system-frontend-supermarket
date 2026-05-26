@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Button } from "@/components/ui/button"
 import {
     Table,
     TableBody,
@@ -17,7 +16,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { Loader2, Search } from "lucide-react";
+import { File, Loader2, MessageCircleQuestion, Search } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import TableEmpty from "@/components/ui-components/TableEmpty";
@@ -25,6 +24,10 @@ import ViewImageDialog from "@/components/products/ViewImageDialog";
 import { Dialog } from "@/components/ui/dialog";
 import { getInventory } from "@/apis/inventory.apis";
 import ToogleFieldsDialogInventory from "@/components/inventory/ToogleFieldsDialogInventory";
+import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
+import { AlertDialog } from "@/components/ui/alert-dialog";
+import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
 
 export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions }) {
 
@@ -54,6 +57,7 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
     const [open, setOpen] = useState(false);
     const [imagenView, setImagenView] = useState<string>();
     const [messageImage, setMessageImage] = useState("");
+    const [openAlertDialogReport, setOpenAlertDialogReport] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
     const [showFields, setShowFields] = useState<string[]>([
@@ -77,6 +81,42 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
     );
 
     if (isError) return <Navigate to={"/404"} />
+
+
+    const handleChangeState = (state: boolean) => {
+        if (state == true) {
+            onClickCreateReportInventory();
+        }
+
+    }
+
+
+    const onClickCreateReportInventory = async () => {
+        try {
+            // Realiza la solicitud GET para obtener el PDF
+            const response = await api(`/inventory/reportInventory/`, {
+                responseType: "blob", // Importante para manejar archivos binarios
+            });
+
+            const blob = response.data;
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            let errormessage = "";
+            if (error instanceof Error) {
+                errormessage = error.message;
+            }
+
+            toast.error(`Error al descargar el archivo: ${errormessage || "Error desconocido"}`, {
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+        }
+    }
 
     return (
         <div className="w-full h-full flex items-center justify-center">
@@ -126,6 +166,20 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                     </Tooltip>
 
                                     <ToogleFieldsDialogInventory showFields={showFields} setShowFields={setShowFields} />
+
+                                    {
+                                        dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                        <Button
+                                            onClick={() => {
+                                                setOpenAlertDialogReport(true);
+                                            }}
+                                            variant="ghost"
+                                            className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-700"
+                                        >
+                                            <File className="size-5" />
+                                            Imprimir reporte
+                                        </Button>
+                                    }
                                 </div>
                             </section>
 
@@ -143,10 +197,6 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                             {showFields.includes("Deteriorados") && <TableHead className="text-center">Deteriorados</TableHead>}
                                             {showFields.includes("Marca") && <TableHead>Marca</TableHead>}
                                             {showFields.includes("Categoría") && <TableHead>Categoría</TableHead>}
-                                            {
-                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
-                                                <TableHead className="text-right">Acción</TableHead>
-                                            }
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -239,11 +289,6 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                         showFields.includes("Categoría") &&
                                                         <TableCell>{product.nombre_categoria}</TableCell>
                                                     }
-                                                    <TableCell className="text-right">
-                                                        <Button>
-                                                            Reportes
-                                                        </Button>
-                                                    </TableCell>
                                                 </TableRow>
                                             ))
                                         }
@@ -270,6 +315,21 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                 }}>
                                                     <ViewImageDialog url_image={imagenView} messageImage={messageImage} onClose={() => setImagenView("")} />
                                                 </Dialog>
+                                            )
+                                        }
+
+                                        {
+                                            openAlertDialogReport == true && (
+                                                <AlertDialog open={openAlertDialogReport} onOpenChange={() => setOpenAlertDialogReport(false)}>
+                                                    <AlertDialogDelete
+                                                        icon={MessageCircleQuestion}
+                                                        title="Crear reporte"
+                                                        description={`¿Seguro deseas crear el reporte?`}
+                                                        buttonCancel="¡No, crear!"
+                                                        buttonConfirm="¡Si, crear!"
+                                                        onClickConfirm={handleChangeState}
+                                                    />
+                                                </AlertDialog>
                                             )
                                         }
                                     </TableBody>

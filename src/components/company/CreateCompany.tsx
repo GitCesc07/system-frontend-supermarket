@@ -235,7 +235,7 @@ export default function CreateCompany() {
                     Registrar empresa
                 </Button>
             </DialogTrigger>
-            <DialogContent className="w-full md:max-w-md h-[95%] scrollbar-thin-custom scroll-smooth mx-auto touch-pan-y overflow-scroll">
+            <DialogContent className="w-full md:max-w-xl h-[95%] md:max-h-[95%] scrollbar-thin-custom scroll-smooth mx-auto touch-pan-y overflow-scroll">
                 <DialogHeader>
                     <DialogTitle>Registrar empresa</DialogTitle>
                     <DialogDescription>
