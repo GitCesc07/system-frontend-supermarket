@@ -369,7 +369,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     } = useForm<BuysFormDataAdd>({ defaultValues: newBuys });
 
 
-    const [searchTerm, setSearchTerm] = useState("")
+    const [searchTerm, setSearchTerm] = useState("");
 
     const filtereddataProducts = dataProducts?.filter(product =>
         Object.values(product).some(value =>
@@ -1378,13 +1378,6 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             </div>
                         </fieldset>
                     </div>
-
-                    {/* {
-                        openAlertDialogDeleted &&
-                        (
-                            <AlertDialogDeleteProduct onchangeStateDelete={changeDeleteState} productDetails={openAlertDialogDeleted} onClose={() => setOpenAlertDialogDeleted(null)} />
-                        )
-                    } */}
 
                     <div className="w-full">
                         <div

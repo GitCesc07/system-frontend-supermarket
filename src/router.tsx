@@ -19,6 +19,7 @@ import InventoryView from "./views/Inventory/InventoryView";
 import KardexView from "./views/Kardex/KardexView";
 import CompanyView from "./views/Company/CompanyView";
 import ExpiredProductsView from "./views/ExpiredProducts/ExpiredProductsView";
+import PageNotFound from "./components/PageNotFound";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -31,7 +32,7 @@ export function Router() {
           <Route path="/auth/confirm-account" element={<ConfirmAccountView />} />
           <Route path="/auth/request-code" element={<RequestCodeView />} />
           <Route path="/auth/new-password" element={<NewpasswordView />} />
-          <Route path="*" element={<div>404</div>} />
+          <Route path="*" element={<PageNotFound />} />
         </Route>
 
         <Route element={<AppLayout />}>

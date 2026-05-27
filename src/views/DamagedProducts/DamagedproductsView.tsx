@@ -6,7 +6,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
-    DropdownMenuItem,    
+    DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -28,23 +28,23 @@ import { Edit, Ellipsis, Loader2, Search } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import TableEmpty from "@/components/ui-components/TableEmpty";
-import { getExpiredProducts } from "@/apis/expiredProducts.apis";
 import type { ExpiredProductsFormDataInfo } from "@/types/expiredProducts.interface";
-import CreateExpiredProducts from "@/components/expiredProducts/CreateExpiredPropducts";
 import ToogleFieldsDialogexpiredProducts from "@/components/expiredProducts/ToogleFieldsDialogexpiredProducts";
-import EditExpiredProducts from "@/components/expiredProducts/EditExpiredproducts";
+import { getDamagedProducts } from "@/apis/damagedProducts.apis";
+import CreateDamagedProducts from "@/components/damagedProducts/CreateDamagedProducts";
+import EditDamagedProducts from "@/components/damagedProducts/EditDamagedProducts";
 
 export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search)
-    const modalEditExpiredProducts = queryParams.get("editExpiredProducts");
-    const showEditModal = modalEditExpiredProducts ? true : false;
+    const modalEditDamagedProducts = queryParams.get("editDamagedProducts");
+    const showEditModal = modalEditDamagedProducts ? true : false;
 
 
     const { data, isLoading, refetch, isError } = useQuery({
-        queryKey: ["expiredProducts"],
-        queryFn: getExpiredProducts,
+        queryKey: ["damagedProducts"],
+        queryFn: getDamagedProducts,
     });
     const inputRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
@@ -65,10 +65,10 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [openDialogEditExpiredProducts, setOpenDialogEditExpiredProducts] = useState(showEditModal)    
+    const [openDialogEditDamagedProducts, setOpenDialogEditDamagedProducts] = useState(showEditModal)
 
 
-    const [editingExpiredProducts, setEditingExpiredProducts] = useState<ExpiredProductsFormDataInfo | null>(null)
+    const [editingDamagedProducts, setEditingDamagedProducts] = useState<ExpiredProductsFormDataInfo | null>(null)
     const [showFields, setShowFields] = useState<string[]>([
         "Observaciones",
         "Fecha creación",
@@ -77,8 +77,8 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
         "Usuario modificador"
     ]);
 
-    const filteredExpiredProductos = Object.values(data || {}).filter(expiredProducts =>
-        Object.values(expiredProducts).some(value =>
+    const filteredDamagedProductos = Object.values(data || {}).filter(damagedProducts =>
+        Object.values(damagedProducts).some(value =>
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
@@ -132,7 +132,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
                                     </Tooltip>
 
                                     {
-                                        dataAuth?.permisos_producto[0].guardar == 1 && (<CreateExpiredProducts />)
+                                        dataAuth?.permisos_producto[0].guardar == 1 && (<CreateDamagedProducts />)
                                     }
 
                                     <ToogleFieldsDialogexpiredProducts showFields={showFields} setShowFields={setShowFields} />
@@ -163,33 +163,33 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
                                     </TableHeader>
                                     <TableBody>
                                         {
-                                            filteredExpiredProductos?.map(expiredProducts => (
-                                                <TableRow key={expiredProducts.id}>
+                                            filteredDamagedProductos?.map(damagedProducts => (
+                                                <TableRow key={damagedProducts.id}>
                                                     {
                                                         showFields.includes("id") &&
-                                                        <TableCell>{expiredProducts.id}</TableCell>
+                                                        <TableCell>{damagedProducts.id}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Observaciones") &&
-                                                        <TableCell>{expiredProducts.observaciones}</TableCell>
+                                                        <TableCell>{damagedProducts.observaciones}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha creación") &&
-                                                        <TableCell>{expiredProducts.fecha_creacion}</TableCell>
+                                                        <TableCell>{damagedProducts.fecha_creacion}</TableCell>
                                                     }
                                                     {
                                                         showFields.includes("Fecha modificación") &&
-                                                        <TableCell>{expiredProducts.fecha_modificacion}</TableCell>
+                                                        <TableCell>{damagedProducts.fecha_modificacion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario creador") &&
-                                                        <TableCell>{expiredProducts.nombre_usuario_creador}</TableCell>
+                                                        <TableCell>{damagedProducts.nombre_usuario_creador}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario modificador") &&
-                                                        <TableCell>{expiredProducts.nombre_usuario_modificador}</TableCell>
+                                                        <TableCell>{damagedProducts.nombre_usuario_modificador}</TableCell>
                                                     }
 
                                                     <TableCell className="text-right">
@@ -204,17 +204,17 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
                                                                     <DropdownMenuItem>
                                                                         <Button
                                                                             onClick={() => {
-                                                                                setEditingExpiredProducts(expiredProducts)
-                                                                                setOpenDialogEditExpiredProducts(!openDialogEditExpiredProducts)
+                                                                                setEditingDamagedProducts(damagedProducts)
+                                                                                setOpenDialogEditDamagedProducts(!openDialogEditDamagedProducts)
                                                                                 refetch()
 
-                                                                                if (openDialogEditExpiredProducts) {
+                                                                                if (openDialogEditDamagedProducts) {
                                                                                     navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditExpiredProducts(!openDialogEditExpiredProducts)
+                                                                                    setOpenDialogEditDamagedProducts(!openDialogEditDamagedProducts)
                                                                                     refetch()
                                                                                 }
                                                                                 else {
-                                                                                    navigate(location.pathname + `?editexpiredProducts=${expiredProducts.id}`)
+                                                                                    navigate(location.pathname + `?damagedProducts=${damagedProducts.id}`)
                                                                                     refetch()
                                                                                 }
                                                                             }}
@@ -222,7 +222,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
                                                                             className="flex items-center justify-center gap-x-3"
                                                                         >
                                                                             <Edit className="size-4" />
-                                                                            Modificar registro
+                                                                            Modificar registros
                                                                         </Button>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuGroup>
@@ -235,7 +235,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
 
                                         <TableRow>
                                             {
-                                                filteredExpiredProductos.length == 0 &&
+                                                filteredDamagedProductos.length == 0 &&
                                                 (
                                                     <TableCell colSpan={13}>
                                                         <div className="flex items-center flex-col justify-center w-full h-96 mx-auto">
@@ -248,8 +248,8 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
                                         </TableRow>
 
                                         {
-                                            editingExpiredProducts && (
-                                                <EditExpiredProducts expiredProducts={{ ...editingExpiredProducts, usuario_modificador: "" }} onClose={() => setEditingExpiredProducts(null)} />
+                                            editingDamagedProducts && (
+                                                <EditDamagedProducts damagedProducts={{ ...editingDamagedProducts, usuario_modificador: "" }} onClose={() => setEditingDamagedProducts(null)} />
                                             )
                                         }
                                     </TableBody>

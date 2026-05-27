@@ -30,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a
                 href="/"
-                className="flex items-center justify-center top-0 sticky border-b border-gray-300 h-40 w-full"
+                className="flex items-center justify-center top-0 sticky border-b border-gray-300 dark:border-gray-700 h-40 w-full"
               >
                 <img
                   loading="lazy"

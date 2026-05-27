@@ -6,10 +6,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Plus, Save } from "lucide-react";
 import type { ErrorData } from "@/types/errors.interface";
 import { toast } from "sonner";
-import type { SupplierFormDataAdd } from "@/types/suppliers.interface";
 import { stateValue } from "@/types/state.interface";
 import { createBrand } from "@/apis/brand.apis";
 import { Button } from "../ui/button";
+import type { BrandFormDataAdd } from "@/types/brand.interface";
 
 export default function CreateBrand() {
     const navigate = useNavigate();
@@ -56,7 +56,7 @@ export default function CreateBrand() {
     const {
         handleSubmit,
         reset
-    } = useForm<SupplierFormDataAdd>({ defaultValues: newBrand });
+    } = useForm<BrandFormDataAdd>({ defaultValues: newBrand });
 
     function onClickClearForm() {
         setNewBrand({
