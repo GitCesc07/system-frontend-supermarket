@@ -7,6 +7,7 @@ export async function getDataInitial() {
     try {
         const { data } = await api("/dataInitial")
         const response = queryDataSchema.safeParse(data);
+        console.log(response);
         if (response.success) {
             return response.data;
         }

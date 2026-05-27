@@ -12,9 +12,7 @@ export const expiredProductsShema = z.object({
     fecha_creacion: z.string(),
     fecha_modificacion: z.string(),
     detalle_productos_expirado: detailsExpiredProducts,
-    usuario_creador: z.string(),
     nombre_usuario_creador: z.string(),
-    usuario_modificador: z.string(),
     nombre_usuario_modificador: z.string()
 });
 
@@ -25,9 +23,7 @@ export const expiredProductsDataSchema = z.array(
         observaciones: true,
         fecha_creacion: true,
         fecha_modificacion: true,
-        usuario_creador: true,
         nombre_usuario_creador: true,
-        usuario_modificador: true,
         nombre_usuario_modificador: true
     })
 )
@@ -39,18 +35,14 @@ export type ExpiredProductsFormData = Pick<ExpiredProducts,
     "observaciones" |
     "fecha_creacion" |
     "fecha_modificacion" |
-    "detalle_productos_expirado" |
-    "usuario_creador" |
-    "usuario_modificador"
+    "detalle_productos_expirado"
 >;
 
 export type ExpiredProductsFormDataInfo = Pick<ExpiredProducts,
     "id" |
     "observaciones" |
     "fecha_creacion" |
-    "fecha_modificacion" |
-    "usuario_creador" |
-    "usuario_modificador"
+    "fecha_modificacion"
 >;
 
 export type ExpiredProductsFormDataAdd = Pick<ExpiredProducts,

@@ -38,6 +38,24 @@ export function formatDateInput(date: string): string {
     return formatoIso;
 }
 
+export function formatWeekDate() {
+    const hoy = new Date();
+
+    // Calcula el lunes de la semana actual
+    const diaSemana = hoy.getDay();
+    const diferencia = hoy.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
+    const lunes = new Date(hoy.setDate(diferencia));
+
+    // Calcula el domingo sumando 6 días al lunes
+    const domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+
+    // Formato de fecha (ej. DD/MM/YYYY)
+    const opciones: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+    return `del ${lunes.toLocaleDateString('es-ES', opciones)} al ${domingo.toLocaleDateString('es-ES', opciones)}`;
+}
+
 
 //* formats for currency
 export function formatCurrency(value: string): string {

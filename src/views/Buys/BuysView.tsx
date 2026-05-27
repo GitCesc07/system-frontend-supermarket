@@ -7,6 +7,7 @@ import {
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -24,7 +25,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { BadgeCheck, Ban, Edit, Ellipsis, Loader2, Search } from "lucide-react";
+import { BadgeCheck, Ban, Edit, Ellipsis, File, Loader2, MessageCircleQuestion, Search } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,9 @@ import ToogleFieldsDialogBuys from "@/components/buys/ToogleFieldsDialogBuys";
 import { formatCurrency } from "@/utils/utilidad";
 import CreateBuy from "@/components/buys/CreateBuy";
 import EditBuys from "@/components/buys/EditBuy";
+import { AlertDialog } from "@/components/ui/alert-dialog";
+import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
+import api from "@/lib/axios";
 
 export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
@@ -69,7 +73,9 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [openDialogEditBuys, setOpenDialogEditBuys] = useState(showEditModal)
+    const [idBuys, setidBuys] = useState("");
+    const [openDialogEditBuys, setOpenDialogEditBuys] = useState(showEditModal);
+    const [openAlertDialogReport, setOpenAlertDialogReport] = useState(false);
 
 
     const [editingBuys, setEditingBuys] = useState<BuysFormDataInfo | null>(null);
@@ -94,6 +100,41 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
     );
 
     if (isError) return <Navigate to={"/404"} />
+
+    const handleChangeState = (state: boolean) => {
+        if (state == true) {
+            onClickCreateReportInventory();
+        }
+
+    }
+
+
+    const onClickCreateReportInventory = async () => {
+        try {
+            // Realiza la solicitud GET para obtener el PDF
+            const response = await api(`/buys/reportBuys/${idBuys}`, {
+                responseType: "blob", // Importante para manejar archivos binarios
+            });
+
+            const blob = response.data;
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (error) {
+            let errormessage = "";
+            if (error instanceof Error) {
+                errormessage = error.message;
+            }
+
+            toast.error(`Error al descargar el archivo: ${errormessage || "Error desconocido"}`, {
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+        }
+    }
 
     return (
         <div className="w-full h-full flex items-center justify-center">
@@ -291,6 +332,25 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                             Modificar compra
                                                                         </Button>
                                                                     </DropdownMenuItem>
+                                                                    {
+                                                                        dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                                                        <>
+                                                                            <DropdownMenuSeparator />
+                                                                            <DropdownMenuItem>
+                                                                                <Button
+                                                                                    onClick={() => {
+                                                                                        setOpenAlertDialogReport(true);
+                                                                                        setidBuys(buy.id)
+                                                                                    }}
+                                                                                    variant="ghost"
+                                                                                    className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-700"
+                                                                                >
+                                                                                    <File className="size-5" />
+                                                                                    Imprimir reporte
+                                                                                </Button>
+                                                                            </DropdownMenuItem>
+                                                                        </>
+                                                                    }
                                                                 </DropdownMenuGroup>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -320,6 +380,21 @@ export default function BuysView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                 }}>
                                                     <EditBuys buy={editingBuys} dataAuth={dataAuth} onClose={() => setEditingBuys(null)} />
                                                 </Dialog>
+                                            )
+                                        }
+
+                                        {
+                                            openAlertDialogReport == true && (
+                                                <AlertDialog open={openAlertDialogReport} onOpenChange={() => setOpenAlertDialogReport(false)}>
+                                                    <AlertDialogDelete
+                                                        icon={MessageCircleQuestion}
+                                                        title="Crear reporte"
+                                                        description={`¿Seguro deseas crear el reporte?`}
+                                                        buttonCancel="¡No, crear!"
+                                                        buttonConfirm="¡Si, crear!"
+                                                        onClickConfirm={handleChangeState}
+                                                    />
+                                                </AlertDialog>
                                             )
                                         }
                                     </TableBody>

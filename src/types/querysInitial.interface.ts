@@ -52,6 +52,12 @@ export const dataBuysTotalShema = z.object({
     total_compras: z.number().optional().nullable()
 });
 
+export const dataBuysChartShema = z.array(z.object({
+    dia_semana: z.string(),
+    total_compras: z.number(),
+    gasto_total: z.string()
+}));
+
 export const dataBillingTotalShema = z.object({
     id: z.string().optional().nullable(),
     monto_total: z.string().optional().nullable(),
@@ -68,6 +74,7 @@ const queryShema = z.object({
     getProductsAndTotalNumberOfProducts: dataProductsAndTotalNumberOfProductsShema.optional().nullable(),
     getproductsInInventory: dataTotalInventoryShema.optional().nullable(),
     getBuysTotal: dataBuysTotalShema.optional().nullable(),
+    getBuysChart: dataBuysChartShema,
     getBillingTotal: dataBillingTotalShema.optional().nullable(),
 });
 
@@ -81,6 +88,7 @@ export const queryDataSchema = z.array(
         getProductsAndTotalNumberOfProducts: true,
         getproductsInInventory: true,
         getBuysTotal: true,
+        getBuysChart: true,
         getBillingTotal: true
     })
 )

@@ -26,6 +26,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
 
     const [open, setOpen] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [isActiveInput, setIsActiveInput] = useState(false);
     const [subtotal, setSubtotal] = useState(0);
     const [total, setTotal] = useState(0);
     const [taxesValue, setTaxesValue] = useState(15);
@@ -163,7 +164,8 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         setDataProductComboBox({
             id_producto: "",
             nombre_producto: ""
-        })
+        });
+        setIsActiveInput(false);
     }
 
     const editProduct = () => {
@@ -311,22 +313,34 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     }
 
     const handleSelectionProduct = (dataProduct: TempPurchasingFormData) => {
-        if (dataProducts.find(item => item.id_producto == dataProduct.id_producto)) {
-            toast.warning("El producto ya se encuentra agregado...", {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar  todas",
-                    onClick: () => toast.dismiss()
-                }
-            });
-            return;
-        } else {
+        if (dataProducts.length == 0) {
             setProductId(dataProduct)
             newProducts.id_producto = dataProduct!.id_producto;
             newProducts.nombre_producto = dataProduct!.nombre_producto;
+            setIsActiveInput(true);
         }
+        dataProducts.find(item => {
+            if (item.id_producto == dataProduct.id_producto) {
+                toast.warning("El producto ya se encuentra agregado...", {
+                    position: "top-right",
+                    closeButton: true,
+                    action: {
+                        label: "Cerrar  todas",
+                        onClick: () => toast.dismiss()
+                    }
+                });
+                setIsActiveInput(false);
+                return;
+            }
 
+            if (item.id_producto !== dataProduct.id_producto) {
+                setProductId(dataProduct)
+                newProducts.id_producto = dataProduct!.id_producto;
+                newProducts.nombre_producto = dataProduct!.nombre_producto;
+
+                setIsActiveInput(true);
+            }
+        })
     }
 
     const queryClient = useQueryClient();
@@ -364,7 +378,6 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     });
 
     const {
-        handleSubmit,
         reset
     } = useForm<BuysFormDataAdd>({ defaultValues: newBuys });
 
@@ -626,9 +639,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     </DialogDescription>
                 </DialogHeader>
 
-                <form
-                    onSubmit={handleSubmit(onSubmitCreateBuys)}
-                >
+                <form>
                     <div className="h-80 mx-auto flex items-start gap-y-4 md:gap-x-8 justify-center flex-col md:flex-row w-full md:w-full px-1 sm:p-4 py-4">
                         <fieldset className="flex w-full h-72 flex-col gap-y-6 items-center border border-gray-300 dark:border-gray-600 rounded-lg p-4">
                             <legend className="uppercase font-bold">Datos de la compra</legend>
@@ -967,10 +978,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
                                 <label htmlFor="precio_compra" className="font-bold mb-1">Precio:</label>
                                 <input
-                                    className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
+                                    className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${isActiveInput == false && "cursor-not-allowed"}`}
                                     id="precio_compra"
                                     required
-                                    disabled={editId != null || newProducts.id_producto == "" ? true : false}
+                                    disabled={isActiveInput == false ? true : false}
                                     value={+newProducts.precio_compra == 0 || editId != null ? "" : newProducts.precio_compra}
                                     onChange={(e) => setNewProducts({ ...newProducts, precio_compra: e.target.value })}
                                     type="number"
@@ -981,10 +992,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
                                 <label htmlFor="cantidad" className="font-bold mb-1">Cantidad comprada:</label>
                                 <input
-                                    className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
+                                    className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${isActiveInput == false && "cursor-not-allowed"}`}
                                     id="cantidad"
                                     required
-                                    disabled={editId != null || newProducts.id_producto == "" ? true : false}
+                                    disabled={isActiveInput == false ? true : false}
                                     value={+newProducts.cantidad == 0 || editId != null ? "" : newProducts.cantidad}
                                     onChange={(e) => {
                                         if (editId == null) {
@@ -1116,287 +1127,288 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             className="w-full outline-none"
                         />
                     </div>
+                </form>
 
-                    <div className="h-104 w-full lg:w-full flex-col lg:flex-row flex md:gap-x-4 gap-y-4 items-start justify-center mx-auto">
-                        <div className="w-full h-full lg:w-[75%] scrollbar-thin-custom touch-pan-x touch-pan-y scroll-smooth overflow-scroll top-0">
-                            <Table className="h-full p-2 w-312.5 md:w-full scrollbar-thin-custom">
-                                <TableHeader className="top-0 sticky">
-                                    <TableRow>
-                                        <TableHead>Producto</TableHead>
-                                        <TableHead>Cantidad</TableHead>
-                                        <TableHead>P. Unitario</TableHead>
-                                        <TableHead>Subtotal</TableHead>
-                                        <TableHead>Acción</TableHead>
-                                    </TableRow>
-                                </TableHeader>
+                <div className="h-104 w-full lg:w-full flex-col lg:flex-row flex md:gap-x-4 gap-y-4 items-start justify-center mx-auto">
+                    <div className="w-full h-full lg:w-[75%] scrollbar-thin-custom touch-pan-x touch-pan-y scroll-smooth overflow-scroll top-0">
+                        <Table className="h-full p-2 w-312.5 md:w-full scrollbar-thin-custom">
+                            <TableHeader className="top-0 sticky">
+                                <TableRow>
+                                    <TableHead>Producto</TableHead>
+                                    <TableHead className="text-center">Cantidad</TableHead>
+                                    <TableHead>P. Unitario</TableHead>
+                                    <TableHead>Subtotal</TableHead>
+                                    <TableHead className="text-center">Acción</TableHead>
+                                </TableRow>
+                            </TableHeader>
 
-                                <TableBody>
-                                    {
-                                        filtereddataProducts?.map(product => (
-                                            <TableRow key={product.id_producto} className="hover:bg-gray-100/85 dark:hover:bg-gray-800/95 transition-all duration-200">
+                            <TableBody>
+                                {
+                                    filtereddataProducts?.map(product => (
+                                        <TableRow key={product.id_producto} className="hover:bg-gray-100/85 dark:hover:bg-gray-800/95 transition-all duration-200">
 
-                                                <TableCell>
-                                                    {
-                                                        product.nombre_producto
-                                                    }
-                                                </TableCell>
+                                            <TableCell>
+                                                {
+                                                    product.nombre_producto
+                                                }
+                                            </TableCell>
 
-                                                <TableCell align="center">
-                                                    {
-                                                        editId === product.id_producto ?
-                                                            (
-                                                                <input
-                                                                    className="w-14 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
-                                                                    id="cantidad"
-                                                                    required
-                                                                    value={newProducts.cantidad == "0" ? "" : newProducts.cantidad}
-                                                                    onChange={(e) => {
-                                                                        // if (editId == null) {
-                                                                        //     handleCalculateSubtotal(+e.target.value);
-                                                                        // }
+                                            <TableCell className="text-center">
+                                                {
+                                                    editId === product.id_producto ?
+                                                        (
+                                                            <input
+                                                                className="w-14 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                                                id="cantidad"
+                                                                required
+                                                                value={newProducts.cantidad == "0" ? "" : newProducts.cantidad}
+                                                                onChange={(e) => {
+                                                                    // if (editId == null) {
+                                                                    //     handleCalculateSubtotal(+e.target.value);
+                                                                    // }
 
-                                                                        handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
-                                                                        setNewProducts({ ...newProducts, cantidad: e.target.value });
-                                                                    }}
-                                                                    onKeyDown={keyPressDown}
-                                                                    type="number"
-                                                                    placeholder="Ejemplo: xxx..."
-                                                                />
-                                                            )
-                                                            :
-                                                            product.cantidad
-                                                    }
-                                                </TableCell>
+                                                                    handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
+                                                                    setNewProducts({ ...newProducts, cantidad: e.target.value });
+                                                                }}
+                                                                onKeyDown={keyPressDown}
+                                                                type="number"
+                                                                placeholder="Ejemplo: xxx..."
+                                                            />
+                                                        )
+                                                        :
+                                                        product.cantidad
+                                                }
+                                            </TableCell>
 
-                                                <TableCell>
-                                                    {
-                                                        editId === product.id_producto && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER ?
-                                                            (
-                                                                <input
-                                                                    className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
-                                                                    id="precio_compra"
-                                                                    required
-                                                                    value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
-                                                                    onChange={(e) => {
-                                                                        handleCalculateSubtotalEdit(+newProducts.cantidad, +e.target.value);
-                                                                        setNewProducts({ ...newProducts, precio_compra: e.target.value });
-                                                                    }}
-                                                                    onKeyDown={keyPressDown}
-                                                                    type="number"
-                                                                    placeholder="Precio del producto..."
-                                                                />
-                                                            )
-                                                            :
-                                                            product.precio_compra === undefined ? 0 : formatCurrency(product.precio_compra)
-                                                    }
-                                                </TableCell>
+                                            <TableCell>
+                                                {
+                                                    editId === product.id_producto && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER ?
+                                                        (
+                                                            <input
+                                                                className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                                                id="precio_compra"
+                                                                required
+                                                                value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
+                                                                onChange={(e) => {
+                                                                    handleCalculateSubtotalEdit(+newProducts.cantidad, +e.target.value);
+                                                                    setNewProducts({ ...newProducts, precio_compra: e.target.value });
+                                                                }}
+                                                                onKeyDown={keyPressDown}
+                                                                type="number"
+                                                                placeholder="Precio del producto..."
+                                                            />
+                                                        )
+                                                        :
+                                                        product.precio_compra === undefined ? 0 : formatCurrency(product.precio_compra)
+                                                }
+                                            </TableCell>
 
-                                                <TableCell>
-                                                    {
-                                                        editId === product.id_producto ?
-                                                            formatCurrency(subtotal.toString())
-                                                            :
-                                                            formatCurrency(product.subtotal)
-                                                    }
-                                                </TableCell>
+                                            <TableCell>
+                                                {
+                                                    editId === product.id_producto ?
+                                                        formatCurrency(subtotal.toString())
+                                                        :
+                                                        formatCurrency(product.subtotal)
+                                                }
+                                            </TableCell>
 
-                                                <TableCell>
-                                                    {
-                                                        editId === product.id_producto ? (
-                                                            <div className="flex items-center justify-center">
+                                            <TableCell>
+                                                {
+                                                    editId === product.id_producto ? (
+                                                        <div className="flex items-center justify-center">
+                                                            <Tooltip>
+                                                                <TooltipTrigger>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            editProduct();
+                                                                        }}
+                                                                        className="flex items-center justify-center gap-x-2 text-sm font-bold bg-green-400 p-2 text-black rounded-md hover:bg-green-600 transition-all duration-200"
+                                                                    >
+                                                                        <span className="block md:hidden">Guardar datos modificados</span>
+                                                                        <Save className="h-4 w-4" />
+                                                                    </button>
+                                                                </TooltipTrigger>
+
+                                                                <TooltipContent>
+                                                                    Clic para guardar los cambios realizados
+                                                                </TooltipContent>
+                                                            </Tooltip>
+
+                                                        </div>
+                                                    )
+                                                        : (
+                                                            <div className="flex items-center justify-center md:flex-row gap-x-4 w-auto py-2">
                                                                 <Tooltip>
                                                                     <TooltipTrigger>
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => {
-                                                                                editProduct();
+                                                                                // setNewProducts({ ...newProducts, id_producto: product.id_producto})
+                                                                                newProducts.id_producto = product.id_producto;
+                                                                                newProducts.nombre_producto = product.nombre_producto;
+                                                                                newProducts.precio_compra = product.precio_compra;
+                                                                                newProducts.cantidad = product.cantidad;
+
+                                                                                setEditId(product.id_producto)
                                                                             }}
-                                                                            className="flex items-center justify-center gap-x-2 text-sm font-bold bg-green-400 p-2 text-black rounded-md hover:bg-green-600 transition-all duration-200"
+                                                                            className="flex items-center justify-center gap-x-2 text-sm font-bold bg-cyan-500 p-2 text-black rounded-md hover:bg-cyan-600 transition-all duration-200"
                                                                         >
-                                                                            <span className="block md:hidden">Guardar datos modificados</span>
-                                                                            <Save className="h-4 w-4" />
+                                                                            <span className="block md:hidden">Modificar item</span>
+                                                                            <Edit className="size-4" />
+                                                                        </button>
+                                                                    </TooltipTrigger>
+
+
+                                                                    <TooltipContent>
+                                                                        Clic para modificar este item
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+
+                                                                <Tooltip>
+                                                                    <TooltipTrigger>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="flex items-center justify-center gap-x-2 text-sm font-bold bg-red-500 p-2 text-white rounded-md hover:bg-red-600 transition-all duration-200"
+                                                                            onClick={() => {
+                                                                                setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal, subtotal_venta: "", id_inventario: "", stock: 0 });
+                                                                            }}
+                                                                        >
+                                                                            <span className="block md:hidden">Eliminar item</span>
+                                                                            <Trash2 className="size-4" />
                                                                         </button>
                                                                     </TooltipTrigger>
 
                                                                     <TooltipContent>
-                                                                        Clic para guardar los cambios realizados
+                                                                        Clic para remover este item
                                                                     </TooltipContent>
                                                                 </Tooltip>
-
                                                             </div>
                                                         )
-                                                            : (
-                                                                <div className="flex items-center justify-center md:flex-row gap-x-4 w-auto py-2">
-                                                                    <Tooltip>
-                                                                        <TooltipTrigger>
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => {
-                                                                                    // setNewProducts({ ...newProducts, id_producto: product.id_producto})
-                                                                                    newProducts.id_producto = product.id_producto;
-                                                                                    newProducts.nombre_producto = product.nombre_producto;
-                                                                                    newProducts.precio_compra = product.precio_compra;
-                                                                                    newProducts.cantidad = product.cantidad;
-
-                                                                                    setEditId(product.id_producto)
-                                                                                }}
-                                                                                className="flex items-center justify-center gap-x-2 text-sm font-bold bg-cyan-500 p-2 text-black rounded-md hover:bg-cyan-600 transition-all duration-200"
-                                                                            >
-                                                                                <span className="block md:hidden">Modificar item</span>
-                                                                                <Edit className="size-4" />
-                                                                            </button>
-                                                                        </TooltipTrigger>
-
-
-                                                                        <TooltipContent>
-                                                                            Clic para modificar este item
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-
-                                                                    <Tooltip>
-                                                                        <TooltipTrigger>
-                                                                            <button
-                                                                                type="button"
-                                                                                className="flex items-center justify-center gap-x-2 text-sm font-bold bg-red-500 p-2 text-white rounded-md hover:bg-red-600 transition-all duration-200"
-                                                                                onClick={() => {
-                                                                                    setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal, subtotal_venta: "", id_inventario: "", stock: 0 });
-                                                                                }}
-                                                                            >
-                                                                                <span className="block md:hidden">Eliminar item</span>
-                                                                                <Trash2 className="size-4" />
-                                                                            </button>
-                                                                        </TooltipTrigger>
-
-                                                                        <TooltipContent>
-                                                                            Clic para remover este item
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-                                                                </div>
-                                                            )
-                                                    }
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
+                                                }
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                }
+                                <TableRow>
+                                    {
+                                        filtereddataProducts?.length === 0 && (
+                                            <TableCell colSpan={14}>
+                                                <div className="flex items-center flex-col justify-center">
+                                                    <TableEmpty />
+                                                    <p className='text-center font-bold text-2xl'>Aún no hay registros agregados...</p>
+                                                </div>
+                                            </TableCell>
+                                        )
                                     }
-                                    <TableRow>
-                                        {
-                                            filtereddataProducts?.length === 0 && (
-                                                <TableCell colSpan={14}>
-                                                    <div className="flex items-center flex-col justify-center">
-                                                        <TableEmpty />
-                                                        <p className='text-center font-bold text-2xl'>Aún no hay registros agregados...</p>
-                                                    </div>
-                                                </TableCell>
-                                            )
-                                        }
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </div>
-
-                        <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-600 rounded-lg py-4 px-2 h-104">
-                            <legend className="uppercase font-bold">Montos de la compra</legend>
-
-                            <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                                <label htmlFor="total_productos" className="font-bold w-full">Total productos:</label>
-                                <input
-                                    id="total_productos"
-                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
-                                    value={dataProducts.length}
-                                    type="text"
-                                    disabled
-                                    placeholder="Total de productos..." />
-                            </div>
-
-                            <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                                <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de compra:</label>
-                                <input
-                                    id="subtotal_compra"
-                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
-                                    value={formatCurrency(handleCalculateTotal().toString())}
-                                    type="text"
-                                    disabled
-                                    placeholder="Subtotal de compra..." />
-                            </div>
-
-                            <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                                <label htmlFor="value_tax" className="font-bold text-start w-full">IVA:</label>
-                                <input
-                                    id="value_tax"
-                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
-                                    value={valorImpuesto === 0 ? "0.00" : formatCurrency(valorImpuesto.toString())}
-                                    type="text"
-                                    disabled
-                                    placeholder="Impuesto..." />
-                            </div>
-
-                            <div className="flex flex-row-reverse w-full items-center justify-center gap-x-1 mx-auto">
-                                <label htmlFor="checked_impuesto" className="font-bold text-start w-full">Agregar % manual</label>
-                                <input
-                                    type="checkbox"
-                                    name=""
-                                    id="checked_impuesto"
-                                    checked={isChecked}
-                                    onChange={(e) => setIsChecked(e.target.checked)}
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                                <label htmlFor="impuesto" className="font-bold text-start w-full">% del impuesto:</label>
-                                <input
-                                    id="impuesto"
-                                    className={`w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 ${isChecked == false && "cursor-not-allowed"}`}
-                                    value={taxesValue}
-                                    onChange={(e) => {
-                                        setTaxesValue(+e.target.value);
-                                    }}
-                                    disabled={!isChecked}
-                                    type="text"
-                                    placeholder="Impuesto..." />
-                            </div>
-
-                            <div className="flex w-full items-center justify-center mx-auto">
-                                <button
-                                    type="button"
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base"
-                                    onClick={() => handleCalculateTotalWithTaxes()}
-                                >
-                                    Calcular con impuesto
-                                    <Calculator className="size-5" />
-                                </button>
-                            </div>
-
-                            <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                                <label htmlFor="total_compra" className="font-bold w-full ">Total de compra:</label>
-                                <input
-                                    id="total_compra"
-                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
-                                    value={total === 0 ? formatCurrency(handleCalculateTotal().toString()) : formatCurrency(total.toString())}
-                                    type="text"
-                                    disabled
-                                    placeholder="Total de compra..." />
-                            </div>
-                        </fieldset>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
 
-                    <div className="w-full">
-                        <div
+                    <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-600 rounded-lg py-4 px-2 h-104">
+                        <legend className="uppercase font-bold">Montos de la compra</legend>
 
-                            className="w-full flex mt-4 items-center justify-center md:gap-x-8"
-                        >
+                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                            <label htmlFor="total_productos" className="font-bold w-full">Total productos:</label>
+                            <input
+                                id="total_productos"
+                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                                value={dataProducts.length}
+                                type="text"
+                                disabled
+                                placeholder="Total de productos..." />
+                        </div>
+
+                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                            <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de compra:</label>
+                            <input
+                                id="subtotal_compra"
+                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
+                                value={formatCurrency(handleCalculateTotal().toString())}
+                                type="text"
+                                disabled
+                                placeholder="Subtotal de compra..." />
+                        </div>
+
+                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                            <label htmlFor="value_tax" className="font-bold text-start w-full">IVA:</label>
+                            <input
+                                id="value_tax"
+                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                                value={valorImpuesto === 0 ? "0.00" : formatCurrency(valorImpuesto.toString())}
+                                type="text"
+                                disabled
+                                placeholder="Impuesto..." />
+                        </div>
+
+                        <div className="flex flex-row-reverse w-full items-center justify-center gap-x-1 mx-auto">
+                            <label htmlFor="checked_impuesto" className="font-bold text-start w-full">Agregar % manual</label>
+                            <input
+                                type="checkbox"
+                                name=""
+                                id="checked_impuesto"
+                                checked={isChecked}
+                                onChange={(e) => setIsChecked(e.target.checked)}
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                            <label htmlFor="impuesto" className="font-bold text-start w-full">% del impuesto:</label>
+                            <input
+                                id="impuesto"
+                                className={`w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 ${isChecked == false && "cursor-not-allowed"}`}
+                                value={taxesValue}
+                                onChange={(e) => {
+                                    setTaxesValue(+e.target.value);
+                                }}
+                                disabled={!isChecked}
+                                type="text"
+                                placeholder="Impuesto..." />
+                        </div>
+
+                        <div className="flex w-full items-center justify-center mx-auto">
                             <button
-                                type="submit"
-                                className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined ? "cursor-not-allowed" : undefined}`}
-                                aria-label="Close"
-                                disabled={supplierData?.nombre_proveedor === undefined ? true : false}
+                                type="button"
+                                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base"
+                                onClick={() => handleCalculateTotalWithTaxes()}
                             >
-                                <Save className="size-5" />
-                                Guardar compra
+                                Calcular con impuesto
+                                <Calculator className="size-5" />
                             </button>
-
                         </div>
+
+                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                            <label htmlFor="total_compra" className="font-bold w-full ">Total de compra:</label>
+                            <input
+                                id="total_compra"
+                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
+                                value={total === 0 ? formatCurrency(handleCalculateTotal().toString()) : formatCurrency(total.toString())}
+                                type="text"
+                                disabled
+                                placeholder="Total de compra..." />
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div className="w-full">
+                    <div
+
+                        className="w-full flex mt-4 items-center justify-center md:gap-x-8"
+                    >
+                        <button
+                            type="submit"
+                            className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined ? "cursor-not-allowed" : undefined}`}
+                            aria-label="Close"
+                            onClick={onSubmitCreateBuys}
+                            disabled={supplierData?.nombre_proveedor === undefined ? true : false}
+                        >
+                            <Save className="size-5" />
+                            Guardar compra
+                        </button>
+
                     </div>
-                </form>
+                </div>
 
                 {
                     openAlertDialogDeleted && (

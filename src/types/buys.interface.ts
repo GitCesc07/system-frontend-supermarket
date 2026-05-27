@@ -257,7 +257,6 @@ export type TempPurchasingFormData = Pick<TempPurchasing,
     "stock" |
     "subtotal_compra" |
     "subtotal_venta"
-
 >;
 
 export type TempPurchasingFormDataAdd = Pick<TempPurchasing,
@@ -266,6 +265,13 @@ export type TempPurchasingFormDataAdd = Pick<TempPurchasing,
     "nombre_producto" |
     "subtotal_compra" |
     "subtotal_venta" |
+    "id_producto"
+>;
+
+export type TempPurchasingFormDataInfo = Pick<TempPurchasing,
+    "id_inventario" |
+    "cantidad" |
+    "nombre_producto" |
     "id_producto"
 >;
 

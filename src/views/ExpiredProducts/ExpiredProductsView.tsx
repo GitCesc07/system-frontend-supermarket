@@ -6,7 +6,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
-    DropdownMenuItem,    
+    DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -65,7 +65,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [openDialogEditExpiredProducts, setOpenDialogEditExpiredProducts] = useState(showEditModal)    
+    const [openDialogEditExpiredProducts, setOpenDialogEditExpiredProducts] = useState(showEditModal)
 
 
     const [editingExpiredProducts, setEditingExpiredProducts] = useState<ExpiredProductsFormDataInfo | null>(null)
@@ -249,7 +249,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
 
                                         {
                                             editingExpiredProducts && (
-                                                <EditExpiredProducts expiredProducts={{ ...editingExpiredProducts, usuario_modificador: "" }} onClose={() => setEditingExpiredProducts(null)} />
+                                                <EditExpiredProducts expiredProducts={editingExpiredProducts} onClose={() => setEditingExpiredProducts(null)} />
                                             )
                                         }
                                     </TableBody>
