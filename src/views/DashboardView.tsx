@@ -36,8 +36,8 @@ export default function DashboardView() {
   });
 
   return (
-    <div className="h-full w-full p-4">
-      <div className="h-[25%] w-full p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="h-full w-full p-4 space-y-4 lg:space-y-0">
+      <div className="h-[50%] lg:h-[25%] w-full p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {
           data?.map(info => (
             <>

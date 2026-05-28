@@ -249,7 +249,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
 
                                         {
                                             editingDamagedProducts && (
-                                                <EditDamagedProducts damagedProducts={{ ...editingDamagedProducts, usuario_modificador: "" }} onClose={() => setEditingDamagedProducts(null)} />
+                                                <EditDamagedProducts damagedProducts={editingDamagedProducts} onClose={() => setEditingDamagedProducts(null)} />
                                             )
                                         }
                                     </TableBody>

@@ -22,6 +22,7 @@ export default function CreateDamagedProducts() {
     const location = useLocation();
 
     const [open, setOpen] = useState(false);
+    const [isActiveInput, setIsActiveInput] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [openAlertDialogDeleted, setOpenAlertDialogDeleted] = useState<TempPurchasingFormData | null>(null);
     const [dataProducts, setDataProducts] = useState<TempPurchasingFormDataDetails[]>(sessionStorage.getItem("tempProductsAddExpiredProducts") ? JSON.parse(sessionStorage.getItem("tempProductsAddExpiredProducts")!) : [])
@@ -152,23 +153,36 @@ export default function CreateDamagedProducts() {
     }
 
     const handleSelectionProduct = (dataProduct: TempPurchasingFormData) => {
-        if (dataProducts.find(item => item.id_producto == dataProduct.id_producto)) {
-            toast.warning("El producto ya se encuentra agregado...", {
-                position: "top-right",
-                closeButton: true,
-                action: {
-                    label: "Cerrar  todas",
-                    onClick: () => toast.dismiss()
-                }
-            });
-            return;
-        } else {
-            // setProductId(dataProduct)
+       if (dataProducts.length == 0) {
             // eslint-disable-next-line react-hooks/immutability
             newProducts.id_producto = dataProduct!.id_producto;
             newProducts.nombre_producto = dataProduct!.nombre_producto;
-        }
+            newProducts.id_inventario = dataProduct!.id_inventario;
 
+            setIsActiveInput(true);
+        }
+        dataProducts.find(item => {
+            if (item.id_producto == dataProduct.id_producto) {
+                toast.warning("El producto ya se encuentra agregado...", {
+                    position: "top-right",
+                    closeButton: true,
+                    action: {
+                        label: "Cerrar  todas",
+                        onClick: () => toast.dismiss()
+                    }
+                });
+                setIsActiveInput(false);
+                return;
+            }
+
+            if (item.id_producto !== dataProduct.id_producto) {
+                newProducts.id_producto = dataProduct!.id_producto;
+                newProducts.nombre_producto = dataProduct!.nombre_producto;
+                newProducts.id_inventario = dataProduct!.id_inventario;
+
+                setIsActiveInput(true);
+            }
+        })
     }
 
     const queryClient = useQueryClient()
@@ -361,12 +375,12 @@ export default function CreateDamagedProducts() {
                         </div>
 
                         <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                            <label htmlFor="cantidad" className="font-bold mb-1">Cantidad comprada:</label>
+                            <label htmlFor="cantidad" className="font-bold mb-1">Cantidad:</label>
                             <input
-                                className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${editId != null || newProducts.id_producto == "" && "cursor-not-allowed"}`}
+                                className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${isActiveInput == false && "cursor-not-allowed"}`}
                                 id="cantidad"
                                 required
-                                disabled={editId != null || newProducts.id_producto == "" ? true : false}
+                                disabled={isActiveInput == false ? true : false}
                                 value={+newProducts.cantidad == 0 || editId != null ? "" : newProducts.cantidad}
                                 onChange={(e) => {
                                     setNewProducts({ ...newProducts, cantidad: e.target.value });
