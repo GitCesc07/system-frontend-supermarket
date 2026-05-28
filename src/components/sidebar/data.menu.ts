@@ -3,6 +3,7 @@ import {
     BadgeDollarSign,
     Ban,
     Combine,
+    Database,
     Hammer,
     Home,
     Package,
@@ -90,6 +91,11 @@ export const dataMenu = {
             title: "Empresa",
             url: "/company",
             icon: Store
+        },
+        {
+            title: "Copia y Resturación",
+            url: "/backupAndRestore",
+            icon: Database
         }
     ]
 }

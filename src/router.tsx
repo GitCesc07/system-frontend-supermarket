@@ -20,6 +20,7 @@ import KardexView from "./views/Kardex/KardexView";
 import CompanyView from "./views/Company/CompanyView";
 import ExpiredProductsView from "./views/ExpiredProducts/ExpiredProductsView";
 import PageNotFound from "./components/PageNotFound";
+import BackupAndRestoreView from "./views/BackupAndRestore/BackupAndRestoreView";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -69,6 +70,10 @@ export function Router() {
           }
           {
             dataAuth?.producto && (<Route path="/expiredProducts" element={<ExpiredProductsView dataAuth={dataAuth} />} />)
+          }
+
+          {
+            dataAuth?.empresa && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER && (<Route path="/backupAndRestore" element={<BackupAndRestoreView dataAuth={dataAuth} />} />)
           }
         </Route>
       </Routes>

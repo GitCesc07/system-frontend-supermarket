@@ -84,7 +84,8 @@ export default function AppLayout() {
                                                                 getPathname == "/copyAndRestore" && "Copia y Resturación" ||
                                                                 getPathname == "/company" && "Empresa" ||
                                                                 getPathname == "/expiredProducts" && "Productos vencidos" ||
-                                                                getPathname == "/damagedProducts" && "Productos deteriorados"
+                                                                getPathname == "/damagedProducts" && "Productos deteriorados" ||
+                                                                getPathname == "/backupAndRestore" && "Copia y Restauración"
                                                             }
                                                         </h2>
                                                     </BreadcrumbPage>
