@@ -5,11 +5,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Calculator, ChevronDown, ChevronUp, Edit, MessageCircleQuestion, Plus, PlusIcon, Save, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type { BuysFormDataAdd, TempPurchasingFormData, TempPurchasingFormDataDetails, TempPurchasingFormDataPaymentmethod } from "@/types/buys.interface";
-import type { SupplierFormDataInfo } from "@/types/suppliers.interface";
-import { createBuys } from "@/apis/buys.apis";
+import type { BuysFormDataAdd, TempPurchasingFormDataPaymentmethod } from "@/types/buys.interface";
 import type { ErrorData } from "@/types/errors.interface";
-import { getProducts } from "@/apis/products.apis";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { formatCurrency } from "@/utils/utilidad";
@@ -17,9 +14,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import TableEmpty from "../ui-components/TableEmpty";
 import { AlertDialog } from "../ui/alert-dialog";
 import AlertDialogDelete from "../ui-components/AlertDialogDelete";
-import { getAllSupplier } from "@/apis/suppliers.apis";
+import type { TempSalesFormDataDetails } from "@/types/sales.interface";
+import { getCustomers } from "@/apis/customers.interface";
+import { getInventory } from "@/apis/inventory.apis";
+import { createSales } from "@/apis/sales.apis";
+import type { CustomerFormDataInfo } from "@/types/customers.interface";
 
-export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
+export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate()
     const location = useLocation()
     let precioCompra: number;
@@ -29,27 +30,35 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     const [isActiveInput, setIsActiveInput] = useState(false);
     const [subtotal, setSubtotal] = useState(0);
     const [total, setTotal] = useState(0);
+    const [stockInventory, setStockInventory] = useState(0);
     const [taxesValue, setTaxesValue] = useState(15);
     const [valorImpuesto, setValorImpuesto] = useState(0);
-    const [dataProducts, setDataProducts] = useState<TempPurchasingFormDataDetails[]>(sessionStorage.getItem("tempProductsAddBuys") ? JSON.parse(sessionStorage.getItem("tempProductsAddBuys")!) : [])
+    const [dataProducts, setDataProducts] = useState<TempSalesFormDataDetails[]>(sessionStorage.getItem("tempProductsAddSales") ? JSON.parse(sessionStorage.getItem("tempProductsAddSales")!) : [])
     const [editId, setEditId] = useState<string | null>(null)
-    const [newProducts, setNewProducts] = useState<TempPurchasingFormDataDetails>({
+    const [newProducts, setNewProducts] = useState<TempSalesFormDataDetails>({
         id_producto: "",
         nombre_producto: "",
         precio_compra: "",
+        precio_venta: "",
         cantidad: "0",
-        subtotal: "",
+        subtotal_compra: "",
+        subtotal_venta: ""
     })
 
-    const [newBuys, setNewBuys] = useState({
-        numero_factura_proveedor: "0",
-        observaciones: '',
-        subtotal: '',
-        total: '',
-        estado: 1,
+    const [newSales, setNewSales] = useState({
+        observaciones: "",
+        subtotal: "",
+        total: "",
+        id_cliente: "",
+        cliente_existente: 0,
+        cliente_manual: [{
+            id: "",
+            nombre_cliente: "",
+        }],
+        usuario_creador: "",
         impuesto_manual: [{
             porcentaje: "",
-            valor_porcentaje: 15,
+            valor_porcentaje: 0,
             valor_cantidad: 0
         }],
         metodo_pago: [{
@@ -57,14 +66,15 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
             monto: "",
             observaciones: ""
         }],
-        id_proveedor: '',
-        detalles_compra: [{
-            precio_compra: "",
-            cantidad: "0",
-            subtotal: "",
+        detalles_venta: [{
             id_producto: "",
-        }],
-        usuario_creador: ''
+            nombre_producto: "",
+            precio_compra: "",
+            precio_venta: "",
+            cantidad: "0",
+            subtotal_compra: "",
+            subtotal_venta: ""
+        }]
     });
 
     const [transferencia, setTransferencia] = useState(false);
@@ -79,11 +89,11 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     const [cheque, setCheque] = useState(false);
     const [montoCheque, setMontoCheque] = useState("");
     const [observacionesCheque, setObservacionesCheque] = useState("");
-    const [openAlertDialogDeleted, setOpenAlertDialogDeleted] = useState<TempPurchasingFormData | null>(null)
+    const [openAlertDialogDeleted, setOpenAlertDialogDeleted] = useState<TempSalesFormDataDetails | null>(null)
 
 
     useEffect(() => {
-        const storedProducts = sessionStorage.getItem("tempProductsAddBuys");
+        const storedProducts = sessionStorage.getItem("tempProductsAddSales");
         if (storedProducts) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setDataProducts(JSON.parse(storedProducts));
@@ -91,7 +101,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     }, [])
 
     useEffect(() => {
-        sessionStorage.setItem("tempProductsAddBuys", JSON.stringify(dataProducts));
+        sessionStorage.setItem("tempProductsAddSales", JSON.stringify(dataProducts));
 
         setTimeout(() => {
             handleCalculateTotalWithTaxes();
@@ -100,8 +110,8 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
 
     // * Productos
     const { data: databaseProducts, refetch: refetchProduct } = useQuery({
-        queryKey: ["products"],
-        queryFn: getProducts,
+        queryKey: ["inventory"],
+        queryFn: getInventory,
     });
     const [openComboBoxProduct, setOpenComboBoxProduct] = useState(false);
     const [searchTermProduct, setSearchTermProduct] = useState("");
@@ -117,59 +127,74 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
 
 
     // * Proveedores
-    const { data: databaseSuppliers, refetch: refetchSupplier } = useQuery({
-        queryKey: ["suppliers"],
-        queryFn: getAllSupplier,
+    const { data: databaseCustomers, refetch: refetCustomer } = useQuery({
+        queryKey: ["customers"],
+        queryFn: getCustomers,
     });
-    const [openComboBoxSupplier, setOpenComboBoxSupplier] = useState(false);
-    const [searchTermSupplier, setSearchTermSupplier] = useState("");
-    const filteredSuppliers = Object.values(databaseSuppliers || {}).filter(supplier =>
-        Object.values(supplier).some(value =>
-            value.toString().toLowerCase().includes(searchTermSupplier.toLowerCase())
+    const [openComboBoxCustomer, setOpenComboBoxCustomer] = useState(false);
+    const [searchTermCustomer, setSearchTermCustomer] = useState("");
+    const filteredCustomers = Object.values(databaseCustomers || {}).filter(customer =>
+        Object.values(customer).some(value =>
+            value.toString().toLowerCase().includes(searchTermCustomer.toLowerCase())
         )
     );
-    const [dataSupplierComboBox, setDataSupplierComboBox] = useState({
-        id_proveedor: "",
-        nombre_proveedor: ""
+    const [dataCustomerComboBox, setDataCustomerComboBox] = useState({
+        id_cliente: "",
+        nombre_cliente: ""
     });
 
     // * Get supplier information                
-    const [supplierData, setSupplierData] = useState<SupplierFormDataInfo | null>(null)
+    const [customerData, setCustomerData] = useState<CustomerFormDataInfo | null>(null)
 
     // * Get products information        
-    const [productId, setProductId] = useState<TempPurchasingFormData | null>(null)
+    const [productId, setProductId] = useState<TempSalesFormDataDetails | null>(null)
 
     const addProducts = () => {
-        setDataProducts([newProducts, ...dataProducts]);
 
-        toast.success("El producto:", {
-            description: `${newProducts.nombre_producto} se agrego correctamente...`,
-            position: "top-right",
-            closeButton: true,
-            action: {
-                label: "Cerrar  todas",
-                onClick: () => toast.dismiss()
-            }
-        });
+        if (+newProducts.cantidad <= stockInventory) {
+            toast.success("Stock:", {
+                description: "El producto no se puede agregar, la cantidad supera el stock disponible...",
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+        } else {
+            setDataProducts([newProducts, ...dataProducts]);
 
-        setNewProducts({
-            id_producto: "",
-            precio_compra: "",
-            nombre_producto: "",
-            cantidad: "0",
-            subtotal: ""
-        })
-        setSubtotal(0);
-        setProductId(null);
-        setDataProductComboBox({
-            id_producto: "",
-            nombre_producto: ""
-        });
-        setIsActiveInput(false);
+            toast.success("El producto:", {
+                description: `${newProducts.nombre_producto} se agrego correctamente...`,
+                position: "top-right",
+                closeButton: true,
+                action: {
+                    label: "Cerrar  todas",
+                    onClick: () => toast.dismiss()
+                }
+            });
+
+            setNewProducts({
+                id_producto: "",
+                nombre_producto: "",
+                precio_compra: "",
+                precio_venta: "",
+                cantidad: "0",
+                subtotal_compra: "",
+                subtotal_venta: ""
+            })
+            setSubtotal(0);
+            setProductId(null);
+            setDataProductComboBox({
+                id_producto: "",
+                nombre_producto: ""
+            });
+            setIsActiveInput(false);
+        }
     }
 
     const editProduct = () => {
-        handleCalculateSubtotalEdit(+newProducts.cantidad, +newProducts.precio_compra);
+        handleCalculateSubtotalEdit(+newProducts.cantidad, +newProducts.precio_venta);
 
         setDataProducts(dataProducts.map(p => p.id_producto === newProducts.id_producto ? newProducts : p));
 
@@ -188,8 +213,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
             id_producto: "",
             nombre_producto: "",
             precio_compra: "",
+            precio_venta: "",
             cantidad: "0",
-            subtotal: ""
+            subtotal_compra: "",
+            subtotal_venta: ""
         })
         sessionStorage.clear();
         setSubtotal(0);
@@ -198,7 +225,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
 
     const deleteProduct = (id_product: string) => {
         setDataProducts(dataProducts.filter((item) => item.id_producto !== id_product));
-        sessionStorage.setItem("tempProductsAddBuys", JSON.stringify(dataProducts));
+        sessionStorage.setItem("tempProductsAddSales", JSON.stringify(dataProducts));
     }
 
     const changeDeleteState = (isDelete: boolean) => {
@@ -231,10 +258,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
             });
         }
 
-        precioCompra = +productId!.precio_compra;
+        precioCompra = +productId!.precio_venta;
         const resultSubtotal = precioCompra * e;
         setSubtotal(+resultSubtotal.toFixed(2));
-        newProducts.subtotal = resultSubtotal.toFixed(2).toString();
+        newProducts.subtotal_venta = resultSubtotal.toFixed(2).toString();
     }
     const handleCalculateSubtotalEdit = (e: number, precioCompra: number) => {
 
@@ -256,17 +283,17 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         const resultSubtotal = e * precioCompra;
         const result = +resultSubtotal
         setSubtotal(+result.toFixed(2));
-        newProducts.subtotal = resultSubtotal.toFixed(2).toString();
-        setNewProducts({ ...newProducts, subtotal: result.toString() })
+        newProducts.subtotal_venta = resultSubtotal.toFixed(2).toString();
+        setNewProducts({ ...newProducts, subtotal_venta: resultSubtotal.toString() })
     }
 
     function handleCalculateTotal() {
         let sum = 0;
         dataProducts.forEach((item) => {
-            sum += +item.subtotal;
+            sum += +item.subtotal_venta;
         })
 
-        newBuys.subtotal = sum.toFixed(2);
+        newSales.subtotal = sum.toFixed(2);
 
         return sum.toString();
     }
@@ -275,10 +302,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     function handleCalculateTotalWithTaxes() {
         let sum = 0;
         dataProducts.forEach((item) => {
-            sum += +item.subtotal;
+            sum += +item.subtotal_venta;
         })
 
-        newBuys.total = sum.toFixed(2);
+        newSales.total = sum.toFixed(2);
 
         if (taxesValue < 0) {
 
@@ -302,17 +329,17 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         const resultTax = sum * taxesValue / 100;
         setValorImpuesto(resultTax);
         const result = sum + resultTax;
-        newBuys.total = result.toFixed(2);
+        newSales.total = result.toFixed(2);
         setTotal(+result.toFixed(2))
     }
 
-    const handleSelectionSupplier = (dataSupplier: SupplierFormDataInfo) => {
-        setSupplierData(dataSupplier);
+    const handleSelectionSupplier = (dataSupplier: CustomerFormDataInfo) => {
+        setCustomerData(dataSupplier);
 
-        setNewBuys({ ...newBuys, id_proveedor: dataSupplier.id })
+        setNewSales({ ...newSales, id_cliente: dataSupplier.id })
     }
 
-    const handleSelectionProduct = (dataProduct: TempPurchasingFormData) => {
+    const handleSelectionProduct = (dataProduct: TempSalesFormDataDetails) => {
         if (dataProducts.length == 0) {
             setProductId(dataProduct)
             newProducts.id_producto = dataProduct!.id_producto;
@@ -346,7 +373,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
     const queryClient = useQueryClient();
 
     const { mutate } = useMutation({
-        mutationFn: createBuys,
+        mutationFn: createSales,
         onError: (error: ErrorData) => {
 
             toast.success(error.message, {
@@ -361,7 +388,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
             navigate(location.pathname, { replace: true })
         },
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["buys"] });
+            queryClient.invalidateQueries({ queryKey: ["sales"] });
 
             toast.success(data, {
                 position: "top-right",
@@ -379,7 +406,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
 
     const {
         reset
-    } = useForm<BuysFormDataAdd>({ defaultValues: newBuys });
+    } = useForm<BuysFormDataAdd>({ defaultValues: newSales });
 
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -390,28 +417,35 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         )
     )
 
-    const getDataLocalStorage = (products: TempPurchasingFormDataDetails[]) => {
+    const getDataLocalStorage = (products: TempSalesFormDataDetails[]) => {
         return products.map((productsStorage) => {
             return {
                 nombre_producto: productsStorage.nombre_producto,
                 precio_compra: productsStorage.precio_compra,
+                precio_venta: productsStorage.precio_venta,
                 cantidad: productsStorage.cantidad,
-                subtotal: productsStorage.subtotal,
+                subtotal_venta: productsStorage.subtotal_venta,
+                subtotal_compra: productsStorage.subtotal_compra,
                 id_producto: productsStorage.id_producto
             }
         })
     }
 
     function onClickClearForm() {
-        setNewBuys({
-            numero_factura_proveedor: "0",
-            observaciones: '',
-            subtotal: '',
-            total: '',
-            estado: 1,
+        setNewSales({
+            observaciones: "",
+            subtotal: "",
+            total: "",
+            id_cliente: "",
+            cliente_existente: 0,
+            cliente_manual: [{
+                id: "",
+                nombre_cliente: "",
+            }],
+            usuario_creador: "",
             impuesto_manual: [{
                 porcentaje: "",
-                valor_porcentaje: 15,
+                valor_porcentaje: 0,
                 valor_cantidad: 0
             }],
             metodo_pago: [{
@@ -419,23 +453,26 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 monto: "",
                 observaciones: ""
             }],
-            id_proveedor: '',
-            detalles_compra: [{
+            detalles_venta: [{
+                id_producto: "",
+                nombre_producto: "",
                 precio_compra: "",
+                precio_venta: "",
                 cantidad: "0",
-                subtotal: "",
-                id_producto: ""
-            }],
-            usuario_creador: ""
+                subtotal_compra: "",
+                subtotal_venta: ""
+            }]
         });
         setNewProducts({
             id_producto: "",
             nombre_producto: "",
             precio_compra: "",
+            precio_venta: "",
             cantidad: "0",
-            subtotal: ""
+            subtotal_compra: "",
+            subtotal_venta: ""
         })
-        sessionStorage.removeItem("tempProductsAddBuys");
+        sessionStorage.removeItem("tempProductsAddSales");
         setValorImpuesto(0);
         setTotal(0);
         setTaxesValue(15);
@@ -454,7 +491,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
         setSubtotal(0);
         setEditId(null);
         setProductId(null);
-        setSupplierData(null);
+        setCustomerData(null);
     }
     const keyPressDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
         if (e.key === "Enter") {
@@ -483,8 +520,8 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 });
                 return;
             }
-            newBuys.detalles_compra = dataStorage;
-            newBuys.impuesto_manual = [{
+            newSales.detalles_venta = dataStorage;
+            newSales.impuesto_manual = [{
                 porcentaje: taxesValue.toString() + "%",
                 valor_porcentaje: taxesValue,
                 valor_cantidad: valorImpuesto
@@ -583,10 +620,10 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     });
                 }
             }
-            newBuys.metodo_pago = paymentMethods;
+            newSales.metodo_pago = paymentMethods;
 
             const result = montoCheque + montoEfectivo + montoTarjeta + montoTransferencia;
-            if (+result > +newBuys.total) {
+            if (+result > +newSales.total) {
 
                 toast.success("La suma de los metodos de pagar no puede ser mayor al monto total...", {
                     position: "top-right",
@@ -598,7 +635,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 });
                 return;
             }
-            else if (+result < +newBuys.total) {
+            else if (+result < +newSales.total) {
 
                 toast.success("La suma de los metodos de pagar no puede ser menor al monto total...", {
                     position: "top-right",
@@ -610,7 +647,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 });
                 return;
             }
-            const data = newBuys;
+            const data = newSales;
             mutate(data);
         }
     }
@@ -620,12 +657,12 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
             <DialogTrigger
                 className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
                 onClick={() => {
-                    navigate(location.pathname + "?createBuy");
+                    navigate(location.pathname + "?createSale");
                     setOpen(true);
                 }}
             >
                 <Plus className="size-5" />
-                Crear compra
+                Crear venta
             </DialogTrigger>
             <DialogContent
                 onInteractOutside={(e) => e.preventDefault()}
@@ -633,30 +670,16 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                 className="h-[98%] w-full md:max-w-[97%] px-2 py-4 md:p-6 scrollbar-thin-custom touch-pan-x touch-pan-y scroll-smooth overflow-scroll"
             >
                 <DialogHeader>
-                    <DialogTitle>Crear compra</DialogTitle>
+                    <DialogTitle>Crear venta</DialogTitle>
                     <DialogDescription>
-                        Crea tus compras aquí...
+                        Crea tus venta aquí...
                     </DialogDescription>
                 </DialogHeader>
 
                 <form>
                     <div className="h-80 mx-auto flex items-start gap-y-4 md:gap-x-8 justify-center flex-col md:flex-row w-full md:w-full px-1 sm:p-4 py-4">
                         <fieldset className="flex w-full h-72 flex-col gap-y-6 items-center border border-gray-300 dark:border-gray-600 rounded-lg p-4">
-                            <legend className="uppercase font-bold">Datos de la compra</legend>
-                            <div className="w-full">
-                                <label htmlFor="numero_factura_proveedor" className="font-bold">Número Factura Proveedor:</label>
-                                <input
-                                    id="numero_factura_proveedor"
-                                    className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
-                                    value={newBuys.numero_factura_proveedor}
-                                    onChange={(e) => setNewBuys({ ...newBuys, numero_factura_proveedor: e.target.value })}
-                                    type="text"
-                                    required
-                                    minLength={2}
-                                    placeholder="Ejemplo: xxxxx..."
-                                />
-                            </div>
-
+                            <legend className="uppercase font-bold">Datos de la venta</legend>
                             <div className="flex flex-1 w-full items-start justify-center">
                                 <div className="w-full">
                                     <label htmlFor="observaciones" className="font-bold">Observaciones:</label>
@@ -664,8 +687,8 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                         id="observaciones"
                                         className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
                                         placeholder="Ejemplo: xxxxx..."
-                                        value={newBuys.observaciones}
-                                        onChange={(e) => setNewBuys({ ...newBuys, observaciones: e.target.value })}
+                                        value={newSales.observaciones}
+                                        onChange={(e) => setNewSales({ ...newSales, observaciones: e.target.value })}
                                         rows={6}
                                     />
                                 </div>
@@ -942,24 +965,23 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                     onClick={() => {
                                                                         setNewProducts({
                                                                             ...newProducts,
-                                                                            id_producto: product.id,
+                                                                            id_producto: product.id_producto,
                                                                             nombre_producto: product.nombre_producto,
-                                                                            precio_compra: product.precio_compra,
                                                                             cantidad: "0",
                                                                         })
                                                                         setSearchTermProduct("");
                                                                         setOpenComboBoxProduct(!openComboBoxProduct);
-                                                                        setDataProductComboBox({ ...dataProductComboBox, id_producto: product.id, nombre_producto: product.nombre_producto });
+                                                                        setDataProductComboBox({ ...dataProductComboBox, id_producto: product.id_producto, nombre_producto: product.nombre_producto });
                                                                         handleSelectionProduct({
-                                                                            id_producto: product.id,
+                                                                            id_producto: product.id_producto,
                                                                             nombre_producto: product.nombre_producto,
-                                                                            precio_compra: product.precio_compra,
+                                                                            precio_venta: "",
+                                                                            precio_compra: "",
                                                                             cantidad: "0",
-                                                                            id_inventario: "",
-                                                                            stock: 0,
                                                                             subtotal_compra: "0",
                                                                             subtotal_venta: "0"
                                                                         });
+                                                                        setStockInventory(product.stock)
                                                                     }}
                                                                 >
                                                                     {product.nombre_producto}
@@ -976,14 +998,14 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                             </div>
 
                             <div className="w-full mt-4 gap-Y-2 flex-col flex items-start">
-                                <label htmlFor="precio_compra" className="font-bold mb-1">Precio:</label>
+                                <label htmlFor="precio_venta" className="font-bold mb-1">Precio:</label>
                                 <input
                                     className={`w-full border border-gray-400 hover:border-gray-600 outline-none rounded-md py-1 px-2 ${isActiveInput == false && "cursor-not-allowed"}`}
-                                    id="precio_compra"
+                                    id="precio_venta"
                                     required
                                     disabled={isActiveInput == false ? true : false}
-                                    value={+newProducts.precio_compra == 0 || editId != null ? "" : newProducts.precio_compra}
-                                    onChange={(e) => setNewProducts({ ...newProducts, precio_compra: e.target.value })}
+                                    value={+newProducts.precio_venta == 0 || editId != null ? "" : newProducts.precio_venta}
+                                    onChange={(e) => setNewProducts({ ...newProducts, precio_venta: e.target.value })}
                                     type="number"
                                     placeholder="Precio del producto..."
                                 />
@@ -1002,7 +1024,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                             handleCalculateSubtotal(+e.target.value);
                                         }
 
-                                        handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
+                                        handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_venta);
                                         setNewProducts({ ...newProducts, cantidad: e.target.value });
                                     }}
                                     onKeyDown={keyPressDown}
@@ -1051,19 +1073,19 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                         </fieldset>
 
                         <fieldset className="flex flex-1 w-full flex-col items-center mt-4 border border-gray-300 dark:border-gray-600 px-1 sm:p-4 rounded-lg py-4">
-                            <legend className="uppercase font-bold">Datos del poveedor</legend>
+                            <legend className="uppercase font-bold">Datos del cliente</legend>
                             <div className="w-full flex-col flex items-start -mt-3 h-72">
-                                <label htmlFor="nombre_proveedor" className="font-bold mb-1">Proveedor:</label>
-                                <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-600 py-1 px-2 cursor-pointer ${openComboBoxSupplier == true ? "rounded-t-md" : "rounded-md"}`}
+                                <label htmlFor="nombre_proveedor" className="font-bold mb-1">Cliente:</label>
+                                <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-600 py-1 px-2 cursor-pointer ${openComboBoxCustomer == true ? "rounded-t-md" : "rounded-md"}`}
                                     onClick={() => {
-                                        setOpenComboBoxSupplier(!openComboBoxSupplier)
-                                        refetchSupplier();
+                                        setOpenComboBoxCustomer(!openComboBoxCustomer)
+                                        refetCustomer();
                                     }}
                                 >
-                                    <span className="cursor-pointer">{dataSupplierComboBox.nombre_proveedor == "" ? "Selecciona proveedor" : dataSupplierComboBox.nombre_proveedor}</span>
+                                    <span className="cursor-pointer">{dataCustomerComboBox.nombre_cliente == "" ? "Selecciona cliente" : dataCustomerComboBox.nombre_cliente}</span>
 
                                     {
-                                        openComboBoxSupplier == true ?
+                                        openComboBoxCustomer == true ?
                                             (
                                                 <ChevronUp className="size-5" />
                                             )
@@ -1074,36 +1096,36 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                     }
                                 </div>
                                 {
-                                    openComboBoxSupplier == true ?
+                                    openComboBoxCustomer == true ?
                                         (
                                             <div className="w-full top-0 right-0 h-72 sticky mx-auto overflow-auto touch-pan-y scrollbar-thin-custom transition-all duration-700 ease-in-out">
                                                 <ul className="rounded-b-lg border border-gray-300 dark:border-gray-600">
                                                     <>
                                                         <div className="w-full border-b border-gray-300 dark:border-gray-600  py-1 px-2 flex items-center gap-x-1">
-                                                            <Search className="size-5 text-gray-400" href="searchSupplier" />
+                                                            <Search className="size-5 text-gray-400" href="searchCustomer" />
                                                             <input
-                                                                id="searchSupplier"
+                                                                id="searchCustomer"
                                                                 type="text"
-                                                                value={searchTermSupplier}
-                                                                onChange={(e) => setSearchTermSupplier(e.target.value)}
+                                                                value={searchTermCustomer}
+                                                                onChange={(e) => setSearchTermCustomer(e.target.value)}
                                                                 placeholder="Buscar..."
                                                                 className="w-full border-none outline-none placeholder:text-gray-400"
                                                             />
                                                         </div>
 
                                                         {
-                                                            filteredSuppliers?.map((supplier, index) => (
+                                                            filteredCustomers?.map((customer, index) => (
                                                                 <li
                                                                     key={index}
                                                                     className="hover:bg-gray-300 py-1 px-4 cursor-pointer"
                                                                     onClick={() => {
-                                                                        setSearchTermSupplier("");
-                                                                        setOpenComboBoxSupplier(!openComboBoxSupplier);
-                                                                        setDataSupplierComboBox({ ...dataSupplierComboBox, id_proveedor: supplier.id, nombre_proveedor: supplier.nombre_proveedor });
-                                                                        handleSelectionSupplier(supplier);
+                                                                        setSearchTermCustomer("");
+                                                                        setOpenComboBoxCustomer(!openComboBoxCustomer);
+                                                                        setDataCustomerComboBox({ ...dataCustomerComboBox, id_cliente: customer.id, nombre_cliente: customer.nombre_cliente });
+                                                                        handleSelectionSupplier(customer);
                                                                     }}
                                                                 >
-                                                                    {supplier.nombre_proveedor}
+                                                                    {customer.nombre_cliente}
                                                                 </li>
                                                             ))
                                                         }
@@ -1167,7 +1189,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                     //     handleCalculateSubtotal(+e.target.value);
                                                                     // }
 
-                                                                    handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
+                                                                    handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_venta);
                                                                     setNewProducts({ ...newProducts, cantidad: e.target.value });
                                                                 }}
                                                                 onKeyDown={keyPressDown}
@@ -1186,12 +1208,12 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                         (
                                                             <input
                                                                 className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
-                                                                id="precio_compra"
+                                                                id="precio_venta"
                                                                 required
-                                                                value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
+                                                                value={+newProducts.precio_venta == 0 ? "" : newProducts.precio_venta}
                                                                 onChange={(e) => {
                                                                     handleCalculateSubtotalEdit(+newProducts.cantidad, +e.target.value);
-                                                                    setNewProducts({ ...newProducts, precio_compra: e.target.value });
+                                                                    setNewProducts({ ...newProducts, precio_venta: e.target.value });
                                                                 }}
                                                                 onKeyDown={keyPressDown}
                                                                 type="number"
@@ -1199,7 +1221,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                             />
                                                         )
                                                         :
-                                                        product.precio_compra === undefined ? 0 : formatCurrency(product.precio_compra)
+                                                        product.precio_venta === undefined ? 0 : formatCurrency(product.precio_venta)
                                                 }
                                             </TableCell>
 
@@ -1208,7 +1230,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                     editId === product.id_producto ?
                                                         formatCurrency(subtotal.toString())
                                                         :
-                                                        formatCurrency(product.subtotal)
+                                                        formatCurrency(product.subtotal_venta)
                                                 }
                                             </TableCell>
 
@@ -1247,7 +1269,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                                 // setNewProducts({ ...newProducts, id_producto: product.id_producto})
                                                                                 newProducts.id_producto = product.id_producto;
                                                                                 newProducts.nombre_producto = product.nombre_producto;
-                                                                                newProducts.precio_compra = product.precio_compra;
+                                                                                newProducts.precio_venta = product.precio_venta;
                                                                                 newProducts.cantidad = product.cantidad;
 
                                                                                 setEditId(product.id_producto)
@@ -1271,7 +1293,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                             type="button"
                                                                             className="flex items-center justify-center gap-x-2 text-sm font-bold bg-red-500 p-2 text-white rounded-md hover:bg-red-600 transition-all duration-200"
                                                                             onClick={() => {
-                                                                                setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal, subtotal_venta: "", id_inventario: "", stock: 0 });
+                                                                                setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal_compra, subtotal_venta: "" });
                                                                             }}
                                                                         >
                                                                             <span className="block md:hidden">Eliminar item</span>
@@ -1307,7 +1329,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     </div>
 
                     <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-600 rounded-lg py-4 px-2 h-104">
-                        <legend className="uppercase font-bold">Montos de la compra</legend>
+                        <legend className="uppercase font-bold">Montos de la venta</legend>
 
                         <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
                             <label htmlFor="total_productos" className="font-bold w-full">Total productos:</label>
@@ -1321,7 +1343,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                         </div>
 
                         <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de compra:</label>
+                            <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de venta:</label>
                             <input
                                 id="subtotal_compra"
                                 className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
@@ -1379,7 +1401,7 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                         </div>
 
                         <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="total_compra" className="font-bold w-full ">Total de compra:</label>
+                            <label htmlFor="total_compra" className="font-bold w-full ">Total de venta:</label>
                             <input
                                 id="total_compra"
                                 className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
@@ -1398,13 +1420,13 @@ export default function CreateBuy({ dataAuth }: { dataAuth: AuthPermissions }) {
                     >
                         <button
                             type="submit"
-                            className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined ? "cursor-not-allowed" : undefined}`}
+                            className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${customerData?.nombre_cliente === undefined ? "cursor-not-allowed" : undefined}`}
                             aria-label="Close"
                             onClick={onSubmitCreateBuys}
-                            disabled={supplierData?.nombre_proveedor === undefined ? true : false}
+                            disabled={customerData?.nombre_cliente === undefined ? true : false}
                         >
                             <Save className="size-5" />
-                            Guardar compra
+                            Guardar venta
                         </button>
 
                     </div>

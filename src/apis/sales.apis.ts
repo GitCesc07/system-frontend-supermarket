@@ -13,6 +13,7 @@ export async function getSales() {
     try {
         const { data } = await api("/sales")
         const response = salesFormDataSchema.safeParse(data);
+        console.log(response);
         if (response.success) {
             return response.data;
         }

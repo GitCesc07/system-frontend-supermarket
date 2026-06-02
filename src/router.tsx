@@ -21,6 +21,7 @@ import CompanyView from "./views/Company/CompanyView";
 import ExpiredProductsView from "./views/ExpiredProducts/ExpiredProductsView";
 import PageNotFound from "./components/PageNotFound";
 import BackupAndRestoreView from "./views/BackupAndRestore/BackupAndRestoreView";
+import SalesView from "./views/Sales/SalesView";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -74,6 +75,10 @@ export function Router() {
 
           {
             dataAuth?.empresa && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER && (<Route path="/backupAndRestore" element={<BackupAndRestoreView dataAuth={dataAuth} />} />)
+          }
+
+          {
+            dataAuth?.venta && (<Route path="/sales" element={<SalesView dataAuth={dataAuth} />} />)
           }
         </Route>
       </Routes>

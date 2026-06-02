@@ -31,15 +31,15 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import TableEmpty from "@/components/ui-components/TableEmpty";
 import { Dialog } from "@/components/ui/dialog";
-import { getBuys } from "@/apis/buys.apis";
-import type { BuysFormDataInfo } from "@/types/buys.interface";
-import ToogleFieldsDialogBuys from "@/components/buys/ToogleFieldsDialogBuys";
 import { formatCurrency } from "@/utils/utilidad";
-import CreateBuy from "@/components/buys/CreateBuy";
 import EditBuys from "@/components/buys/EditBuy";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
 import api from "@/lib/axios";
+import { getSales } from "@/apis/sales.apis";
+import type { SalesFormDataInfo } from "@/types/sales.interface";
+import ToogleFieldsDialogSales from "@/components/sales/ToogleFieldsDialogSales";
+import CreateSales from "@/components/sales/CreateSales";
 
 export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
@@ -51,7 +51,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
 
     const { data, isLoading, refetch, isError } = useQuery({
         queryKey: ["sales"],
-        queryFn: getBuys,
+        queryFn: getSales,
     });
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -73,29 +73,26 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
     }, []);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [idBuys, setidBuys] = useState("");
-    const [openDialogEditBuys, setOpenDialogEditBuys] = useState(showEditModal);
+    const [idSales, setidSales] = useState("");
+    const [openDialogEditSales, setOpenDialogEditSales] = useState(showEditModal);
     const [openAlertDialogReport, setOpenAlertDialogReport] = useState(false);
 
 
-    const [editingBuys, setEditingBuys] = useState<BuysFormDataInfo | null>(null);
+    const [editingSales, setEditingSales] = useState<SalesFormDataInfo | null>(null);
     const [showFields, setShowFields] = useState<string[]>([
-        "Número compra",
-        "Factura proveedor",
-        "Estado",
+        "Número venta",
         "Observaciones",
         "Subtotal",
         "Total",
-        "Proveedor",
+        "Estado",
+        "Cliente",
         "Fecha creación",
-        "Fecha modificación",
-        "Usuario creador",
-        "Usuario modificador"
+        "Usuario creador"
     ]);
 
-    const filteredProducts = Object.values(data || {}).filter(buys =>
-        Object.values(buys).some(value =>
-            value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredSales = Object.values(data || {}).filter(sales =>
+        Object.values(sales).some(value =>
+            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
     );
 
@@ -112,7 +109,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const onClickCreateReportInventory = async () => {
         try {
             // Realiza la solicitud GET para obtener el PDF
-            const response = await api(`/buys/reportBuys/${idBuys}`, {
+            const response = await api(`/buys/reportBuys/${idSales}`, {
                 responseType: "blob", // Importante para manejar archivos binarios
             });
 
@@ -184,10 +181,10 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                     </Tooltip>
 
                                     {
-                                        dataAuth?.permisos_compra[0].guardar == 1 && (<CreateBuy dataAuth={dataAuth} />)
+                                        dataAuth?.permisos_compra[0].guardar == 1 && (<CreateSales dataAuth={dataAuth} />)
                                     }
 
-                                    <ToogleFieldsDialogBuys showFields={showFields} setShowFields={setShowFields} />
+                                    <ToogleFieldsDialogSales showFields={showFields} setShowFields={setShowFields} />
                                 </div>
                             </section>
 
@@ -196,23 +193,18 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                     <TableCaption>Registro de compras.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
-                                            {showFields.includes("Número compra") && <TableHead>Número compra</TableHead>}
-                                            {showFields.includes("Factura proveedor") && <TableHead>Factura proveedor</TableHead>}
+                                            {showFields.includes("Número venta") && <TableHead>Número venta</TableHead>}
                                             {showFields.includes("Termino") && <TableHead>Termino</TableHead>}
                                             {showFields.includes("Estado") && <TableHead>Estado</TableHead>}
                                             {showFields.includes("Observaciones") && <TableHead>Observaciones</TableHead>}
                                             {showFields.includes("Subtotal") && <TableHead>Subtotal</TableHead>}
                                             {showFields.includes("Total") && <TableHead>Total</TableHead>}
-                                            {showFields.includes("Proveedor") && <TableHead>Proveedor</TableHead>}
+                                            {showFields.includes("Cliente") && <TableHead>Cliente</TableHead>}
                                             {showFields.includes("Fecha creación") && <TableHead>Fecha creación</TableHead>}
                                             {showFields.includes("Fecha modificación") && <TableHead>Fecha modificación</TableHead>}
                                             {
                                                 dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
                                                 showFields.includes("Usuario creador") && <TableHead>Usuario creador</TableHead>
-                                            }
-                                            {
-                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
-                                                showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>
                                             }
                                             {
                                                 dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
@@ -222,29 +214,23 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                     </TableHeader>
                                     <TableBody>
                                         {
-                                            filteredProducts?.map(buy => (
-                                                <TableRow key={buy.id}>
+                                            filteredSales?.map(sales => (
+                                                <TableRow key={sales.id}>
                                                     {
                                                         showFields.includes("id") &&
-                                                        <TableCell>{buy.id}</TableCell>
+                                                        <TableCell>{sales.id}</TableCell>
                                                     }
                                                     {
-                                                        showFields.includes("Número compra") &&
-                                                        <TableCell>{buy.numero_compra}</TableCell>
-                                                    }
-                                                    {
-                                                        showFields.includes("Factura proveedor") &&
-                                                        <TableCell>
-                                                            {buy.numero_factura_proveedor}
-                                                        </TableCell>
+                                                        showFields.includes("Número venta") &&
+                                                        <TableCell>{sales.numero_venta}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Estado") &&
                                                         <TableCell>
-                                                            <Badge variant={buy.estado == 1 ? "secondary" : "destructive"}>
-                                                                {buy.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
-                                                                {buy.estado == 1 ? "Activo" : "Inactivo"}
+                                                            <Badge variant={sales.estado == 1 ? "secondary" : "destructive"}>
+                                                                {sales.estado == 1 ? (<BadgeCheck className="inline-start" />) : (<Ban className="inline-start" />)}
+                                                                {sales.estado == 1 ? "Activo" : "Inactivo"}
                                                             </Badge>
                                                         </TableCell>
                                                     }
@@ -252,7 +238,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                     {
                                                         showFields.includes("Observaciones") &&
                                                         <TableCell>
-                                                            {buy.observaciones}
+                                                            {sales.observaciones}
                                                         </TableCell>
                                                     }
 
@@ -260,7 +246,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                         showFields.includes("Subtotal") &&
                                                         <TableCell>
                                                             {
-                                                                formatCurrency(buy.subtotal)
+                                                                formatCurrency(sales.subtotal)
                                                             }
                                                         </TableCell>
                                                     }
@@ -268,35 +254,30 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                     {
                                                         showFields.includes("Total") &&
                                                         <TableCell>
-                                                            {formatCurrency(buy.total)}
+                                                            {formatCurrency(sales.total)}
                                                         </TableCell>
                                                     }
 
                                                     {
-                                                        showFields.includes("Proveedor") &&
+                                                        showFields.includes("Cliente") &&
                                                         <TableCell>
-                                                            {buy.proveedor}
+                                                            {
+                                                                sales.cliente == null ?
+                                                                    sales.nombre_cliente_manual
+                                                                    :
+                                                                    sales.cliente
+                                                            }
                                                         </TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Fecha creación") &&
-                                                        <TableCell>{buy.fecha_creacion}</TableCell>
-                                                    }
-
-                                                    {
-                                                        showFields.includes("Fecha modificación") &&
-                                                        <TableCell>{buy.fecha_modificacion}</TableCell>
+                                                        <TableCell>{sales.fecha_creacion}</TableCell>
                                                     }
 
                                                     {
                                                         showFields.includes("Usuario creador") &&
-                                                        <TableCell>{buy.nombre_usuario_creador}</TableCell>
-                                                    }
-
-                                                    {
-                                                        showFields.includes("Usuario modificador") &&
-                                                        <TableCell>{buy.nombre_usuario_modificador}</TableCell>
+                                                        <TableCell>{sales.nombre_usuario_creador}</TableCell>
                                                     }
 
                                                     <TableCell className="text-right">
@@ -311,17 +292,17 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                     <DropdownMenuItem>
                                                                         <Button
                                                                             onClick={() => {
-                                                                                setEditingBuys({ ...buy, detalles_compra: [] })
-                                                                                setOpenDialogEditBuys(!openDialogEditBuys)
+                                                                                setEditingSales({ ...sales, detalles_venta: [] })
+                                                                                setOpenDialogEditSales(!openDialogEditSales)
                                                                                 refetch()
 
-                                                                                if (openDialogEditBuys) {
+                                                                                if (openDialogEditSales) {
                                                                                     navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditBuys(!openDialogEditBuys)
+                                                                                    setOpenDialogEditSales(!openDialogEditSales)
                                                                                     refetch()
                                                                                 }
                                                                                 else {
-                                                                                    navigate(location.pathname + `?editBuy=${buy.id}`)
+                                                                                    navigate(location.pathname + `?editSales=${sales.id}`)
                                                                                     refetch()
                                                                                 }
                                                                             }}
@@ -340,7 +321,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                                                 <Button
                                                                                     onClick={() => {
                                                                                         setOpenAlertDialogReport(true);
-                                                                                        setidBuys(buy.id)
+                                                                                        setidSales(sales.id)
                                                                                     }}
                                                                                     variant="ghost"
                                                                                     className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-700"
@@ -361,7 +342,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
 
                                         <TableRow>
                                             {
-                                                filteredProducts.length == 0 &&
+                                                filteredSales.length == 0 &&
                                                 (
                                                     <TableCell colSpan={14}>
                                                         <div className="flex items-center flex-col justify-center w-full h-96 mx-auto">
@@ -373,15 +354,15 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                             }
                                         </TableRow>
 
-                                        {
-                                            editingBuys && (
-                                                <Dialog open={openDialogEditBuys} onOpenChange={() => {
-                                                    setOpenDialogEditBuys(!openDialogEditBuys)
+                                        {/* {
+                                            editingSales && (
+                                                <Dialog open={openDialogEditSales} onOpenChange={() => {
+                                                    setOpenDialogEditSales(!openDialogEditSales)
                                                 }}>
-                                                    <EditBuys buy={editingBuys} dataAuth={dataAuth} onClose={() => setEditingBuys(null)} />
+                                                    <EditBuys sales={editingSales} dataAuth={dataAuth} onClose={() => setEditingSales(null)} />
                                                 </Dialog>
                                             )
-                                        }
+                                        } */}
 
                                         {
                                             openAlertDialogReport == true && (

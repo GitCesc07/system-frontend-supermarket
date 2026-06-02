@@ -7,7 +7,6 @@ export async function getInventory() {
     try {
         const { data } = await api("/inventory/");
         const response = inventoryDataSchema.safeParse(data);
-        console.log(response);
         if (response.success) {
             return response.data;
         }

@@ -17,7 +17,6 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { formatWeekDate } from "@/utils/utilidad";
 
 
 export const description = "A simple area chart"
@@ -104,7 +103,7 @@ export default function DashboardView() {
               <CardHeader>
                 <CardTitle>Compras</CardTitle>
                 <CardDescription>
-                  Vista de las compra en la semana
+                  Vista de las compras
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -143,7 +142,7 @@ export default function DashboardView() {
                 <div className="flex w-full items-start gap-2 text-sm">
                   <div className="grid gap-2">
                     <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                      {"Semana " + formatWeekDate()}
+                      Ultimos 7 días
                     </div>
                   </div>
                 </div>

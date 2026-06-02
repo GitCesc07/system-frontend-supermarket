@@ -59,7 +59,6 @@ export type Sales = z.infer<typeof salesShema>;
 // * Form data sales
 export const salesDetailsShema = z.array(
     z.object({
-        utilidad: z.string(),
         detalle_nombre_producto: z.string().optional().nullable(),
         nombre_producto: z.string(),
         precio_compra: z.string(),
@@ -73,7 +72,6 @@ export const salesDetailsShema = z.array(
 
 // * Form data sales
 export const salesDetailsFormShema = z.object({
-    utilidad: z.number(),
     nombre_producto: z.string(),
     detalle_nombre_producto: z.string().optional().nullable(),
     precio_compra: z.string(),
@@ -96,7 +94,6 @@ const salesFormShema = z.object({
     cliente_existente: z.number().optional().nullable(),
     cliente_manual: z.array(salesCustomerManualShema).nullable().optional(),
     fecha_creacion: z.string(),
-    fecha_vencimiento: z.string().nullable(),
     id_cliente: z.string().nullable().optional(),
     cliente: z.string().nullable().optional(),
     detalles_venta: salesDetailsShema,
@@ -170,7 +167,6 @@ export type SalesFormDataAdd = Pick<SalesData,
     "nombre_cliente_manual" |
     "id_cliente" |
     "detalles_venta" |
-    "fecha_vencimiento" |
     "usuario_creador"
 >;
 
@@ -179,12 +175,11 @@ export type SalesFormDataDelete = Pick<SalesData, "id" | "numero_venta">;
 // * Temporary purchasing data
 const tempPurchasingDetailsShema = z.object({
     id_producto: z.string(),
-    utilidad: z.string(),
     nombre_producto: z.string(),
     detalle_nombre_producto: z.string().optional().nullable(),
     precio_compra: z.string(),
     precio_venta: z.string(),
-    cantidad: z.number(),
+    cantidad: z.string(),
     subtotal_compra: z.string(),
     subtotal_venta: z.string()
 });
@@ -194,7 +189,6 @@ const tempPurchasingDetailsShema = z.object({
 export const tempPurchasingDetailsDataSchema = z.array(
     tempPurchasingDetailsShema.pick({
         id_producto: true,
-        utilidad: true,
         detalle_nombre_producto: true,
         nombre_producto: true,
         precio_compra: true,
@@ -209,7 +203,6 @@ export type TempPurchasingDetails = z.infer<typeof tempPurchasingDetailsShema>;
 
 export type TempSalesFormDataDetails = Pick<TempPurchasingDetails,
     "id_producto" |
-    "utilidad" |
     "detalle_nombre_producto" |
     "nombre_producto" |
     "precio_compra" |
