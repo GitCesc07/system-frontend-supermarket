@@ -75,18 +75,15 @@ export default function CreateCategory() {
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger>
-                <Button
-                    className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
-                    onClick={() => {
-                        navigate(location.pathname + "?createCategory");
-                        setOpen(true);
-                    }}
-                    variant="ghost"
-                >
-                    <Plus className="size-5" />
-                    Crear categoría
-                </Button>
+            <DialogTrigger
+                className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 rounded-lg py-1 px-2 w-full md:w-auto"
+                onClick={() => {
+                    navigate(location.pathname + "?createCategory");
+                    setOpen(true);
+                }}
+            >
+                <Plus className="size-5" />
+                Crear categoría
             </DialogTrigger>
             <DialogContent className="w-full md:max-w-md">
                 <DialogHeader>

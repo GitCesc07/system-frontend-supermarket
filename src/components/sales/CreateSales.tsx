@@ -151,6 +151,8 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
 
     const addProducts = () => {
 
+        console.log("Stock inventario: ", stockInventory);
+
         if (+newProducts.cantidad <= stockInventory) {
             toast.success("Stock:", {
                 description: "El producto no se puede agregar, la cantidad supera el stock disponible...",
@@ -982,6 +984,8 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
                                                                             subtotal_venta: "0"
                                                                         });
                                                                         setStockInventory(product.stock)
+                                                                        console.log(product.stock);
+                                                                        console.log(stockInventory);
                                                                     }}
                                                                 >
                                                                     {product.nombre_producto}

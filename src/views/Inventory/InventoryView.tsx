@@ -123,7 +123,7 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
             {
                 isLoading ? (<Loader />) :
                     (
-                        <div className="h-full flex flex-col items-center justify-center w-full px-4">
+                        <div className="h-full flex flex-col items-center justify-center w-full">
                             <section className="h-[20%] md:h-[10%] w-full flex flex-col-reverse md:flex-row items-center justify-center gap-x-10">
                                 <div className="w-full md:w-[50%] border border-gray-400 py-1 px-2 mt-3 md:mt-0 rounded-lg flex items-center gap-x-1">
                                     <Search className="size-5 text-gray-400" href="search" />
@@ -174,7 +174,7 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                                 setOpenAlertDialogReport(true);
                                             }}
                                             variant="ghost"
-                                            className="flex items-center justify-center gap-x-4 border border-gray-300 dark:border-gray-700"
+                                            className="flex items-center bg-gray-100 dark:bg-gray-900 w-full md:w-auto justify-center gap-x-4 border border-gray-300 dark:border-gray-700"
                                         >
                                             <File className="size-5" />
                                             Imprimir reporte
@@ -183,7 +183,7 @@ export default function InventoryView({ dataAuth }: { dataAuth: AuthPermissions 
                                 </div>
                             </section>
 
-                            <div className="mt-3 w-full h-[80%] md:h-[90%] mx-auto">
+                            <div className="mt-8 w-full h-[60%] md:h-[90%] mx-auto">
                                 <Table>
                                     <TableCaption>Registro de productos.</TableCaption>
                                     <TableHeader>

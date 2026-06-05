@@ -495,7 +495,7 @@ export default function Createproduct() {
                                 <input
                                     disabled={expirationActive === 0 ? true : false}
                                     type="date"
-                                    className={`border border-gray-300 text-sm rounded-lg focus:ring-blue-500 block w-full ps-10 p-2.5 outline-none ${expirationActive === 0 && "cursor-not-allowed"}`}
+                                    className={`border border-gray-300 text-sm rounded-lg py-1 px-2 focus:ring-blue-500 block w-full ps-10 p-2.5 outline-none ${expirationActive === 0 && "cursor-not-allowed"}`}
                                     value={newProduct.fecha_expiracion}
                                     onChange={(e) => {
                                         setNewProduct({ ...newProduct, fecha_expiracion: e.target.value });
@@ -517,7 +517,7 @@ export default function Createproduct() {
                                 }}
                                 name=""
                                 id="estado"
-                                className="w-full border border-gray-300 hover:border-gray-500 py-2 px-4 rounded-md">
+                                className="w-full border border-gray-300 hover:border-gray-500 py-1 px-4 rounded-md">
                                 {
                                     stateValue.map(item => (
                                         <option className="py-0 px-4 bg-gray-100 dark:bg-gray-950"
@@ -540,7 +540,7 @@ export default function Createproduct() {
                         <legend className="uppercase font-bold">Marca</legend>
                         <div className="w-full flex-col flex items-start -mt-3">
                             <label htmlFor="nombre_marca" className="font-bold mb-1">Marca:</label>
-                            <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-400 py-1 px-2 cursor-pointer ${openComboBoxBrand == true ? "rounded-t-md" : "rounded-md"}`}
+                            <div className={`w-full mx-auto flex items-center justify-between border border-gray-400 py-1 px-2 cursor-pointer ${openComboBoxBrand == true ? "rounded-t-md" : "rounded-md"}`}
                                 onClick={() => {
                                     setOpenComboBoxBrand(!openComboBoxBrand)
                                     refetchBrand();
@@ -608,7 +608,7 @@ export default function Createproduct() {
                         <legend className="uppercase font-bold">Categoría</legend>
                         <div className="w-full flex-col flex items-start -mt-3">
                             <label htmlFor="nombre_categoria" className="font-bold mb-1">Categoría:</label>
-                            <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-400 py-1 px-2 cursor-pointer ${openComboBoxCategory == true ? "rounded-t-md" : "rounded-md"}`}
+                            <div className={`w-full mx-auto flex items-center justify-between border border-gray-400 py-1 px-2 cursor-pointer ${openComboBoxCategory == true ? "rounded-t-md" : "rounded-md"}`}
                                 onClick={() => {
                                     setOpenComboBoxCategory(!openComboBoxCategory)
                                     refetchCategory();
@@ -673,7 +673,7 @@ export default function Createproduct() {
 
                     <div className="flex items-center justify-center">
                         <button
-                            className="w-full md:w-56 py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base border border-gray-400 rounded-lg"
+                            className="w-full md:w-56 py-1 px-4 flex items-center justify-center gap-x-6 font-bold text-base border border-gray-400 rounded-lg"
                             type="submit"
                         >
                             <Save className="size-5" />
