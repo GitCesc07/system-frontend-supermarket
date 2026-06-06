@@ -141,7 +141,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
 
                             <div className="mt-8 w-full h-[60%] md:h-[90%] mx-auto">
                                 <Table>
-                                    <TableCaption>Registro de marcas.</TableCaption>
+                                    <TableCaption>Registro de productos vencidos.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
                                             {showFields.includes("Observaciones") && <TableHead>Observaciones</TableHead>}

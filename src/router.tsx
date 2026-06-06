@@ -22,6 +22,7 @@ import ExpiredProductsView from "./views/ExpiredProducts/ExpiredProductsView";
 import PageNotFound from "./components/PageNotFound";
 import BackupAndRestoreView from "./views/BackupAndRestore/BackupAndRestoreView";
 import SalesView from "./views/Sales/SalesView";
+import DamagedProductsView from "./views/DamagedProducts/DamagedproductsView";
 
 export function Router() {
   const { dataAuth } = useAuth();
@@ -71,6 +72,9 @@ export function Router() {
           }
           {
             dataAuth?.producto && (<Route path="/expiredProducts" element={<ExpiredProductsView dataAuth={dataAuth} />} />)
+          }
+          {
+            dataAuth?.producto && (<Route path="/damagedProducts" element={<DamagedProductsView dataAuth={dataAuth} />} />)
           }
 
           {

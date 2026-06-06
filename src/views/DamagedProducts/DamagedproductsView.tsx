@@ -34,7 +34,7 @@ import { getDamagedProducts } from "@/apis/damagedProducts.apis";
 import CreateDamagedProducts from "@/components/damagedProducts/CreateDamagedProducts";
 import EditDamagedProducts from "@/components/damagedProducts/EditDamagedProducts";
 
-export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermissions }) {
+export default function DamagedProductsView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search)
@@ -141,7 +141,7 @@ export default function ExpiredProductsView({ dataAuth }: { dataAuth: AuthPermis
 
                             <div className="mt-8 w-full h-[60%] md:h-[90%] mx-auto">
                                 <Table>
-                                    <TableCaption>Registro de marcas.</TableCaption>
+                                    <TableCaption>Registro de productos dañados.</TableCaption>
                                     <TableHeader>
                                         <TableRow>
                                             {showFields.includes("Observaciones") && <TableHead>Observaciones</TableHead>}

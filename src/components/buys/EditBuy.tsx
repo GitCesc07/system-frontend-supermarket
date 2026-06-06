@@ -399,7 +399,6 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
     });
 
     const {
-        handleSubmit,
         reset
     } = useForm<BuysFormDataInfo>({ defaultValues: editBuy });
 
@@ -618,7 +617,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
         <DialogContent
             onInteractOutside={(e) => e.preventDefault()}
             onEscapeKeyDown={(e) => e.preventDefault()}
-            className="[&>button]:hidden h-[98%] w-full md:max-w-[97%] px-2 py-4 md:p-6 scrollbar-thin-custom touch-pan-x touch-pan-y scroll-smooth overflow-scroll"
+            className="[&>button]:hidden h-[98%] w-[90%] md:max-w-[90%] p-4 md:p-6 touch-pan-y touch-pan-x scroll-smooth overflow-scroll"
         >
             <DialogHeader>
                 <DialogTitle>Crear compra</DialogTitle>
@@ -627,9 +626,7 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                 </DialogDescription>
             </DialogHeader>
 
-            <form
-                onSubmit={handleSubmit(onSubmitCreateBuys)}
-            >
+            <form>
                 <div className="h-80 mx-auto flex items-start gap-y-4 md:gap-x-8 justify-center flex-col md:flex-row w-full md:w-full px-1 sm:p-4 py-4">
                     <fieldset className="flex w-full h-72 flex-col gap-y-6 items-center border border-gray-300 dark:border-gray-600 rounded-lg p-4">
                         <legend className="uppercase font-bold">Datos de la compra</legend>
@@ -1121,283 +1118,462 @@ export default function EditBuys({ buy, dataAuth, onClose }: BuyFormEditProps) {
                         className="w-full outline-none"
                     />
                 </div>
+            </form>
 
-                <div className="h-104 w-full lg:w-full flex-col lg:flex-row flex md:gap-x-4 gap-y-4 items-start justify-center mx-auto">
-                    <div className="w-full h-full lg:w-[75%] scrollbar-thin-custom touch-pan-x touch-pan-y scroll-smooth overflow-scroll top-0">
-                        <Table className="h-full p-2 w-312.5 md:w-full scrollbar-thin-custom">
-                            <TableHeader className="top-0 sticky">
-                                <TableRow>
-                                    <TableHead>Producto</TableHead>
-                                    <TableHead>Cantidad</TableHead>
-                                    <TableHead>P. Unitario</TableHead>
-                                    <TableHead>Subtotal</TableHead>
-                                    <TableHead className="text-center">Acción</TableHead>
+            <div className="h-104 w-full lg:hidden touch-pan-x touch-pan-y scroll-smooth overflow-scroll top-0">
+                <Table className="overflow-x-auto overflow-y-auto touch-pan-y touch-pan-x p-2">
+                    <TableHeader className="top-0 sticky">
+                        <TableRow>
+                            <TableHead>Producto</TableHead>
+                            <TableHead className="text-center">Cantidad</TableHead>
+                            <TableHead>P. Unitario</TableHead>
+                            <TableHead>Subtotal</TableHead>
+                            <TableHead className="text-center">Acción</TableHead>
+                        </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                        {
+                            filtereddataProducts?.map(product => (
+                                <TableRow key={product.id_producto} className="hover:bg-gray-100/85 dark:hover:bg-gray-800/95 transition-all duration-200">
+
+                                    <TableCell>
+                                        {
+                                            product.nombre_producto
+                                        }
+                                    </TableCell>
+
+                                    <TableCell className="text-center">
+                                        {
+                                            editId === product.id_producto ?
+                                                (
+                                                    <input
+                                                        className="w-14 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                                        id="cantidad"
+                                                        required
+                                                        value={newProducts.cantidad == "0" ? "" : newProducts.cantidad}
+                                                        onChange={(e) => {
+                                                            // if (editId == null) {
+                                                            //     handleCalculateSubtotal(+e.target.value);
+                                                            // }
+
+                                                            handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
+                                                            setNewProducts({ ...newProducts, cantidad: e.target.value });
+                                                        }}
+                                                        onKeyDown={keyPressDown}
+                                                        type="number"
+                                                        placeholder="Ejemplo: xxx..."
+                                                    />
+                                                )
+                                                :
+                                                product.cantidad
+                                        }
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {
+                                            editId === product.id_producto && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER ?
+                                                (
+                                                    <input
+                                                        className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                                        id="precio_compra"
+                                                        required
+                                                        value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
+                                                        onChange={(e) => {
+                                                            handleCalculateSubtotalEdit(+newProducts.cantidad, +e.target.value);
+                                                            setNewProducts({ ...newProducts, precio_compra: e.target.value });
+                                                        }}
+                                                        onKeyDown={keyPressDown}
+                                                        type="number"
+                                                        placeholder="Precio del producto..."
+                                                    />
+                                                )
+                                                :
+                                                product.precio_compra === undefined ? 0 : formatCurrency(product.precio_compra)
+                                        }
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {
+                                            editId === product.id_producto ?
+                                                formatCurrency(subtotal.toString())
+                                                :
+                                                formatCurrency(product.subtotal)
+                                        }
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {
+                                            editId === product.id_producto ? (
+                                                <div className="flex items-center justify-center">
+                                                    <Tooltip>
+                                                        <TooltipTrigger>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    editProduct();
+                                                                }}
+                                                                className="flex items-center justify-center gap-x-2 text-sm font-bold bg-green-400 p-2 text-black rounded-md hover:bg-green-600 transition-all duration-200"
+                                                            >
+                                                                <span className="block md:hidden">Guardar datos modificados</span>
+                                                                <Save className="h-4 w-4" />
+                                                            </button>
+                                                        </TooltipTrigger>
+
+                                                        <TooltipContent>
+                                                            Clic para guardar los cambios realizados
+                                                        </TooltipContent>
+                                                    </Tooltip>
+
+                                                </div>
+                                            )
+                                                : (
+                                                    <div className="flex items-center justify-center md:flex-row gap-x-4 w-auto py-2">
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        // setNewProducts({ ...newProducts, id_producto: product.id_producto})
+                                                                        newProducts.id_producto = product.id_producto;
+                                                                        newProducts.nombre_producto = product.nombre_producto;
+                                                                        newProducts.precio_compra = product.precio_compra;
+                                                                        newProducts.cantidad = product.cantidad;
+
+                                                                        setEditId(product.id_producto)
+                                                                    }}
+                                                                    className="flex items-center justify-center gap-x-2 text-sm font-bold bg-cyan-500 p-2 text-black rounded-md hover:bg-cyan-600 transition-all duration-200"
+                                                                >
+                                                                    <span className="block md:hidden">Modificar item</span>
+                                                                    <Edit className="size-4" />
+                                                                </button>
+                                                            </TooltipTrigger>
+
+
+                                                            <TooltipContent>
+                                                                Clic para modificar este item
+                                                            </TooltipContent>
+                                                        </Tooltip>
+
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <button
+                                                                    type="button"
+                                                                    className="flex items-center justify-center gap-x-2 text-sm font-bold bg-red-500 p-2 text-white rounded-md hover:bg-red-600 transition-all duration-200"
+                                                                    onClick={() => {
+                                                                        setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal, subtotal_venta: "", id_inventario: "", stock: 0 });
+                                                                    }}
+                                                                >
+                                                                    <span className="block md:hidden">Eliminar item</span>
+                                                                    <Trash2 className="size-4" />
+                                                                </button>
+                                                            </TooltipTrigger>
+
+                                                            <TooltipContent>
+                                                                Clic para remover este item
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </div>
+                                                )
+                                        }
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
+                            ))
+                        }
+                        <TableRow>
+                            {
+                                filtereddataProducts?.length === 0 && (
+                                    <TableCell
+                                        colSpan={5}>
+                                        <div className="flex items-center flex-col justify-center">
+                                            <TableEmpty />
+                                            <p className='text-center font-bold text-2xl'>Aún no hay registros agregados...</p>
+                                        </div>
+                                    </TableCell>
+                                )
+                            }
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
 
-                            <TableBody>
-                                {
-                                    filtereddataProducts?.map(product => (
-                                        <TableRow key={product.id_producto} className="hover:bg-gray-100/85 dark:hover:bg-gray-800/95 transition-all duration-200">
+            <div className="h-auto md:h-104 w-full flex-col lg:flex-row flex md:gap-x-4 gap-y-4 items-center md:items-start justify-center mx-auto">
+                <div className="h-104 w-full lg:w-[75%] hidden lg:block touch-pan-x touch-pan-y scroll-smooth overflow-scroll top-0">
+                    <Table className="overflow-x-auto overflow-y-auto touch-pan-y touch-pan-x p-2">
+                        <TableHeader className="top-0 sticky">
+                            <TableRow>
+                                <TableHead>Producto</TableHead>
+                                <TableHead className="text-center">Cantidad</TableHead>
+                                <TableHead>P. Unitario</TableHead>
+                                <TableHead>Subtotal</TableHead>
+                                <TableHead className="text-center">Acción</TableHead>
+                            </TableRow>
+                        </TableHeader>
 
-                                            <TableCell>
-                                                {
-                                                    product.nombre_producto
-                                                }
-                                            </TableCell>
+                        <TableBody>
+                            {
+                                filtereddataProducts?.map(product => (
+                                    <TableRow key={product.id_producto} className="hover:bg-gray-100/85 dark:hover:bg-gray-800/95 transition-all duration-200">
 
-                                            <TableCell>
-                                                {
-                                                    editId === product.id_producto ?
-                                                        (
-                                                            <input
-                                                                className="w-14 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
-                                                                id="cantidad"
-                                                                required
-                                                                value={newProducts.cantidad == "0" ? "" : newProducts.cantidad}
-                                                                onChange={(e) => {
-                                                                    handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
-                                                                    setNewProducts({ ...newProducts, cantidad: e.target.value });
-                                                                }}
-                                                                onKeyDown={keyPressDown}
-                                                                type="number"
-                                                                placeholder="Ejemplo: xxx..."
-                                                            />
-                                                        )
-                                                        :
-                                                        product.cantidad
-                                                }
-                                            </TableCell>
+                                        <TableCell>
+                                            {
+                                                product.nombre_producto
+                                            }
+                                        </TableCell>
 
-                                            <TableCell>
-                                                {
-                                                    editId === product.id_producto && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER ?
-                                                        (
-                                                            <input
-                                                                className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
-                                                                id="precio_compra"
-                                                                required
-                                                                value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
-                                                                onChange={(e) => {
-                                                                    handleCalculateSubtotalEdit(+newProducts.cantidad, +e.target.value);
-                                                                    setNewProducts({ ...newProducts, precio_compra: e.target.value });
-                                                                }}
-                                                                onKeyDown={keyPressDown}
-                                                                type="number"
-                                                                placeholder="Precio del producto..."
-                                                            />
-                                                        )
-                                                        :
-                                                        product.precio_compra === undefined ? 0 : formatCurrency(product.precio_compra)
-                                                }
-                                            </TableCell>
+                                        <TableCell className="text-center">
+                                            {
+                                                editId === product.id_producto ?
+                                                    (
+                                                        <input
+                                                            className="w-14 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                                            id="cantidad"
+                                                            required
+                                                            value={newProducts.cantidad == "0" ? "" : newProducts.cantidad}
+                                                            onChange={(e) => {
+                                                                // if (editId == null) {
+                                                                //     handleCalculateSubtotal(+e.target.value);
+                                                                // }
 
-                                            <TableCell>
-                                                {
-                                                    editId === product.id_producto ?
-                                                        formatCurrency(subtotal.toString())
-                                                        :
-                                                        formatCurrency(product.subtotal)
-                                                }
-                                            </TableCell>
+                                                                handleCalculateSubtotalEdit(+e.target.value, +newProducts.precio_compra);
+                                                                setNewProducts({ ...newProducts, cantidad: e.target.value });
+                                                            }}
+                                                            onKeyDown={keyPressDown}
+                                                            type="number"
+                                                            placeholder="Ejemplo: xxx..."
+                                                        />
+                                                    )
+                                                    :
+                                                    product.cantidad
+                                            }
+                                        </TableCell>
 
-                                            <TableCell align="right">
-                                                {
-                                                    editId === product.id_producto ? (
-                                                        <div className="flex items-center justify-center">
+                                        <TableCell>
+                                            {
+                                                editId === product.id_producto && dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER ?
+                                                    (
+                                                        <input
+                                                            className="w-24 border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2"
+                                                            id="precio_compra"
+                                                            required
+                                                            value={+newProducts.precio_compra == 0 ? "" : newProducts.precio_compra}
+                                                            onChange={(e) => {
+                                                                handleCalculateSubtotalEdit(+newProducts.cantidad, +e.target.value);
+                                                                setNewProducts({ ...newProducts, precio_compra: e.target.value });
+                                                            }}
+                                                            onKeyDown={keyPressDown}
+                                                            type="number"
+                                                            placeholder="Precio del producto..."
+                                                        />
+                                                    )
+                                                    :
+                                                    product.precio_compra === undefined ? 0 : formatCurrency(product.precio_compra)
+                                            }
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {
+                                                editId === product.id_producto ?
+                                                    formatCurrency(subtotal.toString())
+                                                    :
+                                                    formatCurrency(product.subtotal)
+                                            }
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {
+                                                editId === product.id_producto ? (
+                                                    <div className="flex items-center justify-center">
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        editProduct();
+                                                                    }}
+                                                                    className="flex items-center justify-center gap-x-2 text-sm font-bold bg-green-400 p-2 text-black rounded-md hover:bg-green-600 transition-all duration-200"
+                                                                >
+                                                                    <span className="block md:hidden">Guardar datos modificados</span>
+                                                                    <Save className="h-4 w-4" />
+                                                                </button>
+                                                            </TooltipTrigger>
+
+                                                            <TooltipContent>
+                                                                Clic para guardar los cambios realizados
+                                                            </TooltipContent>
+                                                        </Tooltip>
+
+                                                    </div>
+                                                )
+                                                    : (
+                                                        <div className="flex items-center justify-center md:flex-row gap-x-4 w-auto py-2">
                                                             <Tooltip>
                                                                 <TooltipTrigger>
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => {
-                                                                            editProduct();
+                                                                            // setNewProducts({ ...newProducts, id_producto: product.id_producto})
+                                                                            newProducts.id_producto = product.id_producto;
+                                                                            newProducts.nombre_producto = product.nombre_producto;
+                                                                            newProducts.precio_compra = product.precio_compra;
+                                                                            newProducts.cantidad = product.cantidad;
+
+                                                                            setEditId(product.id_producto)
                                                                         }}
-                                                                        className="flex items-center justify-center gap-x-2 text-sm font-bold bg-green-400 p-2 text-black rounded-md hover:bg-green-600 transition-all duration-200"
+                                                                        className="flex items-center justify-center gap-x-2 text-sm font-bold bg-cyan-500 p-2 text-black rounded-md hover:bg-cyan-600 transition-all duration-200"
                                                                     >
-                                                                        <span className="block md:hidden">Guardar datos modificados</span>
-                                                                        <Save className="h-4 w-4" />
+                                                                        <span className="block md:hidden">Modificar item</span>
+                                                                        <Edit className="size-4" />
+                                                                    </button>
+                                                                </TooltipTrigger>
+
+
+                                                                <TooltipContent>
+                                                                    Clic para modificar este item
+                                                                </TooltipContent>
+                                                            </Tooltip>
+
+                                                            <Tooltip>
+                                                                <TooltipTrigger>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="flex items-center justify-center gap-x-2 text-sm font-bold bg-red-500 p-2 text-white rounded-md hover:bg-red-600 transition-all duration-200"
+                                                                        onClick={() => {
+                                                                            setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal, subtotal_venta: "", id_inventario: "", stock: 0 });
+                                                                        }}
+                                                                    >
+                                                                        <span className="block md:hidden">Eliminar item</span>
+                                                                        <Trash2 className="size-4" />
                                                                     </button>
                                                                 </TooltipTrigger>
 
                                                                 <TooltipContent>
-                                                                    Clic para guardar los cambios realizados
+                                                                    Clic para remover este item
                                                                 </TooltipContent>
                                                             </Tooltip>
-
                                                         </div>
                                                     )
-                                                        : (
-                                                            <div className="flex items-center justify-center md:flex-row gap-x-4 w-auto py-2">
-                                                                <Tooltip>
-                                                                    <TooltipTrigger>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                                // setNewProducts({ ...newProducts, id_producto: product.id_producto})
-                                                                                newProducts.id_producto = product.id_producto;
-                                                                                newProducts.nombre_producto = product.nombre_producto;
-                                                                                newProducts.precio_compra = product.precio_compra;
-                                                                                newProducts.cantidad = product.cantidad;
-
-                                                                                setEditId(product.id_producto)
-                                                                            }}
-                                                                            className="flex items-center justify-center gap-x-2 text-sm font-bold bg-cyan-500 p-2 text-black rounded-md hover:bg-cyan-600 transition-all duration-200"
-                                                                        >
-                                                                            <span className="block md:hidden">Modificar item</span>
-                                                                            <Edit className="size-4" />
-                                                                        </button>
-                                                                    </TooltipTrigger>
-
-
-                                                                    <TooltipContent>
-                                                                        Clic para modificar este item
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-
-                                                                <Tooltip>
-                                                                    <TooltipTrigger>
-                                                                        <button
-                                                                            type="button"
-                                                                            className="flex items-center justify-center gap-x-2 text-sm font-bold bg-red-500 p-2 text-white rounded-md hover:bg-red-600 transition-all duration-200"
-                                                                            onClick={() => {
-                                                                                setOpenAlertDialogDeleted({ ...product, cantidad: "", subtotal_compra: product.subtotal, subtotal_venta: "", id_inventario: "", stock: 0 });
-                                                                            }}
-                                                                        >
-                                                                            <span className="block md:hidden">Eliminar item</span>
-                                                                            <Trash2 className="size-4" />
-                                                                        </button>
-                                                                    </TooltipTrigger>
-
-                                                                    <TooltipContent>
-                                                                        Clic para remover este item
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </div>
-                                                        )
-                                                }
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                            }
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            }
+                            <TableRow>
+                                {
+                                    filtereddataProducts?.length === 0 && (
+                                        <TableCell
+                                            colSpan={5}>
+                                            <div className="flex items-center flex-col justify-center">
+                                                <TableEmpty />
+                                                <p className='text-center font-bold text-2xl'>Aún no hay registros agregados...</p>
+                                            </div>
+                                        </TableCell>
+                                    )
                                 }
-                                <TableRow>
-                                    {
-                                        filtereddataProducts?.length === 0 && (
-                                            <TableCell colSpan={14}>
-                                                <div className="flex items-center flex-col justify-center">
-                                                    <TableEmpty />
-                                                    <p className='text-center font-bold text-2xl'>Aún no hay registros agregados...</p>
-                                                </div>
-                                            </TableCell>
-                                        )
-                                    }
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+                <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-600 rounded-lg py-4 px-2 h-auto">
+                    <legend className="uppercase font-bold">Montos de la compra</legend>
+
+                    <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                        <label htmlFor="total_productos" className="font-bold w-full">Total productos:</label>
+                        <input
+                            id="total_productos"
+                            className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                            value={dataProducts.length}
+                            type="text"
+                            disabled
+                            placeholder="Total de productos..." />
                     </div>
 
-                    <fieldset className="w-full lg:w-[25%] flex items-end gap-y-2 flex-col mt-2 border border-gray-300 dark:border-gray-600 rounded-lg py-4 px-2 h-104">
-                        <legend className="uppercase font-bold">Montos de la compra</legend>
+                    <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                        <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de compra:</label>
+                        <input
+                            id="subtotal_compra"
+                            className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
+                            value={formatCurrency(handleCalculateTotal().toString())}
+                            type="text"
+                            disabled
+                            placeholder="Subtotal de compra..." />
+                    </div>
 
-                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="total_productos" className="font-bold w-full">Total productos:</label>
-                            <input
-                                id="total_productos"
-                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
-                                value={dataProducts.length}
-                                type="text"
-                                disabled
-                                placeholder="Total de productos..." />
-                        </div>
+                    <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                        <label htmlFor="value_tax" className="font-bold text-start w-full">IVA:</label>
+                        <input
+                            id="value_tax"
+                            className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
+                            value={valorImpuesto === 0 ? "0.00" : formatCurrency(valorImpuesto.toString())}
+                            type="text"
+                            disabled
+                            placeholder="Impuesto..." />
+                    </div>
 
-                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="subtotal_compra" className="font-bold w-full">Subtotal de compra:</label>
-                            <input
-                                id="subtotal_compra"
-                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
-                                value={formatCurrency(handleCalculateTotal().toString())}
-                                type="text"
-                                disabled
-                                placeholder="Subtotal de compra..." />
-                        </div>
+                    <div className="flex flex-row-reverse w-full items-center justify-center gap-x-1 mx-auto">
+                        <label htmlFor="checked_impuesto" className="font-bold text-start w-full">Agregar % manual</label>
+                        <input
+                            type="checkbox"
+                            name=""
+                            id="checked_impuesto"
+                            checked={isChecked}
+                            onChange={(e) => setIsChecked(e.target.checked)}
+                        />
+                    </div>
 
-                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="value_tax" className="font-bold text-start w-full">IVA:</label>
-                            <input
-                                id="value_tax"
-                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 cursor-not-allowed"
-                                value={valorImpuesto === 0 ? "0.00" : formatCurrency(valorImpuesto.toString())}
-                                type="text"
-                                disabled
-                                placeholder="Impuesto..." />
-                        </div>
+                    <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                        <label htmlFor="impuesto" className="font-bold text-start w-full">% del impuesto:</label>
+                        <input
+                            id="impuesto"
+                            className={`w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 ${isChecked == false && "cursor-not-allowed"}`}
+                            value={taxesValue}
+                            onChange={(e) => {
+                                setTaxesValue(+e.target.value);
+                            }}
+                            disabled={!isChecked}
+                            type="text"
+                            placeholder="Impuesto..." />
+                    </div>
 
-                        <div className="flex flex-row-reverse w-full items-center justify-center gap-x-1 mx-auto">
-                            <label htmlFor="checked_impuesto" className="font-bold text-start w-full">Agregar % manual</label>
-                            <input
-                                type="checkbox"
-                                name=""
-                                id="checked_impuesto"
-                                checked={isChecked}
-                                onChange={(e) => setIsChecked(e.target.checked)}
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="impuesto" className="font-bold text-start w-full">% del impuesto:</label>
-                            <input
-                                id="impuesto"
-                                className={`w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 ${isChecked == false && "cursor-not-allowed"}`}
-                                value={taxesValue}
-                                onChange={(e) => {
-                                    setTaxesValue(+e.target.value);
-                                }}
-                                disabled={!isChecked}
-                                type="text"
-                                placeholder="Impuesto..." />
-                        </div>
-
-                        <div className="flex w-full items-center justify-center mx-auto">
-                            <button
-                                type="button"
-                                className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base"
-                                onClick={() => handleCalculateTotalWithTaxes()}
-                            >
-                                Calcular con impuesto
-                                <Calculator className="size-5" />
-                            </button>
-                        </div>
-
-                        <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
-                            <label htmlFor="total_compra" className="font-bold w-full ">Total de compra:</label>
-                            <input
-                                id="total_compra"
-                                className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
-                                value={total === 0 ? formatCurrency(handleCalculateTotal().toString()) : formatCurrency(total.toString())}
-                                type="text"
-                                disabled
-                                placeholder="Total de compra..." />
-                        </div>
-                    </fieldset>
-                </div>
-
-                <div className="w-full">
-                    <div
-
-                        className="w-full flex mt-4 items-center justify-center md:gap-x-8"
-                    >
+                    <div className="flex w-full items-center justify-center mx-auto">
                         <button
-                            type="submit"
-                            className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined && editBuy.id_proveedor == undefined || editBuy.id_proveedor == null ? "cursor-not-allowed" : undefined}`}
-                            aria-label="Close"
-                            disabled={supplierData?.nombre_proveedor === undefined && editBuy.id_proveedor == undefined || editBuy.id_proveedor == null ? true : false}
+                            type="button"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 flex items-center justify-center gap-x-6 font-bold text-base"
+                            onClick={() => handleCalculateTotalWithTaxes()}
                         >
-                            <Edit2 className="size-5" />
-                            Modificar compra
+                            Calcular con impuesto
+                            <Calculator className="size-5" />
                         </button>
-
                     </div>
-                </div>
-            </form>
+
+                    <div className="flex flex-col gap-y-2 md:gap-y-0 w-full items-center md:justify-between mx-auto">
+                        <label htmlFor="total_compra" className="font-bold w-full ">Total de compra:</label>
+                        <input
+                            id="total_compra"
+                            className="w-full border border-gray-300 dark:border-gray-600 outline-none rounded-md py-1 px-2 text-green-800 dark:text-green-500 cursor-not-allowed"
+                            value={total === 0 ? formatCurrency(handleCalculateTotal().toString()) : formatCurrency(total.toString())}
+                            type="text"
+                            disabled
+                            placeholder="Total de compra..." />
+                    </div>
+                </fieldset>
+            </div>
+
+            <div
+                className="w-full flex mt-4 items-center justify-center md:gap-x-8"
+            >
+                <button
+                    type="submit"
+                    className={`w-full md:w-auto border border-gray-300 dark:bg-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${supplierData?.nombre_proveedor === undefined && editBuy.id_proveedor == undefined || editBuy.id_proveedor == null ? "cursor-not-allowed" : undefined}`}
+                    aria-label="Close"
+                    onClick={onSubmitCreateBuys}
+                    disabled={supplierData?.nombre_proveedor === undefined && editBuy.id_proveedor == undefined || editBuy.id_proveedor == null ? true : false}
+                >
+                    <Edit2 className="size-5" />
+                    Modificar compra
+                </button>
+
+            </div>
 
             {
                 openAlertDialogDeleted && (
