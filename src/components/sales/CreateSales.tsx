@@ -9,7 +9,7 @@ import type { BuysFormDataAdd, TempPurchasingFormDataPaymentmethod } from "@/typ
 import type { ErrorData } from "@/types/errors.interface";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import type { AuthPermissions } from "@/types/auth.interface";
-import { formatCurrency } from "@/utils/utilidad";
+import { createFormattedIdCustomer, formatCurrency } from "@/utils/utilidad";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import TableEmpty from "../ui-components/TableEmpty";
 import { AlertDialog } from "../ui/alert-dialog";
@@ -27,6 +27,7 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
 
     const [open, setOpen] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [isCustomerExists, setIsCustomerExists] = useState(false);
     const [isActiveInput, setIsActiveInput] = useState(false);
     const [subtotal, setSubtotal] = useState(0);
     const [total, setTotal] = useState(0);
@@ -50,7 +51,7 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
         subtotal: "",
         total: "",
         id_cliente: "",
-        cliente_existente: 0,
+        cliente_existente: 1,
         cliente_manual: [{
             id: "",
             nombre_cliente: "",
@@ -439,7 +440,7 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
             subtotal: "",
             total: "",
             id_cliente: "",
-            cliente_existente: 0,
+            cliente_existente: 1,
             cliente_manual: [{
                 id: "",
                 nombre_cliente: "",
@@ -1074,71 +1075,110 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
                             </div>
                         </fieldset>
 
-                        <fieldset className="flex flex-1 w-full flex-col items-center mt-4 border border-gray-300 dark:border-gray-600 px-1 sm:p-4 rounded-lg py-4">
+                        <fieldset className="flex space-y-4 flex-1 w-full flex-col items-center mt-4 border border-gray-300 dark:border-gray-600 px-1 sm:p-4 rounded-lg py-4">
                             <legend className="uppercase font-bold">Datos del cliente</legend>
-                            <div className="w-full flex-col flex items-start -mt-3 h-72">
-                                <label htmlFor="nombre_proveedor" className="font-bold mb-1">Cliente:</label>
-                                <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-600 py-1 px-2 cursor-pointer ${openComboBoxCustomer == true ? "rounded-t-md" : "rounded-md"}`}
-                                    onClick={() => {
-                                        setOpenComboBoxCustomer(!openComboBoxCustomer)
-                                        refetCustomer();
-                                    }}
-                                >
-                                    <span className="cursor-pointer">{dataCustomerComboBox.nombre_cliente == "" ? "Selecciona cliente" : dataCustomerComboBox.nombre_cliente}</span>
-
-                                    {
-                                        openComboBoxCustomer == true ?
-                                            (
-                                                <ChevronUp className="size-5" />
-                                            )
-                                            :
-                                            (
-                                                <ChevronDown className="size-5" />
-                                            )
-                                    }
-                                </div>
-                                {
-                                    openComboBoxCustomer == true ?
-                                        (
-                                            <div className="w-full top-0 right-0 h-72 sticky mx-auto overflow-auto touch-pan-y scrollbar-thin-custom transition-all duration-700 ease-in-out">
-                                                <ul className="rounded-b-lg border border-gray-300 dark:border-gray-600">
-                                                    <>
-                                                        <div className="w-full border-b border-gray-300 dark:border-gray-600  py-1 px-2 flex items-center gap-x-1">
-                                                            <Search className="size-5 text-gray-400" href="searchCustomer" />
-                                                            <input
-                                                                id="searchCustomer"
-                                                                type="text"
-                                                                value={searchTermCustomer}
-                                                                onChange={(e) => setSearchTermCustomer(e.target.value)}
-                                                                placeholder="Buscar..."
-                                                                className="w-full border-none outline-none placeholder:text-gray-400"
-                                                            />
-                                                        </div>
-
-                                                        {
-                                                            filteredCustomers?.map((customer, index) => (
-                                                                <li
-                                                                    key={index}
-                                                                    className="hover:bg-gray-300 py-1 px-4 cursor-pointer"
-                                                                    onClick={() => {
-                                                                        setSearchTermCustomer("");
-                                                                        setOpenComboBoxCustomer(!openComboBoxCustomer);
-                                                                        setDataCustomerComboBox({ ...dataCustomerComboBox, id_cliente: customer.id, nombre_cliente: customer.nombre_cliente });
-                                                                        handleSelectionSupplier(customer);
-                                                                    }}
-                                                                >
-                                                                    {customer.nombre_cliente}
-                                                                </li>
-                                                            ))
-                                                        }
-                                                    </>
-                                                </ul>
-                                            </div>
-                                        )
-                                        :
-                                        (null)
-                                }
+                            <div className="flex flex-row-reverse items-center justify-center gap-x-2">
+                                <label htmlFor="customer_exists_database">¿Cliente existe en base de datos?</label>
+                                <input
+                                    type="checkbox"
+                                    name=""
+                                    id="customer_exists_database"
+                                    onChange={(e) => setIsCustomerExists(e.target.checked)}
+                                />
                             </div>
+
+
+                            {
+                                isCustomerExists == true ?
+                                    (
+
+                                        <div className="w-full flex-col flex items-start -mt-3 h-72">
+                                            <label htmlFor="nombre_proveedor" className="font-bold mb-1">Cliente:</label>
+                                            <div className={`w-full mx-auto flex items-center justify-center md:justify-between border border-gray-300 dark:border-gray-600 py-1 px-2 cursor-pointer ${openComboBoxCustomer == true ? "rounded-t-md" : "rounded-md"}`}
+                                                onClick={() => {
+                                                    setOpenComboBoxCustomer(!openComboBoxCustomer)
+                                                    refetCustomer();
+                                                }}
+                                            >
+                                                <span className="cursor-pointer">{dataCustomerComboBox.nombre_cliente == "" ? "Selecciona cliente" : dataCustomerComboBox.nombre_cliente}</span>
+
+                                                {
+                                                    openComboBoxCustomer == true ?
+                                                        (
+                                                            <ChevronUp className="size-5" />
+                                                        )
+                                                        :
+                                                        (
+                                                            <ChevronDown className="size-5" />
+                                                        )
+                                                }
+                                            </div>
+                                            {
+                                                openComboBoxCustomer == true ?
+                                                    (
+                                                        <div className="w-full top-0 right-0 h-72 sticky mx-auto overflow-auto touch-pan-y scrollbar-thin-custom transition-all duration-700 ease-in-out">
+                                                            <ul className="rounded-b-lg border border-gray-300 dark:border-gray-600">
+                                                                <>
+                                                                    <div className="w-full border-b border-gray-300 dark:border-gray-600  py-1 px-2 flex items-center gap-x-1">
+                                                                        <Search className="size-5 text-gray-400" href="searchCustomer" />
+                                                                        <input
+                                                                            id="searchCustomer"
+                                                                            type="text"
+                                                                            value={searchTermCustomer}
+                                                                            onChange={(e) => setSearchTermCustomer(e.target.value)}
+                                                                            placeholder="Buscar..."
+                                                                            className="w-full border-none outline-none placeholder:text-gray-400"
+                                                                        />
+                                                                    </div>
+
+                                                                    {
+                                                                        filteredCustomers?.map((customer, index) => (
+                                                                            <li
+                                                                                key={index}
+                                                                                className="hover:bg-gray-300 py-1 px-4 cursor-pointer"
+                                                                                onClick={() => {
+                                                                                    setSearchTermCustomer("");
+                                                                                    setOpenComboBoxCustomer(!openComboBoxCustomer);
+                                                                                    setDataCustomerComboBox({ ...dataCustomerComboBox, id_cliente: customer.id, nombre_cliente: customer.nombre_cliente });
+                                                                                    handleSelectionSupplier(customer);
+                                                                                }}
+                                                                            >
+                                                                                {customer.nombre_cliente}
+                                                                            </li>
+                                                                        ))
+                                                                    }
+                                                                </>
+                                                            </ul>
+                                                        </div>
+                                                    )
+                                                    :
+                                                    (null)
+                                            }
+                                        </div>
+                                    )
+                                    :
+                                    (
+                                        <div className="w-full flex items-center justify-center flex-col gap-y-1">
+                                            <label className="w-full" htmlFor="customers">Cliente:</label>
+                                            <input
+                                                className="w-full py-1 px-2 border border-gray-300 dark:border-gray-700 rounded-md"
+                                                type="text"
+                                                name=""
+                                                value={newSales.cliente_manual[0].nombre_cliente}
+                                                onChange={(e) => setNewSales({
+                                                    ...newSales,
+                                                    cliente_manual: [{
+                                                        id: createFormattedIdCustomer(),
+                                                        nombre_cliente: e.target.value
+                                                    }]
+                                                })}
+                                                id="customers"
+                                                placeholder="Cliente inexistente"
+                                            />
+                                        </div>
+                                    )
+                            }
+
                         </fieldset>
                     </div>
                     <div className='w-full md:w-[74%] mx-auto md:mx-0 mt-4 flex items-center justify-center gap-x-1 border border-gray-300 dark:border-gray-600 py-1 px-2'>
