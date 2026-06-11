@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -25,29 +25,20 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import Loader from "@/components/loader";
-import { BadgeCheck, Ban, Edit, Ellipsis, File, Loader2, MessageCircleQuestion, Search } from "lucide-react";
+import { BadgeCheck, Ban, Ellipsis, File, Loader2, MessageCircleQuestion, Search } from "lucide-react";
 import type { AuthPermissions } from "@/types/auth.interface";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import TableEmpty from "@/components/ui-components/TableEmpty";
-import { Dialog } from "@/components/ui/dialog";
 import { formatCurrency } from "@/utils/utilidad";
-import EditBuys from "@/components/buys/EditBuy";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import AlertDialogDelete from "@/components/ui-components/AlertDialogDelete";
 import api from "@/lib/axios";
 import { getSales } from "@/apis/sales.apis";
-import type { SalesFormDataInfo } from "@/types/sales.interface";
 import ToogleFieldsDialogSales from "@/components/sales/ToogleFieldsDialogSales";
 import CreateSales from "@/components/sales/CreateSales";
 
 export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search)
-    const modalEditSales = queryParams.get("editSales");
-    const showEditModal = modalEditSales ? true : false;
-
 
     const { data, isLoading, refetch, isError } = useQuery({
         queryKey: ["sales"],
@@ -74,11 +65,8 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [idSales, setidSales] = useState("");
-    const [openDialogEditSales, setOpenDialogEditSales] = useState(showEditModal);
     const [openAlertDialogReport, setOpenAlertDialogReport] = useState(false);
 
-
-    const [editingSales, setEditingSales] = useState<SalesFormDataInfo | null>(null);
     const [showFields, setShowFields] = useState<string[]>([
         "Número venta",
         "Observaciones",
@@ -109,7 +97,7 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
     const onClickCreateReportInventory = async () => {
         try {
             // Realiza la solicitud GET para obtener el PDF
-            const response = await api(`/buys/reportBuys/${idSales}`, {
+            const response = await api(`/sales/reportSales/${idSales}`, {
                 responseType: "blob", // Importante para manejar archivos binarios
             });
 
@@ -289,30 +277,6 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent className="w-full">
                                                                 <DropdownMenuGroup>
-                                                                    <DropdownMenuItem>
-                                                                        <Button
-                                                                            onClick={() => {
-                                                                                setEditingSales({ ...sales, detalles_venta: [] })
-                                                                                setOpenDialogEditSales(!openDialogEditSales)
-                                                                                refetch()
-
-                                                                                if (openDialogEditSales) {
-                                                                                    navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditSales(!openDialogEditSales)
-                                                                                    refetch()
-                                                                                }
-                                                                                else {
-                                                                                    navigate(location.pathname + `?editSales=${sales.id}`)
-                                                                                    refetch()
-                                                                                }
-                                                                            }}
-                                                                            variant="outline"
-                                                                            className="flex items-center justify-center gap-x-3"
-                                                                        >
-                                                                            <Edit className="size-4" />
-                                                                            Modificar compra
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
                                                                     {
                                                                         dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
                                                                         <>
@@ -353,17 +317,6 @@ export default function SalesView({ dataAuth }: { dataAuth: AuthPermissions }) {
                                                 )
                                             }
                                         </TableRow>
-
-                                        {/* {
-                                            editingSales && (
-                                                <Dialog open={openDialogEditSales} onOpenChange={() => {
-                                                    setOpenDialogEditSales(!openDialogEditSales)
-                                                }}>
-                                                    <EditBuys sales={editingSales} dataAuth={dataAuth} onClose={() => setEditingSales(null)} />
-                                                </Dialog>
-                                            )
-                                        } */}
-
                                         {
                                             openAlertDialogReport == true && (
                                                 <AlertDialog open={openAlertDialogReport} onOpenChange={() => setOpenAlertDialogReport(false)}>

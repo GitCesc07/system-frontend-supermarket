@@ -51,7 +51,7 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
         subtotal: "",
         total: "",
         id_cliente: "",
-        cliente_existente: 1,
+        cliente_existente: 0,
         cliente_manual: [{
             id: "",
             nombre_cliente: "",
@@ -143,9 +143,6 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
         id_cliente: "",
         nombre_cliente: ""
     });
-
-    // * Get supplier information                
-    const [customerData, setCustomerData] = useState<CustomerFormDataInfo | null>(null)
 
     // * Get products information        
     const [productId, setProductId] = useState<TempSalesFormDataDetails | null>(null)
@@ -334,8 +331,6 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
     }
 
     const handleSelectionSupplier = (dataSupplier: CustomerFormDataInfo) => {
-        setCustomerData(dataSupplier);
-
         setNewSales({ ...newSales, id_cliente: dataSupplier.id })
     }
 
@@ -440,7 +435,7 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
             subtotal: "",
             total: "",
             id_cliente: "",
-            cliente_existente: 1,
+            cliente_existente: 0,
             cliente_manual: [{
                 id: "",
                 nombre_cliente: "",
@@ -494,7 +489,6 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
         setSubtotal(0);
         setEditId(null);
         setProductId(null);
-        setCustomerData(null);
     }
     const keyPressDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
         if (e.key === "Enter") {
@@ -508,7 +502,7 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
         }
     }
 
-    const onSubmitCreateBuys = () => {
+    const onSubmitCreateSales = () => {
 
         if (openAlertDialogDeleted == null) {
             const dataStorage = getDataLocalStorage(dataProducts);
@@ -650,6 +644,34 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
                 });
                 return;
             }
+
+            console.log(newSales.cliente_existente);
+
+
+            if (newSales.cliente_existente == 1 && newSales.id_cliente == "") {
+                toast.success("Debes de seleccionar el cliente...", {
+                    position: "top-right",
+                    closeButton: true,
+                    action: {
+                        label: "Cerrar",
+                        onClick: () => toast.dismiss()
+                    }
+                });
+                return;
+            }
+
+            if (newSales.cliente_existente == 0 && newSales.cliente_manual[0].nombre_cliente == "") {
+                toast.success("Debes de colocar un nombre del cliente...", {
+                    position: "top-right",
+                    closeButton: true,
+                    action: {
+                        label: "Cerrar",
+                        onClick: () => toast.dismiss()
+                    }
+                });
+                return;
+            }
+
             const data = newSales;
             mutate(data);
         }
@@ -1637,10 +1659,9 @@ export default function CreateSales({ dataAuth }: { dataAuth: AuthPermissions })
                 >
                     <button
                         type="submit"
-                        className={`w-full md:w-auto border border-gray-300 dark:border-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200 ${customerData?.nombre_cliente === undefined ? "cursor-not-allowed" : undefined}`}
+                        className="w-full md:w-auto border border-gray-300 dark:border-gray-700 py-2 px-4 rounded-md flex items-center justify-center gap-x-4 font-bold transition-all duration-200"
                         aria-label="Close"
-                        onClick={onSubmitCreateBuys}
-                        disabled={customerData?.nombre_cliente === undefined ? true : false}
+                        onClick={onSubmitCreateSales}
                     >
                         <Save className="size-5" />
                         Guardar venta
