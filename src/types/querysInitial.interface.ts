@@ -58,6 +58,12 @@ export const dataBuysChartShema = z.array(z.object({
     gasto_total: z.string()
 }));
 
+export const dataSalesChartShema = z.array(z.object({
+    dia_semana: z.string(),
+    total_ventas: z.number(),
+    monto_total: z.string()
+}));
+
 export const dataBillingTotalShema = z.object({
     id: z.string().optional().nullable(),
     monto_total: z.string().optional().nullable(),
@@ -76,6 +82,7 @@ const queryShema = z.object({
     getBuysTotal: dataBuysTotalShema.optional().nullable(),
     getBuysChart: dataBuysChartShema,
     getBillingTotal: dataBillingTotalShema.optional().nullable(),
+    getSalesChart: dataSalesChartShema,
 });
 
 export const queryDataSchema = z.array(
@@ -89,7 +96,8 @@ export const queryDataSchema = z.array(
         getproductsInInventory: true,
         getBuysTotal: true,
         getBuysChart: true,
-        getBillingTotal: true
+        getBillingTotal: true,
+        getSalesChart: true
     })
 )
 
