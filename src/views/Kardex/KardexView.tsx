@@ -277,7 +277,7 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                     <DialogFilteredKardex onSelectDataFiltered={handleSelectionProducts} />
 
                                     {
-                                        dataReturn.startDate != "" && dataReturn.endDate != "" || dataReturn.id_producto ?
+                                        dataAuth.kardex == 1 && dataReturn.startDate != "" && dataReturn.endDate != "" || dataReturn.id_producto ?
                                             (
                                                 <Button
                                                     onClick={() => {
@@ -314,9 +314,6 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                             <TableHead className="border border-gray-300 text-center" colSpan={3}>
                                                 Disponibles
                                             </TableHead>
-                                            <TableHead className="border border-gray-300 text-center" colSpan={1}>
-
-                                            </TableHead>
                                         </TableRow>
                                         <TableRow>
                                             {showFields.includes("Fecha creación") && <TableHead>Fecha</TableHead>}
@@ -332,10 +329,6 @@ export default function KardexView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                             {showFields.includes("Cantidad disponible") && <TableHead>Cantidad</TableHead>}
                                             {showFields.includes("Precio disponible") && <TableHead>Precio</TableHead>}
                                             {showFields.includes("Total disponible") && <TableHead>Total</TableHead>}
-                                            {
-                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
-                                                <TableHead className="text-right">Acción</TableHead>
-                                            }
                                         </TableRow>
                                     </TableHeader>
                                     {

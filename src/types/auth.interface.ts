@@ -27,8 +27,6 @@ const authShema = z.object({
   permisos_inventario: z.array(repeatSalesShema),
   compra: z.number(),
   permisos_compra: z.array(repeatMotionShema),
-  cotizacion_venta: z.number(),
-  permisos_cotizacion_venta: z.array(repeatSalesShema),
   venta: z.number(),
   permisos_venta: z.array(repeatMotionShema),
   kardex: z.number(),
@@ -63,8 +61,6 @@ export const userSchema = authShema
     permisos_inventario: true,
     compra: true,
     permisos_compra: true,
-    cotizacion_venta: true,
-    permisos_cotizacion_venta: true,
     venta: true,
     permisos_venta: true,
     kardex: true,
@@ -96,16 +92,15 @@ export type permissionsUser = {
   usuario: Auth["usuario"],
   empresa: Auth["empresa"],
   proveedor: Auth["proveedor"],
-  cliente: Auth["cliente"],  
+  cliente: Auth["cliente"],
   marca: Auth["marca"],
   categoria: Auth["categoria"],
   producto: Auth["producto"],
-  inventario: Auth["inventario"],  
+  inventario: Auth["inventario"],
   compra: Auth["compra"],
-  cotizacion_venta: Auth["cotizacion_venta"],  
   venta: Auth["venta"],
   kardex: Auth["kardex"],
-  reportes_inventario: Auth["reportes_inventario"],  
+  reportes_inventario: Auth["reportes_inventario"],
   reportes: Auth["reportes"]
 };
 
@@ -118,7 +113,7 @@ export type AuthPermissions = Pick<Auth,
   "proveedor" |
   "permisos_proveedor" |
   "cliente" |
-  "permisos_cliente" |  
+  "permisos_cliente" |
   "marca" |
   "permisos_marca" |
   "categoria" |
@@ -126,13 +121,11 @@ export type AuthPermissions = Pick<Auth,
   "producto" |
   "permisos_producto" |
   "inventario" |
-  "permisos_inventario" |  
+  "permisos_inventario" |
   "compra" |
   "permisos_compra" |
-  "cotizacion_venta" |
-  "permisos_cotizacion_venta" |  
   "venta" |
   "permisos_venta" |
   "kardex" |
-  "reportes_inventario" |  
+  "reportes_inventario" |
   "reportes">

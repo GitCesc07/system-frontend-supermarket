@@ -20,7 +20,8 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon: LucideIcon
+    icon: LucideIcon,
+    isVisible: boolean,
     isActive?: boolean
     items?: {
       title: string
@@ -36,10 +37,17 @@ export function NavMain({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
+                {
+                  item.isVisible == true ?
+                    (
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    )
+                    :
+                    (null)
+                }
               </SidebarMenuButton>
               {item.items?.length ? (
                 <>

@@ -219,7 +219,7 @@ export default function UsersView({ dataAuth }: { dataAuth: AuthPermissions }) {
                         showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>
                       }
                       {
-                        dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                        dataAuth.permisos_usuario[0].modificar == 1 && dataAuth.permisos_usuario[0].eliminar == 1 &&
                         showFields.includes("Usuario creador") &&
                         <TableHead className="text-right">Acción</TableHead>
                       }
@@ -281,82 +281,116 @@ export default function UsersView({ dataAuth }: { dataAuth: AuthPermissions }) {
                             <TableCell>{user.nombre_usuario_modificador}</TableCell>
                           }
 
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="outline">
-                                  <Ellipsis className="size-5" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-full">
-                                <DropdownMenuGroup>
-                                  <DropdownMenuItem>
-                                    <Button
-                                      onClick={() => {
-                                        setEditingUser(user)
-                                        setOpenDialogEditUser(!openDialogEditUser)
-                                        refetch()
+                          {
+                            dataAuth.permisos_usuario[0].modificar == 1 && dataAuth.permisos_usuario[0].eliminar == 1 ?
+                              (
+                                <TableCell className="text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="outline">
+                                        <Ellipsis className="size-5" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-full">
+                                      <DropdownMenuGroup>
+                                        {
+                                          dataAuth.permisos_usuario[0].modificar == 1 ?
+                                            (
+                                              <>
+                                                <DropdownMenuItem>
+                                                  <Button
+                                                    onClick={() => {
+                                                      setEditingUser(user)
+                                                      setOpenDialogEditUser(!openDialogEditUser)
+                                                      refetch()
 
-                                        if (openDialogEditUser) {
-                                          navigate(location.pathname, { replace: true })
-                                          setOpenDialogEditUser(!openDialogEditUser)
-                                          refetch()
+                                                      if (openDialogEditUser) {
+                                                        navigate(location.pathname, { replace: true })
+                                                        setOpenDialogEditUser(!openDialogEditUser)
+                                                        refetch()
+                                                      }
+                                                      else {
+                                                        navigate(location.pathname + `?editUser=${user.id}`)
+                                                        refetch()
+                                                      }
+                                                    }}
+                                                    variant="outline"
+                                                    className="flex items-center justify-center gap-x-3"
+                                                  >
+                                                    <UserPenIcon className="size-4" />
+                                                    Modificar usuario
+                                                  </Button>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                              </>
+                                            )
+                                            :
+                                            (null)
                                         }
-                                        else {
-                                          navigate(location.pathname + `?editUser=${user.id}`)
-                                          refetch()
-                                        }
-                                      }}
-                                      variant="outline"
-                                      className="flex items-center justify-center gap-x-3"
-                                    >
-                                      <UserPenIcon className="size-4" />
-                                      Modificar usuario
-                                    </Button>
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem>
-                                    <Button
-                                      onClick={() => {
-                                        setPermissionsUser(permissionsUser)
-                                        setOpenDialogPermissionsUser(!openDialogPermissionsUser)
-                                        refetch()
 
-                                        if (openDialogPermissionsUser) {
-                                          navigate(location.pathname, { replace: true })
-                                          setOpenDialogPermissionsUser(!openDialogPermissionsUser)
-                                          refetch()
+                                        {
+                                          dataAuth.permisos_usuario[0].modificar == 1 && dataAuth.permisos_usuario[0].eliminar == 1 ?
+                                            (
+                                              <>
+                                                <DropdownMenuItem>
+                                                  <Button
+                                                    onClick={() => {
+                                                      setPermissionsUser(permissionsUser)
+                                                      setOpenDialogPermissionsUser(!openDialogPermissionsUser)
+                                                      refetch()
+
+                                                      if (openDialogPermissionsUser) {
+                                                        navigate(location.pathname, { replace: true })
+                                                        setOpenDialogPermissionsUser(!openDialogPermissionsUser)
+                                                        refetch()
+                                                      }
+                                                      else {
+                                                        navigate(location.pathname + `?permissionsUser=${user.id}`)
+                                                        refetch()
+                                                      }
+                                                    }}
+                                                    variant="outline"
+                                                    className="flex items-center justify-center gap-x-3"
+                                                  >
+                                                    <UserRoundCog className="size-4" />
+                                                    Asignar permisos
+                                                  </Button>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                              </>
+                                            )
+                                            :
+                                            (null)
                                         }
-                                        else {
-                                          navigate(location.pathname + `?permissionsUser=${user.id}`)
-                                          refetch()
+
+                                        {
+                                          dataAuth.permisos_usuario[0].eliminar == 1 ?
+                                            (
+                                              <DropdownMenuItem
+                                                onClick={() => {
+                                                  setDeletedUser(user)
+                                                  setOpenAlertDialogDelete(true);
+                                                }}
+                                              >
+                                                <Button
+                                                  variant="destructive"
+                                                >
+                                                  <Trash className="size-4" />
+                                                  Eliminar usuario
+                                                </Button>
+                                              </DropdownMenuItem>
+                                            )
+                                            :
+                                            (null)
                                         }
-                                      }}
-                                      variant="outline"
-                                      className="flex items-center justify-center gap-x-3"
-                                    >
-                                      <UserRoundCog className="size-4" />
-                                      Asignar permisos
-                                    </Button>
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      setDeletedUser(user)
-                                      setOpenAlertDialogDelete(true);
-                                    }}
-                                  >
-                                    <Button
-                                      variant="destructive"
-                                    >
-                                      <Trash className="size-4" />
-                                      Eliminar usuario
-                                    </Button>
-                                  </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+                                      </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              )
+                              :
+                              (null)
+                          }
                         </TableRow>
                       ))
                     }

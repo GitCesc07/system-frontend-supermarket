@@ -208,7 +208,7 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                 showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>
                                             }
                                             {
-                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                                dataAuth.permisos_marca[0].modificar == 1 && dataAuth.permisos_marca[0].eliminar == 1 &&
                                                 <TableHead className="text-right">Acción</TableHead>
                                             }
                                         </TableRow>
@@ -258,57 +258,81 @@ export default function BrandsView({ dataAuth }: { dataAuth: AuthPermissions }) 
                                                         <TableCell>{brand.nombre_usuario_modificador}</TableCell>
                                                     }
 
-                                                    <TableCell className="text-right">
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="outline">
-                                                                    <Ellipsis className="size-5" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuGroup>
-                                                                    <DropdownMenuItem>
-                                                                        <Button
-                                                                            onClick={() => {
-                                                                                setEditingBrand(brand)
-                                                                                setOpenDialogEditBrand(!openDialogEditBrand)
-                                                                                refetch()
+                                                    {
+                                                        dataAuth.permisos_marca[0].modificar == 1 && dataAuth.permisos_marca[0].eliminar == 1 ?
+                                                            (
+                                                                <TableCell className="text-right">
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <Button variant="outline">
+                                                                                <Ellipsis className="size-5" />
+                                                                            </Button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent className="w-full">
+                                                                            <DropdownMenuGroup>
+                                                                                {
+                                                                                    dataAuth.permisos_marca[0].modificar == 1 ?
+                                                                                        (
+                                                                                            <>
+                                                                                                <DropdownMenuItem>
+                                                                                                    <Button
+                                                                                                        onClick={() => {
+                                                                                                            setEditingBrand(brand)
+                                                                                                            setOpenDialogEditBrand(!openDialogEditBrand)
+                                                                                                            refetch()
 
-                                                                                if (openDialogEditBrand) {
-                                                                                    navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditBrand(!openDialogEditBrand)
-                                                                                    refetch()
+                                                                                                            if (openDialogEditBrand) {
+                                                                                                                navigate(location.pathname, { replace: true })
+                                                                                                                setOpenDialogEditBrand(!openDialogEditBrand)
+                                                                                                                refetch()
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                navigate(location.pathname + `?editBrand=${brand.id}`)
+                                                                                                                refetch()
+                                                                                                            }
+                                                                                                        }}
+                                                                                                        variant="outline"
+                                                                                                        className="flex items-center justify-center gap-x-3"
+                                                                                                    >
+                                                                                                        <UserPenIcon className="size-4" />
+                                                                                                        Modificar marca
+                                                                                                    </Button>
+                                                                                                </DropdownMenuItem>
+                                                                                                <DropdownMenuSeparator />
+                                                                                            </>
+                                                                                        )
+                                                                                        :
+                                                                                        (null)
                                                                                 }
-                                                                                else {
-                                                                                    navigate(location.pathname + `?editBrand=${brand.id}`)
-                                                                                    refetch()
+
+                                                                                {
+                                                                                    dataAuth.permisos_marca[0].eliminar == 1 ?
+                                                                                        (
+                                                                                            <DropdownMenuItem
+                                                                                                onClick={() => {
+                                                                                                    setDeletedBrand(brand)
+                                                                                                    setOpenAlertDialogDelete(true);
+                                                                                                }}
+                                                                                            >
+                                                                                                <Button
+                                                                                                    variant="destructive"
+                                                                                                >
+                                                                                                    <Trash className="size-4" />
+                                                                                                    Eliminar marca
+                                                                                                </Button>
+                                                                                            </DropdownMenuItem>
+                                                                                        )
+                                                                                        :
+                                                                                        (null)
                                                                                 }
-                                                                            }}
-                                                                            variant="outline"
-                                                                            className="flex items-center justify-center gap-x-3"
-                                                                        >
-                                                                            <UserPenIcon className="size-4" />
-                                                                            Modificar marca
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => {
-                                                                            setDeletedBrand(brand)
-                                                                            setOpenAlertDialogDelete(true);
-                                                                        }}
-                                                                    >
-                                                                        <Button
-                                                                            variant="destructive"
-                                                                        >
-                                                                            <Trash className="size-4" />
-                                                                            Eliminar marca
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuGroup>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </TableCell>
+                                                                            </DropdownMenuGroup>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </TableCell>
+                                                            )
+                                                            :
+                                                            (null)
+                                                    }
                                                 </TableRow>
                                             ))
                                         }

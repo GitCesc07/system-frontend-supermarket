@@ -219,7 +219,7 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                 showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>
                                             }
                                             {
-                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                                dataAuth.permisos_cliente[0].modificar == 1 && dataAuth.permisos_cliente[0].eliminar == 1 &&
                                                 <TableHead className="text-right">Acción</TableHead>
                                             }
                                         </TableRow>
@@ -293,57 +293,82 @@ export default function CustomersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                         <TableCell>{customer.nombre_usuario_modificador}</TableCell>
                                                     }
 
-                                                    <TableCell className="text-right">
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="outline">
-                                                                    <Ellipsis className="size-5" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuGroup>
-                                                                    <DropdownMenuItem>
-                                                                        <Button
-                                                                            onClick={() => {
-                                                                                setEditingCustomer(customer)
-                                                                                setOpenDialogEditCustomer(!openDialogEditCustomer)
-                                                                                refetch()
+                                                    {
+                                                        dataAuth.permisos_cliente[0].modificar == 1 || dataAuth.permisos_cliente[0].eliminar == 1 ?
+                                                            (
+                                                                <TableCell className="text-right">
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <Button variant="outline">
+                                                                                <Ellipsis className="size-5" />
+                                                                            </Button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent className="w-full">
+                                                                            <DropdownMenuGroup>
+                                                                                {
+                                                                                    dataAuth.permisos_cliente[0].modificar == 1 ?
+                                                                                        (
+                                                                                            <>
+                                                                                                <DropdownMenuItem>
+                                                                                                    <Button
+                                                                                                        onClick={() => {
+                                                                                                            setEditingCustomer(customer)
+                                                                                                            setOpenDialogEditCustomer(!openDialogEditCustomer)
+                                                                                                            refetch()
 
-                                                                                if (openDialogEditCustomer) {
-                                                                                    navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditCustomer(!openDialogEditCustomer)
-                                                                                    refetch()
+                                                                                                            if (openDialogEditCustomer) {
+                                                                                                                navigate(location.pathname, { replace: true })
+                                                                                                                setOpenDialogEditCustomer(!openDialogEditCustomer)
+                                                                                                                refetch()
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                navigate(location.pathname + `?editCustomer=${customer.id}`)
+                                                                                                                refetch()
+                                                                                                            }
+                                                                                                        }}
+                                                                                                        variant="outline"
+                                                                                                        className="flex items-center justify-center gap-x-3"
+                                                                                                    >
+                                                                                                        <UserPenIcon className="size-4" />
+                                                                                                        Modificar cliente
+                                                                                                    </Button>
+                                                                                                </DropdownMenuItem>
+                                                                                                <DropdownMenuSeparator />
+                                                                                            </>
+                                                                                        )
+                                                                                        :
+                                                                                        (null)
                                                                                 }
-                                                                                else {
-                                                                                    navigate(location.pathname + `?editCustomer=${customer.id}`)
-                                                                                    refetch()
+
+
+                                                                                {
+                                                                                    dataAuth.permisos_cliente[0].eliminar == 1 ?
+                                                                                        (
+                                                                                            <DropdownMenuItem
+                                                                                                onClick={() => {
+                                                                                                    setDeletedCustomer(customer)
+                                                                                                    setOpenAlertDialogDelete(true);
+                                                                                                }}
+                                                                                            >
+                                                                                                <Button
+                                                                                                    variant="destructive"
+                                                                                                >
+                                                                                                    <Trash className="size-4" />
+                                                                                                    Eliminar cliente
+                                                                                                </Button>
+                                                                                            </DropdownMenuItem>
+                                                                                        )
+                                                                                        :
+                                                                                        (null)
                                                                                 }
-                                                                            }}
-                                                                            variant="outline"
-                                                                            className="flex items-center justify-center gap-x-3"
-                                                                        >
-                                                                            <UserPenIcon className="size-4" />
-                                                                            Modificar cliente
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => {
-                                                                            setDeletedCustomer(customer)
-                                                                            setOpenAlertDialogDelete(true);
-                                                                        }}
-                                                                    >
-                                                                        <Button
-                                                                            variant="destructive"
-                                                                        >
-                                                                            <Trash className="size-4" />
-                                                                            Eliminar cliente
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuGroup>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </TableCell>
+                                                                            </DropdownMenuGroup>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </TableCell>
+                                                            )
+                                                            :
+                                                            (null)
+                                                    }
                                                 </TableRow>
                                             ))
                                         }

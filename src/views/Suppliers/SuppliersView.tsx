@@ -219,7 +219,7 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                 showFields.includes("Usuario modificador") && <TableHead>Usuario modificador</TableHead>
                                             }
                                             {
-                                                dataAuth.tipo_usuario == import.meta.env.VITE_TYPEFROM_USER &&
+                                                dataAuth.permisos_proveedor[0].modificar == 1 && dataAuth.permisos_proveedor[0].eliminar == 1 &&
                                                 <TableHead className="text-right">Acción</TableHead>
                                             }
                                         </TableRow>
@@ -293,57 +293,82 @@ export default function SuppliersView({ dataAuth }: { dataAuth: AuthPermissions 
                                                         <TableCell>{supplier.nombre_usuario_modificador}</TableCell>
                                                     }
 
-                                                    <TableCell className="text-right">
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="outline">
-                                                                    <Ellipsis className="size-5" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="w-full">
-                                                                <DropdownMenuGroup>
-                                                                    <DropdownMenuItem>
-                                                                        <Button
-                                                                            onClick={() => {
-                                                                                setEditingSupplier(supplier)
-                                                                                setOpenDialogEditSupplier(!openDialogEditSupplier)
-                                                                                refetch()
+                                                    {
+                                                        dataAuth.permisos_proveedor[0].modificar == 1 && dataAuth.permisos_proveedor[0].eliminar == 1 ?
+                                                            (
+                                                                <TableCell className="text-right">
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <Button variant="outline">
+                                                                                <Ellipsis className="size-5" />
+                                                                            </Button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent className="w-full">
+                                                                            <DropdownMenuGroup>
 
-                                                                                if (openDialogEditSupplier) {
-                                                                                    navigate(location.pathname, { replace: true })
-                                                                                    setOpenDialogEditSupplier(!openDialogEditSupplier)
-                                                                                    refetch()
+                                                                                {
+                                                                                    dataAuth.permisos_proveedor[0].modificar == 1 ?
+                                                                                        (
+                                                                                            <>
+                                                                                                <DropdownMenuItem>
+                                                                                                    <Button
+                                                                                                        onClick={() => {
+                                                                                                            setEditingSupplier(supplier)
+                                                                                                            setOpenDialogEditSupplier(!openDialogEditSupplier)
+                                                                                                            refetch()
+
+                                                                                                            if (openDialogEditSupplier) {
+                                                                                                                navigate(location.pathname, { replace: true })
+                                                                                                                setOpenDialogEditSupplier(!openDialogEditSupplier)
+                                                                                                                refetch()
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                navigate(location.pathname + `?editSupplier=${supplier.id}`)
+                                                                                                                refetch()
+                                                                                                            }
+                                                                                                        }}
+                                                                                                        variant="outline"
+                                                                                                        className="flex items-center justify-center gap-x-3"
+                                                                                                    >
+                                                                                                        <UserPenIcon className="size-4" />
+                                                                                                        Modificar proveedor
+                                                                                                    </Button>
+                                                                                                </DropdownMenuItem>
+                                                                                                <DropdownMenuSeparator />
+                                                                                            </>
+                                                                                        )
+                                                                                        :
+                                                                                        (null)
                                                                                 }
-                                                                                else {
-                                                                                    navigate(location.pathname + `?editSupplier=${supplier.id}`)
-                                                                                    refetch()
+
+                                                                                {
+                                                                                    dataAuth.permisos_proveedor[0].eliminar == 1 ?
+                                                                                        (
+                                                                                            <DropdownMenuItem
+                                                                                                onClick={() => {
+                                                                                                    setDeletedSupplier(supplier)
+                                                                                                    setOpenAlertDialogDelete(true);
+                                                                                                }}
+                                                                                            >
+                                                                                                <Button
+                                                                                                    variant="destructive"
+                                                                                                >
+                                                                                                    <Trash className="size-4" />
+                                                                                                    Eliminar proveedor
+                                                                                                </Button>
+                                                                                            </DropdownMenuItem>
+                                                                                        )
+                                                                                        :
+                                                                                        (null)
                                                                                 }
-                                                                            }}
-                                                                            variant="outline"
-                                                                            className="flex items-center justify-center gap-x-3"
-                                                                        >
-                                                                            <UserPenIcon className="size-4" />
-                                                                            Modificar proveedor
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => {
-                                                                            setDeletedSupplier(supplier)
-                                                                            setOpenAlertDialogDelete(true);
-                                                                        }}
-                                                                    >
-                                                                        <Button
-                                                                            variant="destructive"
-                                                                        >
-                                                                            <Trash className="size-4" />
-                                                                            Eliminar proveedor
-                                                                        </Button>
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuGroup>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </TableCell>
+                                                                            </DropdownMenuGroup>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </TableCell>
+                                                            )
+                                                            :
+                                                            (null)
+                                                    }
                                                 </TableRow>
                                             ))
                                         }

@@ -26,6 +26,23 @@ import DamagedProductsView from "./views/DamagedProducts/DamagedproductsView";
 
 export function Router() {
   const { dataAuth } = useAuth();
+
+  localStorage.setItem("authData", JSON.stringify([
+    {
+      "categoria": dataAuth == undefined ? 0 : dataAuth?.categoria,
+      "cliente": dataAuth == undefined ? 0 : dataAuth?.cliente,
+      "compra": dataAuth == undefined ? 0 : dataAuth?.compra,
+      "usuario": dataAuth == undefined ? 0 : dataAuth?.usuario,
+      "empresa": dataAuth == undefined ? 0 : dataAuth?.empresa,
+      "inventario": dataAuth == undefined ? 0 : dataAuth?.inventario,
+      "kardex": dataAuth == undefined ? 0 : dataAuth?.kardex,
+      "marca": dataAuth == undefined ? 0 : dataAuth?.marca,
+      "producto": dataAuth == undefined ? 0 : dataAuth?.producto,
+      "proveedor": dataAuth == undefined ? 0 : dataAuth?.proveedor,
+      "venta": dataAuth == undefined ? 0 : dataAuth?.venta
+    }
+  ]))
+
   return (
     <BrowserRouter>
       <Routes>

@@ -1,16 +1,6 @@
 import type { KardexFormDataInfo } from "@/types/kardex.interface";
 import { TableBody, TableCell, TableRow } from "../ui/table";
 import { formatCurrency } from "@/utils/utilidad";
-import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Ellipsis, Trash, UserPenIcon } from "lucide-react";
 
 
 type TableCellKardexProps = {
@@ -81,58 +71,6 @@ export default function TableCellKardex({ products, showFields }: TableCellKarde
                             showFields.includes("Total disponible") &&
                             <TableCell>{formatCurrency(product.total_disponible!)}</TableCell>
                         }
-
-                        <TableCell className="text-right">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">
-                                        <Ellipsis className="size-5" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-full">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem>
-                                            <Button
-                                                // onClick={() => {
-                                                //     setEditingProduct(product)
-                                                //     setOpenDialogEditProduct(!openDialogEditProduct)
-                                                //     refetch()
-
-                                                //     if (openDialogEditProduct) {
-                                                //         navigate(location.pathname, { replace: true })
-                                                //         setOpenDialogEditProduct(!openDialogEditProduct)
-                                                //         refetch()
-                                                //     }
-                                                //     else {
-                                                //         navigate(location.pathname + `?editProduct=${product.id}`)
-                                                //         refetch()
-                                                //     }
-                                                // }}
-                                                variant="outline"
-                                                className="flex items-center justify-center gap-x-3"
-                                            >
-                                                <UserPenIcon className="size-4" />
-                                                Modificar producto
-                                            </Button>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                        // onClick={() => {
-                                        //     setDeletedProduct(product)
-                                        //     setOpenAlertDialogDelete(true);
-                                        // }}
-                                        >
-                                            <Button
-                                                variant="destructive"
-                                            >
-                                                <Trash className="size-4" />
-                                                Eliminar producto
-                                            </Button>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
                     </TableRow>
                 ))
             }
