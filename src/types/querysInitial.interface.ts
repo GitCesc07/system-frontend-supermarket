@@ -64,10 +64,10 @@ export const dataSalesChartShema = z.array(z.object({
     monto_total: z.string()
 }));
 
-export const dataSalesByBrandChartShema = z.array(z.object({
-    marca: z.string(),
-    producto: z.string(),
-    total_vendido: z.string()
+export const dataSalesByCustomerChartShema = z.array(z.object({
+    dia_semana: z.string(),
+    total_ventas: z.number(),
+    monto_total: z.string()
 }));
 
 export const dataBillingTotalShema = z.object({
@@ -89,7 +89,7 @@ const queryShema = z.object({
     getBuysChart: dataBuysChartShema,
     getBillingTotal: dataBillingTotalShema.optional().nullable(),
     getSalesChart: dataSalesChartShema,
-    getSalesByBrandChart: dataSalesByBrandChartShema,
+    getSalesByCustomerChart: dataSalesByCustomerChartShema,
 });
 
 export const queryDataSchema = z.array(
@@ -105,7 +105,7 @@ export const queryDataSchema = z.array(
         getBuysChart: true,
         getBillingTotal: true,
         getSalesChart: true,
-        getSalesByBrandChart: true
+        getSalesByCustomerChart: true
     })
 )
 
@@ -114,9 +114,9 @@ export type QueryInitial = z.infer<typeof queryShema>;
 
 
 export const dataChart = z.object({
-    compra: z.number(),
+    compra: z.string(),
     fecha: z.string(),
-    venta: z.number()
+    venta: z.string()
 });
 
 export const queryDataSchemaChart = z.array(

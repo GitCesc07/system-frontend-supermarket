@@ -35,9 +35,9 @@ const chartConfigSales = {
   },
 } satisfies ChartConfig;
 
-const chartConfigSalesByBrand = {
-  total_venta: {
-    label: "Marca",
+const chartConfigSalesByCustomer = {
+  monto_total: {
+    label: "Cliente",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
@@ -49,11 +49,11 @@ export default function DashboardView() {
     visitors: {
       label: "NoVisitor",
     },
-    desktop: {
+    compra: {
       label: "compra",
       color: "var(--chart-1)",
     },
-    mobile: {
+    venta: {
       label: "venta",
       color: "var(--chart-2)",
     },
@@ -71,8 +71,8 @@ export default function DashboardView() {
 
   const filteredData = dataChart?.filter((item) => {
     const date = new Date(item.fecha)
-    const referenceDate = new Date("2024-06-30")
-    const daysToSubtract = 90
+    const referenceDate = new Date(date)
+    const daysToSubtract = 30
     const startDate = new Date(referenceDate)
     startDate.setDate(startDate.getDate() - daysToSubtract)
     return date >= startDate
@@ -335,14 +335,14 @@ export default function DashboardView() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Ventas por marca</CardTitle>
-                  <CardDescription>Vista de las ventas por marcas</CardDescription>
+                  <CardTitle>Ventas por cliente</CardTitle>
+                  <CardDescription>Vista de las ventas por clientes</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChartContainer config={chartConfigSalesByBrand}>
+                  <ChartContainer config={chartConfigSalesByCustomer}>
                     <LineChart
                       accessibilityLayer
-                      data={info.getSalesByBrandChart}
+                      data={info.getSalesByCustomerChart}
                       margin={{
                         left: 12,
                         right: 12,
@@ -350,7 +350,7 @@ export default function DashboardView() {
                     >
                       <CartesianGrid vertical={false} />
                       <XAxis
-                        dataKey="producto"
+                        dataKey="dia_semana"
                         tickLine={false}
                         axisLine={false}
                         tickMargin={8}
@@ -361,9 +361,9 @@ export default function DashboardView() {
                         content={<ChartTooltipContent hideLabel />}
                       />
                       <Line
-                        dataKey="total_venta"
+                        dataKey="monto_total"
                         type="natural"
-                        stroke="var(--color-total_venta)"
+                        stroke="var(--color-monto_total)"
                         strokeWidth={2}
                         dot={false}
                       />
